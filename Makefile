@@ -1,4 +1,4 @@
-.PHONY: install lint fix format typecheck security audit check test test-auth run compose-up compose-down compose-logs verify verify-auth clean help
+.PHONY: install lint fix format typecheck security audit check test test-auth test-device run compose-up compose-down compose-logs verify verify-auth verify-device clean help
 
 install: ## Install dependencies and pre-commit hooks
 	uv sync
@@ -31,6 +31,9 @@ test: ## Run automated tests with isolated SQLite configuration
 test-auth: ## Run only authentication and localization tests
 	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_user_validation.py tests/unit/test_auth_service.py tests/unit/test_localization.py tests/integration/test_auth_pages.py tests/integration/test_auth_sessions.py tests/integration/test_profile_page.py tests/contract/test_auth_api.py -q
 
+test-device: ## Run only Device API tests
+	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_device_service.py tests/contract/test_device_api.py tests/integration/test_device_updates_api.py -q
+
 run: ## Run the FastAPI application locally
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
@@ -46,6 +49,8 @@ compose-logs: ## Tail Docker Compose logs
 verify: check test ## Run full local verification
 
 verify-auth: check test-auth ## Run auth feature verification
+
+verify-device: check test-device ## Run Device API verification
 
 clean: ## Remove build artifacts and caches
 	find . -type d -name __pycache__ -exec rm -rf {} +

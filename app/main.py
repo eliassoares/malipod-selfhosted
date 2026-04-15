@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.auth_api import router as auth_api_router
 from app.api.routes.auth_site import router as auth_site_router
+from app.api.routes.devices_api import router as devices_api_router
 from app.api.routes.health import router as health_router
 from app.api.routes.profile_site import router as profile_site_router
 from app.api.routes.site import router as site_router
@@ -37,6 +38,7 @@ def create_app() -> FastAPI:
     app.include_router(profile_site_router)
     app.include_router(health_router)
     app.include_router(auth_api_router)
+    app.include_router(devices_api_router)
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
     return app
 
