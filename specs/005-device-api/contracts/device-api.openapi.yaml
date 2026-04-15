@@ -1,0 +1,290 @@
+openapi: 3.1.0
+info:
+  title: Malipod Device API
+  version: 0.1.0-device-api
+  summary: Device registration and sync compatibility contract for Malipod
+  description: >
+    Contract for the first Malipod device API increment. It covers device
+    create-or-update, device listing, and device-specific sync updates for an
+    authenticated user account.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Devices
+  - name: Updates
+paths:
+  /api/2/devices/{username}/{deviceid}.json:
+    post:
+      tags: [Devices]
+      summary: Create or partially update a device
+      operationId: upsertDevice
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Public nickname of the owning account
+          schema:
+            type: string
+        - name: deviceid
+          in: path
+          required: true
+          description: Client-generated device identifier scoped to the user
+          schema:
+            type: string
+            pattern: '^[\w.-]+$'
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceUpsertRequest"
+      responses:
+        "200":
+          description: Device created or updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceSummary"
+        "400":
+          description: Invalid device ID, invalid device type, or invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Authenticated user does not own the targeted username
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/2/devices/{username}.json:
+    get:
+      tags: [Devices]
+      summary: List devices for an account
+      operationId: listDevices
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Public nickname of the owning account
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: Device list returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceSummary"
+        "401":
+          description: Missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Authenticated user does not own the targeted username
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/2/updates/{username}/{deviceid}.json:
+    get:
+      tags: [Updates]
+      summary: Retrieve incremental updates for a device
+      operationId: getDeviceUpdates
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Public nickname of the owning account
+          schema:
+            type: string
+        - name: deviceid
+          in: path
+          required: true
+          description: Registered device identifier scoped to the user
+          schema:
+            type: string
+            pattern: '^[\w.-]+$'
+        - name: since
+          in: query
+          required: false
+          description: UTC Unix timestamp in seconds for incremental filtering
+          schema:
+            type: integer
+            minimum: 0
+        - name: include_actions
+          in: query
+          required: false
+          description: Include the latest user action for non-new episode states
+          schema:
+            type: boolean
+            default: false
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: Incremental update snapshot returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceUpdatesResponse"
+        "400":
+          description: Invalid device ID or invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Authenticated user does not own the targeted username
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Device not found for the targeted user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    DeviceUpsertRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        caption:
+          type: string
+        type:
+          type: string
+          enum: [desktop, laptop, mobile, server, other]
+      minProperties: 1
+    DeviceSummary:
+      type: object
+      required: [id, caption, type, subscriptions]
+      properties:
+        id:
+          type: string
+        caption:
+          type: string
+        type:
+          type: string
+          enum: [desktop, laptop, mobile, server, other]
+        subscriptions:
+          type: integer
+          minimum: 0
+    DeviceUpdatesResponse:
+      type: object
+      required: [add, remove, updates, timestamp]
+      properties:
+        add:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionAdd"
+        remove:
+          type: array
+          items:
+            type: string
+            format: uri
+        updates:
+          type: array
+          items:
+            $ref: "#/components/schemas/EpisodeUpdate"
+        timestamp:
+          type: integer
+          minimum: 0
+    SubscriptionAdd:
+      type: object
+      required: [title, url]
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        subscribers:
+          type: integer
+          minimum: 0
+        logo_url:
+          type: string
+          format: uri
+        website:
+          type: string
+          format: uri
+        mygpo_link:
+          type: string
+          format: uri
+    EpisodeUpdate:
+      type: object
+      required:
+        - title
+        - url
+        - podcast_title
+        - podcast_url
+        - released
+        - status
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        podcast_title:
+          type: string
+        podcast_url:
+          type: string
+          format: uri
+        description:
+          type: string
+        website:
+          type: string
+          format: uri
+        mygpo_link:
+          type: string
+          format: uri
+        released:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [new, play, download, delete]
+        action:
+          $ref: "#/components/schemas/EpisodeAction"
+    EpisodeAction:
+      type: object
+      description: >
+        Latest user action payload for an episode. The concrete fields will align
+        with the externally documented episode action types.
+      additionalProperties: true
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
