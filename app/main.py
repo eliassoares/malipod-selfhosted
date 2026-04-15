@@ -6,7 +6,10 @@ from typing import TYPE_CHECKING
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.api.routes.auth_api import router as auth_api_router
+from app.api.routes.auth_site import router as auth_site_router
 from app.api.routes.health import router as health_router
+from app.api.routes.profile_site import router as profile_site_router
 from app.api.routes.site import router as site_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -30,7 +33,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     app = FastAPI(title="Malipod", version="0.1.0", lifespan=lifespan)
     app.include_router(site_router)
+    app.include_router(auth_site_router)
+    app.include_router(profile_site_router)
     app.include_router(health_router)
+    app.include_router(auth_api_router)
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
     return app
 

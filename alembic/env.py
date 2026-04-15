@@ -1,20 +1,19 @@
 from __future__ import annotations
 
+from importlib import import_module
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.db.base import Base
-from app.db.models import (
-    foundation,  # noqa: F401 - side-effect import required to register ORM models with Base.metadata before migrations run
-)
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+import_module("app.db.models")
 target_metadata = Base.metadata
 
 

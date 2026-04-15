@@ -1,11 +1,68 @@
 from __future__ import annotations
 
+import binascii
+import hashlib
+import hmac
+import re
+import secrets
 from urllib.parse import urlsplit, urlunsplit
+
+NICKNAME_RE = re.compile(r"^[A-Za-z0-9_-]{8,16}$")
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+PBKDF2_ALGORITHM = "sha256"
+PBKDF2_ITERATIONS = 600_000
+PBKDF2_SALT_BYTES = 16
 
 
 def validate_secret_key(secret_key: str) -> None:
     if len(secret_key) < 32:
         raise ValueError("secret_key must contain at least 32 characters")
+
+
+def validate_nickname(nickname: str) -> str:
+    cleaned = nickname.strip()
+    if not NICKNAME_RE.fullmatch(cleaned):
+        raise ValueError(
+            "nickname must contain 8 to 16 letters, numbers, underscores, or hyphens"
+        )
+    return cleaned
+
+
+def validate_email_address(email: str) -> str:
+    cleaned = email.strip().lower()
+    if not EMAIL_RE.fullmatch(cleaned):
+        raise ValueError("email must be valid")
+    return cleaned
+
+
+def derive_password_hash(password: str) -> tuple[str, str]:
+    salt = secrets.token_bytes(PBKDF2_SALT_BYTES)
+    derived = hashlib.pbkdf2_hmac(
+        PBKDF2_ALGORITHM,
+        password.encode("utf-8"),
+        salt,
+        PBKDF2_ITERATIONS,
+    )
+    return (
+        binascii.hexlify(derived).decode("ascii"),
+        binascii.hexlify(salt).decode("ascii"),
+    )
+
+
+def verify_password(password: str, stored_hash: str, stored_salt: str) -> bool:
+    derived = hashlib.pbkdf2_hmac(
+        PBKDF2_ALGORITHM,
+        password.encode("utf-8"),
+        binascii.unhexlify(stored_salt.encode("ascii")),
+        PBKDF2_ITERATIONS,
+    )
+    expected = binascii.hexlify(derived).decode("ascii")
+    return hmac.compare_digest(expected, stored_hash)
+
+
+def generate_session_token() -> str:
+    return secrets.token_urlsafe(32)
 
 
 def redact_database_url(url: str) -> str:

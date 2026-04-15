@@ -91,7 +91,7 @@ opening a pull request.
 
    ```bash
    uv run ruff check .
-   uv run mypy .
+   uv run mypy app tests
    uv run bandit -r . -c pyproject.toml
    uv run pip-audit
    ```
@@ -100,6 +100,22 @@ opening a pull request.
 
    ```bash
    uv run pytest -q
+   ```
+
+4. Optional auth-focused shortcut:
+
+   ```bash
+   make verify-auth
+   ```
+
+5. Expected verification results for this feature branch:
+
+   ```text
+   uv run ruff check .            -> All checks passed!
+   uv run mypy app tests          -> Success: no issues found in 45 source files
+   uv run pytest -q               -> 39 passed
+   uv run bandit -r . -c pyproject.toml -> No issues identified
+   uv run pip-audit               -> No known vulnerabilities found
    ```
 
 ## 7. Prepare for review

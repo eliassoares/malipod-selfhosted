@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  <body>
+    {% include "partials/topbar.html" %}
+    <main class="page-shell">
+      {% block content %}{% endblock %}
+    </main>
+    {% include "partials/footer.html" %}
+  </body>
+</html>

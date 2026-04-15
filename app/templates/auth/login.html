@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-grid">
+  <div class="hero-copy">
+    <span class="hero-kicker">{{ copy["nav.login"] }}</span>
+    <h1>{{ copy["login.title"] }}</h1>
+    <p>{{ copy["login.subtitle"] }}</p>
+    <div class="hero-points">
+      <div class="hero-point">
+        <strong>Web + API</strong>
+        <span>/api/2/auth/&lt;username&gt;/login.json</span>
+      </div>
+      <div class="hero-point">
+        <strong>Privacy</strong>
+        <span>{{ copy["errors.invalid_login"] }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>{{ copy["login.title"] }}</h2>
+    <p>{{ copy["login.register_link"] }} <a href="/register">{{ copy["nav.register"] }}</a></p>
+    {% if success_message %}
+    <p class="feedback-success">{{ success_message }}</p>
+    {% endif %}
+    {% if errors %}
+    <ul class="feedback-list">
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <form class="stack" action="/login" method="post">
+      <label>
+        {{ copy["login.identifier"] }}
+        <input name="identifier" type="text" required value="{{ form_data.get('identifier', '') }}" />
+      </label>
+      <label>
+        {{ copy["login.password"] }}
+        <input name="password" type="password" required />
+      </label>
+      <label>
+        {{ copy["language.label"] }}
+        <select name="language_preference">
+          {% for code in supported_locales %}
+          <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button--primary" type="submit">{{ copy["login.submit"] }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

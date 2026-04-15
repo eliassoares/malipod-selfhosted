@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-grid">
+  <div class="hero-copy">
+    <span class="hero-kicker">{{ copy["nav.register"] }}</span>
+    <h1>{{ copy["register.title"] }}</h1>
+    <p>{{ copy["register.subtitle"] }}</p>
+    <div class="hero-points">
+      <div class="hero-point">
+        <strong>URL-safe</strong>
+        <span>{{ copy["errors.nickname"] }}</span>
+      </div>
+      <div class="hero-point">
+        <strong>Localized</strong>
+        <span>{{ copy["language.label"] }}: {{ locale }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>{{ copy["register.title"] }}</h2>
+    <p>{{ copy["register.login_link"] }} <a href="/login">{{ copy["nav.login"] }}</a></p>
+    {% if errors %}
+    <ul class="feedback-list">
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <form class="stack" action="/register" method="post">
+      <label>
+        {{ copy["register.nickname"] }}
+        <input name="nickname" type="text" required value="{{ form_data.get('nickname', '') }}" />
+      </label>
+      <label>
+        {{ copy["register.email"] }}
+        <input name="email" type="email" required value="{{ form_data.get('email', '') }}" />
+      </label>
+      <div class="split-fields">
+        <label>
+          {{ copy["register.password"] }}
+          <input name="password" type="password" required />
+        </label>
+        <label>
+          {{ copy["register.confirm_password"] }}
+          <input name="password_confirmation" type="password" required />
+        </label>
+      </div>
+      <label>
+        {{ copy["register.picture_url"] }}
+        <input name="picture_url" type="url" value="{{ form_data.get('picture_url', '') }}" />
+      </label>
+      <label>
+        {{ copy["language.label"] }}
+        <select name="language_preference">
+          {% for code in supported_locales %}
+          <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button--primary" type="submit">{{ copy["register.submit"] }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

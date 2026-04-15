@@ -27,10 +27,10 @@ validation tasks explicitly.
 
 **Purpose**: Establish the auth feature workspace, shared dependencies, and local verification entry points
 
-- [ ] T001 Confirm the active branch is `004-user-auth` and the feature directory in `./.specify/feature.json` points to `specs/004-user-auth`
-- [ ] T002 Review and update pinned dependencies and tool configuration for the auth feature in `./pyproject.toml`
-- [ ] T003 [P] Update local environment documentation for auth- and session-related settings in `./.env.example`
-- [ ] T004 [P] Extend automation targets for auth-focused verification workflows in `./Makefile`
+- [X] T001 Confirm the active branch is `004-user-auth` and the feature directory in `./.specify/feature.json` points to `specs/004-user-auth`
+- [X] T002 Review and update pinned dependencies and tool configuration for the auth feature in `./pyproject.toml`
+- [X] T003 [P] Update local environment documentation for auth- and session-related settings in `./.env.example`
+- [X] T004 [P] Extend automation targets for auth-focused verification workflows in `./Makefile`
 
 ---
 
@@ -40,17 +40,17 @@ validation tasks explicitly.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create shared user and session ORM models in `app/db/models/user.py` and `app/db/models/session.py`
-- [ ] T006 Create the Alembic migration for user and session tables in `alembic/versions/0002_user_auth_entities.py`
-- [ ] T007 [P] Add account and session schemas for form/API payloads in `app/schemas/auth.py`
-- [ ] T008 [P] Add profile page schemas in `app/schemas/profile.py`
-- [ ] T009 [P] Implement password derivation, credential verification, nickname validation, and session token helpers in `app/core/security.py`
-- [ ] T010 [P] Implement supported-locale definitions and locale resolution helpers in `app/core/localization.py`
-- [ ] T011 Implement auth and locale-aware database/service helpers in `app/api/deps.py`
-- [ ] T012 Implement account/session persistence and query helpers in `app/services/auth.py`
-- [ ] T013 [P] Implement localization and cookie synchronization service helpers in `app/services/localization.py`
-- [ ] T014 Wire auth, localization, and session configuration into `app/core/config.py`
-- [ ] T015 Register new auth/profile routers and shared template context in `app/main.py`
+- [X] T005 Create shared user and session ORM models in `app/db/models/user.py` and `app/db/models/session.py`
+- [X] T006 Create the Alembic migration for user and session tables in `alembic/versions/0002_user_auth_entities.py`
+- [X] T007 [P] Add account and session schemas for form/API payloads in `app/schemas/auth.py`
+- [X] T008 [P] Add profile page schemas in `app/schemas/profile.py`
+- [X] T009 [P] Implement password derivation, credential verification, nickname validation, and session token helpers in `app/core/security.py`
+- [X] T010 [P] Implement supported-locale definitions and locale resolution helpers in `app/core/localization.py`
+- [X] T011 Implement auth and locale-aware database/service helpers in `app/api/deps.py`
+- [X] T012 Implement account/session persistence and query helpers in `app/services/auth.py`
+- [X] T013 [P] Implement localization and cookie synchronization service helpers in `app/services/localization.py`
+- [X] T014 Wire auth, localization, and session configuration into `app/core/config.py`
+- [X] T015 Register new auth/profile routers and shared template context in `app/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,16 +66,16 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [US1] Create unit tests for nickname, language, and registration validation rules in `tests/unit/test_user_validation.py`
-- [ ] T017 [P] [US1] Create integration tests for the website registration flow in `tests/integration/test_auth_pages.py`
+- [X] T016 [P] [US1] Create unit tests for nickname, language, and registration validation rules in `tests/unit/test_user_validation.py`
+- [X] T017 [P] [US1] Create integration tests for the website registration flow in `tests/integration/test_auth_pages.py`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Implement the website registration route handlers in `app/api/routes/auth_site.py`
-- [ ] T019 [P] [US1] Create the shared auth base layout and reusable partials in `app/templates/base.html`, `app/templates/partials/head.html`, `app/templates/partials/topbar.html`, and `app/templates/partials/footer.html`
-- [ ] T020 [US1] Implement the responsive registration page in `app/templates/auth/register.html`
-- [ ] T021 [US1] Integrate account creation, duplicate-user rejection, and timestamp updates in `app/services/auth.py`
-- [ ] T022 [US1] Document the website registration verification flow in `specs/004-user-auth/quickstart.md`
+- [X] T018 [P] [US1] Implement the website registration route handlers in `app/api/routes/auth_site.py`
+- [X] T019 [P] [US1] Create the shared auth base layout and reusable partials in `app/templates/base.html`, `app/templates/partials/head.html`, `app/templates/partials/topbar.html`, and `app/templates/partials/footer.html`
+- [X] T020 [US1] Implement the responsive registration page in `app/templates/auth/register.html`
+- [X] T021 [US1] Integrate account creation, duplicate-user rejection, and timestamp updates in `app/services/auth.py`
+- [X] T022 [US1] Document the website registration verification flow in `specs/004-user-auth/quickstart.md`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,18 +91,18 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T023 [P] [US2] Create contract tests for the compatibility login/logout endpoints in `tests/contract/test_auth_api.py`
-- [ ] T024 [P] [US2] Create unit tests for password verification and session lifecycle behavior in `tests/unit/test_auth_service.py`
-- [ ] T025 [P] [US2] Create integration tests for website login/logout and session reuse in `tests/integration/test_auth_sessions.py`
+- [X] T023 [P] [US2] Create contract tests for the compatibility login/logout endpoints in `tests/contract/test_auth_api.py`
+- [X] T024 [P] [US2] Create unit tests for password verification and session lifecycle behavior in `tests/unit/test_auth_service.py`
+- [X] T025 [P] [US2] Create integration tests for website login/logout and session reuse in `tests/integration/test_auth_sessions.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Implement the compatibility API login/logout routes in `app/api/routes/auth_api.py`
-- [ ] T027 [P] [US2] Extend the website auth routes for login/logout behavior in `app/api/routes/auth_site.py`
-- [ ] T028 [US2] Implement the responsive login page in `app/templates/auth/login.html`
-- [ ] T029 [US2] Implement session creation, validation, revocation, and generic invalid-login behavior in `app/services/auth.py`
-- [ ] T030 [US2] Integrate cookie issuance, cookie mismatch handling, and redirect behavior in `app/api/deps.py` and `app/main.py`
-- [ ] T031 [US2] Document API and website login/logout verification in `specs/004-user-auth/quickstart.md`
+- [X] T026 [P] [US2] Implement the compatibility API login/logout routes in `app/api/routes/auth_api.py`
+- [X] T027 [P] [US2] Extend the website auth routes for login/logout behavior in `app/api/routes/auth_site.py`
+- [X] T028 [US2] Implement the responsive login page in `app/templates/auth/login.html`
+- [X] T029 [US2] Implement session creation, validation, revocation, and generic invalid-login behavior in `app/services/auth.py`
+- [X] T030 [US2] Integrate cookie issuance, cookie mismatch handling, and redirect behavior in `app/api/deps.py` and `app/main.py`
+- [X] T031 [US2] Document API and website login/logout verification in `specs/004-user-auth/quickstart.md`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,16 +118,16 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T032 [P] [US3] Create unit tests for locale precedence and cookie synchronization in `tests/unit/test_localization.py`
-- [ ] T033 [P] [US3] Create integration tests for localized profile rendering in `tests/integration/test_profile_page.py`
+- [X] T032 [P] [US3] Create unit tests for locale precedence and cookie synchronization in `tests/unit/test_localization.py`
+- [X] T033 [P] [US3] Create integration tests for localized profile rendering in `tests/integration/test_profile_page.py`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [P] [US3] Implement the localized profile route handlers in `app/api/routes/profile_site.py`
-- [ ] T035 [P] [US3] Implement profile page translation and context assembly in `app/services/localization.py` and `app/schemas/profile.py`
-- [ ] T036 [US3] Implement the responsive localized profile page in `app/templates/profile/detail.html`
-- [ ] T037 [US3] Finalize language-selection behavior across auth and profile pages in `app/core/localization.py`, `app/api/routes/auth_site.py`, and `app/api/routes/profile_site.py`
-- [ ] T038 [US3] Document profile and multilingual verification in `specs/004-user-auth/quickstart.md`
+- [X] T034 [P] [US3] Implement the localized profile route handlers in `app/api/routes/profile_site.py`
+- [X] T035 [P] [US3] Implement profile page translation and context assembly in `app/services/localization.py` and `app/schemas/profile.py`
+- [X] T036 [US3] Implement the responsive localized profile page in `app/templates/profile/detail.html`
+- [X] T037 [US3] Finalize language-selection behavior across auth and profile pages in `app/core/localization.py`, `app/api/routes/auth_site.py`, and `app/api/routes/profile_site.py`
+- [X] T038 [US3] Document profile and multilingual verification in `specs/004-user-auth/quickstart.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,11 +137,11 @@ validation tasks explicitly.
 
 **Purpose**: Finish shared validation, documentation, and end-to-end verification across all stories
 
-- [ ] T039 [P] Align the implemented auth responses and cookies with `specs/004-user-auth/contracts/auth-api.openapi.yaml`
-- [ ] T040 [P] Add any remaining end-to-end assertions required by the constitution in `tests/integration/test_auth_pages.py`, `tests/integration/test_auth_sessions.py`, and `tests/integration/test_profile_page.py`
-- [ ] T041 [P] Remove or refactor any auth-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
-- [ ] T042 Run and document full account-flow quickstart validation in `specs/004-user-auth/quickstart.md`
-- [ ] T043 Prepare PR summary with implemented scope, verification evidence, responsive checks, and deferred follow-ups in `./PR_SUMMARY.md`
+- [X] T039 [P] Align the implemented auth responses and cookies with `specs/004-user-auth/contracts/auth-api.openapi.yaml`
+- [X] T040 [P] Add any remaining end-to-end assertions required by the constitution in `tests/integration/test_auth_pages.py`, `tests/integration/test_auth_sessions.py`, and `tests/integration/test_profile_page.py`
+- [X] T041 [P] Remove or refactor any auth-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
+- [X] T042 Run and document full account-flow quickstart validation in `specs/004-user-auth/quickstart.md`
+- [X] T043 Prepare PR summary with implemented scope, verification evidence, responsive checks, and deferred follow-ups in `./PR_SUMMARY.md`
 
 ---
 
