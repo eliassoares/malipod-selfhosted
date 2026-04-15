@@ -8,10 +8,12 @@ wheels/
 
 # IDE
 .vscode
+.idea/
 .playground
 
 # Virtual environments
 .venv
+venv/
 
 # AI stuff
 .claude
@@ -29,3 +31,5 @@ htmlcov
 .ruff_cache
 .mypy_cache
 readiness.db
+*.tmp
+*.swp

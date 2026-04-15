@@ -53,6 +53,8 @@ opening a pull request.
    the supplied field changes.
 4. Repeat with an invalid device ID such as `bad id` and confirm the request is
    rejected.
+5. Repeat the call with credentials for another user and confirm the API denies
+   the cross-account update attempt.
 
 ## 4. List devices for the account
 
@@ -67,6 +69,7 @@ opening a pull request.
 2. Confirm the response includes the device ID, caption, type, and subscription
    count for each device.
 3. Confirm only the authenticated user's devices are returned.
+4. Confirm a user with no registered devices receives `[]`.
 
 ## 5. Retrieve incremental device updates
 
@@ -98,6 +101,7 @@ opening a pull request.
 
 6. Confirm updated episodes whose state is not `new` include the latest action
    payload.
+7. Confirm an unknown device ID returns `404`.
 
 ## 6. Run automated verification
 
@@ -125,7 +129,13 @@ opening a pull request.
 4. Optional device-focused shortcut during implementation:
 
    ```bash
-   uv run pytest tests/unit/test_device_service.py tests/contract/test_device_api.py tests/integration/test_device_updates_api.py -q
+   make test-device
+   ```
+
+5. Expected focused verification result for this feature branch:
+
+   ```text
+   make test-device -> 18 passed
    ```
 
 ## 7. Prepare for review
@@ -133,5 +143,6 @@ opening a pull request.
 1. Ensure commits follow Conventional Commits.
 2. Record manual curl verification for create/update, list, and update retrieval.
 3. Record ownership-failure and invalid-device-ID behavior.
-4. Open a pull request summarizing the delivered device contracts, migration
+4. Record the focused verification result from `make test-device`.
+5. Open a pull request summarizing the delivered device contracts, migration
    changes, automated verification, and any deferred sync scope.

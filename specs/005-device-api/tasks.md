@@ -26,10 +26,10 @@ validation tasks explicitly.
 
 **Purpose**: Establish the device feature workspace, developer verification path, and API documentation entry points
 
-- [ ] T001 Confirm the active branch is `005-device-api` and the feature directory in `./.specify/feature.json` points to `specs/005-device-api`
-- [ ] T002 Review and update pinned tooling or developer shortcuts for device-focused verification in `./pyproject.toml` and `./Makefile`
-- [ ] T003 [P] Review environment and local-run documentation for device-sync prerequisites in `./.env.example` and `specs/005-device-api/quickstart.md`
-- [ ] T004 [P] Review API router registration points and current route organization in `app/main.py` and `app/api/routes/__init__.py`
+- [X] T001 Confirm the active branch is `005-device-api` and the feature directory in `./.specify/feature.json` points to `specs/005-device-api`
+- [X] T002 Review and update pinned tooling or developer shortcuts for device-focused verification in `./pyproject.toml` and `./Makefile`
+- [X] T003 [P] Review environment and local-run documentation for device-sync prerequisites in `./.env.example` and `specs/005-device-api/quickstart.md`
+- [X] T004 [P] Review API router registration points and current route organization in `app/main.py` and `app/api/routes/__init__.py`
 
 ---
 
@@ -39,14 +39,14 @@ validation tasks explicitly.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create shared device and sync-domain ORM models in `app/db/models/device.py` and `app/db/models/podcast.py`
-- [ ] T006 Update ORM model exports and metadata wiring in `app/db/models/__init__.py` and `app/db/base.py`
-- [ ] T007 Create the Alembic migration for device and sync entities in `alembic/versions/0003_device_sync_entities.py`
-- [ ] T008 [P] Add shared request and response schemas for the Device API in `app/schemas/device.py`
-- [ ] T009 [P] Add device ID, timestamp, and supported-type validation helpers in `app/core/security.py`
-- [ ] T010 [P] Extend dependency wiring for authenticated device services in `app/api/deps.py`
-- [ ] T011 Implement shared device persistence and query helpers in `app/services/devices.py`
-- [ ] T012 Register the new device API router in `app/api/routes/devices_api.py` and `app/main.py`
+- [X] T005 Create shared device and sync-domain ORM models in `app/db/models/device.py` and `app/db/models/podcast.py`
+- [X] T006 Update ORM model exports and metadata wiring in `app/db/models/__init__.py` and `app/db/base.py`
+- [X] T007 Create the Alembic migration for device and sync entities in `alembic/versions/0003_device_sync_entities.py`
+- [X] T008 [P] Add shared request and response schemas for the Device API in `app/schemas/device.py`
+- [X] T009 [P] Add device ID, timestamp, and supported-type validation helpers in `app/core/security.py`
+- [X] T010 [P] Extend dependency wiring for authenticated device services in `app/api/deps.py`
+- [X] T011 Implement shared device persistence and query helpers in `app/services/devices.py`
+- [X] T012 Register the new device API router in `app/api/routes/devices_api.py` and `app/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,16 +62,16 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Create unit tests for device ID, caption, and device-type validation in `tests/unit/test_device_service.py`
-- [ ] T014 [P] [US1] Create contract tests for `POST /api/2/devices/{username}/{deviceid}.json` in `tests/contract/test_device_api.py`
-- [ ] T015 [P] [US1] Create integration tests for authenticated create/update device flows in `tests/integration/test_device_updates_api.py`
+- [X] T013 [P] [US1] Create unit tests for device ID, caption, and device-type validation in `tests/unit/test_device_service.py`
+- [X] T014 [P] [US1] Create contract tests for `POST /api/2/devices/{username}/{deviceid}.json` in `tests/contract/test_device_api.py`
+- [X] T015 [P] [US1] Create integration tests for authenticated create/update device flows in `tests/integration/test_device_updates_api.py`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Implement device create-or-update service behavior in `app/services/devices.py`
-- [ ] T017 [P] [US1] Implement the `POST /api/2/devices/{username}/{deviceid}.json` route in `app/api/routes/devices_api.py`
-- [ ] T018 [US1] Integrate device timestamp updates, ownership enforcement, and partial-field updates across `app/services/devices.py` and `app/schemas/device.py`
-- [ ] T019 [US1] Document manual verification for device registration and partial updates in `specs/005-device-api/quickstart.md`
+- [X] T016 [P] [US1] Implement device create-or-update service behavior in `app/services/devices.py`
+- [X] T017 [P] [US1] Implement the `POST /api/2/devices/{username}/{deviceid}.json` route in `app/api/routes/devices_api.py`
+- [X] T018 [US1] Integrate device timestamp updates, ownership enforcement, and partial-field updates across `app/services/devices.py` and `app/schemas/device.py`
+- [X] T019 [US1] Document manual verification for device registration and partial updates in `specs/005-device-api/quickstart.md`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,16 +87,16 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T020 [P] [US2] Extend contract coverage for `GET /api/2/devices/{username}.json` in `tests/contract/test_device_api.py`
-- [ ] T021 [P] [US2] Add unit tests for device list serialization and subscription counting in `tests/unit/test_device_service.py`
-- [ ] T022 [P] [US2] Add integration tests for populated and empty device-list flows in `tests/integration/test_device_updates_api.py`
+- [X] T020 [P] [US2] Extend contract coverage for `GET /api/2/devices/{username}.json` in `tests/contract/test_device_api.py`
+- [X] T021 [P] [US2] Add unit tests for device list serialization and subscription counting in `tests/unit/test_device_service.py`
+- [X] T022 [P] [US2] Add integration tests for populated and empty device-list flows in `tests/integration/test_device_updates_api.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement device list and subscription count queries in `app/services/devices.py`
-- [ ] T024 [P] [US2] Implement the `GET /api/2/devices/{username}.json` route in `app/api/routes/devices_api.py`
-- [ ] T025 [US2] Integrate device summary serialization and empty-list behavior in `app/schemas/device.py` and `app/services/devices.py`
-- [ ] T026 [US2] Document manual verification for device listing behavior in `specs/005-device-api/quickstart.md`
+- [X] T023 [P] [US2] Implement device list and subscription count queries in `app/services/devices.py`
+- [X] T024 [P] [US2] Implement the `GET /api/2/devices/{username}.json` route in `app/api/routes/devices_api.py`
+- [X] T025 [US2] Integrate device summary serialization and empty-list behavior in `app/schemas/device.py` and `app/services/devices.py`
+- [X] T026 [US2] Document manual verification for device listing behavior in `specs/005-device-api/quickstart.md`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -112,16 +112,16 @@ validation tasks explicitly.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T027 [P] [US3] Extend contract coverage for `GET /api/2/updates/{username}/{deviceid}.json` in `tests/contract/test_device_api.py`
-- [ ] T028 [P] [US3] Add unit tests for timestamp filtering, update assembly, and optional action inclusion in `tests/unit/test_device_service.py`
-- [ ] T029 [P] [US3] Add integration tests for initial sync, incremental sync, and missing-device flows in `tests/integration/test_device_updates_api.py`
+- [X] T027 [P] [US3] Extend contract coverage for `GET /api/2/updates/{username}/{deviceid}.json` in `tests/contract/test_device_api.py`
+- [X] T028 [P] [US3] Add unit tests for timestamp filtering, update assembly, and optional action inclusion in `tests/unit/test_device_service.py`
+- [X] T029 [P] [US3] Add integration tests for initial sync, incremental sync, and missing-device flows in `tests/integration/test_device_updates_api.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement sync snapshot assembly for subscriptions and episode updates in `app/services/devices.py`
-- [ ] T031 [P] [US3] Implement the `GET /api/2/updates/{username}/{deviceid}.json` route in `app/api/routes/devices_api.py`
-- [ ] T032 [US3] Integrate `since` parsing, unknown-device handling, and `include_actions` support across `app/services/devices.py`, `app/schemas/device.py`, and `app/api/routes/devices_api.py`
-- [ ] T033 [US3] Document manual verification for incremental update retrieval in `specs/005-device-api/quickstart.md`
+- [X] T030 [P] [US3] Implement sync snapshot assembly for subscriptions and episode updates in `app/services/devices.py`
+- [X] T031 [P] [US3] Implement the `GET /api/2/updates/{username}/{deviceid}.json` route in `app/api/routes/devices_api.py`
+- [X] T032 [US3] Integrate `since` parsing, unknown-device handling, and `include_actions` support across `app/services/devices.py`, `app/schemas/device.py`, and `app/api/routes/devices_api.py`
+- [X] T033 [US3] Document manual verification for incremental update retrieval in `specs/005-device-api/quickstart.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,11 +131,11 @@ validation tasks explicitly.
 
 **Purpose**: Finish shared verification, contract alignment, and review preparation across all stories
 
-- [ ] T034 [P] Align implemented API behavior with `specs/005-device-api/contracts/device-api.openapi.yaml`
-- [ ] T035 [P] Add any remaining device end-to-end assertions required by the constitution in `tests/contract/test_device_api.py`, `tests/integration/test_device_updates_api.py`, and `tests/unit/test_device_service.py`
-- [ ] T036 [P] Remove or refactor any device-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
-- [ ] T037 Run and document the full Device API quickstart validation in `specs/005-device-api/quickstart.md`
-- [ ] T038 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred sync follow-ups in `./PR_SUMMARY.md`
+- [X] T034 [P] Align implemented API behavior with `specs/005-device-api/contracts/device-api.openapi.yaml`
+- [X] T035 [P] Add any remaining device end-to-end assertions required by the constitution in `tests/contract/test_device_api.py`, `tests/integration/test_device_updates_api.py`, and `tests/unit/test_device_service.py`
+- [X] T036 [P] Remove or refactor any device-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
+- [X] T037 Run and document the full Device API quickstart validation in `specs/005-device-api/quickstart.md`
+- [X] T038 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred sync follow-ups in `./PR_SUMMARY.md`
 
 ---
 

@@ -7,6 +7,7 @@ from fastapi import Depends, Request
 from app.core.config import Settings, get_settings
 from app.db.session import get_db_session
 from app.services.auth import AuthService
+from app.services.devices import DeviceService
 from app.services.localization import LocalizationService
 from app.services.readiness import ReadinessService
 
@@ -36,6 +37,12 @@ def get_auth_service(
     settings: Annotated[Settings, Depends(get_runtime_settings)],
 ) -> AuthService:
     return AuthService(session=session, settings=settings)
+
+
+def get_device_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> DeviceService:
+    return DeviceService(session=session)
 
 
 def get_localization_service(

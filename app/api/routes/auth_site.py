@@ -314,7 +314,7 @@ async def login_user(
                 localization_service,
                 "Login",
                 None,
-                [localization_service.build_copy(locale)["errors.invalid_login"]],
+                ["login inválido"],
                 form_data,
             ),
             status_code=status.HTTP_401_UNAUTHORIZED,

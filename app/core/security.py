@@ -9,6 +9,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 NICKNAME_RE = re.compile(r"^[A-Za-z0-9_-]{8,16}$")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+DEVICE_ID_RE = re.compile(r"^[\w.-]+$")
 
 PBKDF2_ALGORITHM = "sha256"
 PBKDF2_ITERATIONS = 600_000
@@ -34,6 +35,21 @@ def validate_email_address(email: str) -> str:
     if not EMAIL_RE.fullmatch(cleaned):
         raise ValueError("email must be valid")
     return cleaned
+
+
+def validate_device_id(device_id: str) -> str:
+    cleaned = device_id.strip()
+    if not DEVICE_ID_RE.fullmatch(cleaned):
+        raise ValueError("device_id must match [\\w.-]+")
+    return cleaned
+
+
+def validate_since_timestamp(value: int | None) -> int | None:
+    if value is None:
+        return None
+    if value < 0:
+        raise ValueError("since must be greater than or equal to zero")
+    return value
 
 
 def derive_password_hash(password: str) -> tuple[str, str]:

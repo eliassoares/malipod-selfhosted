@@ -1,30 +1,34 @@
-# PR Summary: User Authentication and Localized Profile
+# PR Summary: Device API
 
 ## What Changed
 
-- Added `users` and `authenticated_sessions` persistence with Alembic migration support.
-- Added secure registration, login, logout, and session handling for web and compatibility API flows.
-- Added localized web experiences for registration, login, and profile pages with shared template partials and cookie-backed language selection.
-- Added validation for nickname, email, password confirmation, and supported locales.
-- Added automated tests covering validation, auth services, website flows, profile localization, and the compatibility API contract.
-- Updated pinned dependencies and lockfile to keep the auth stack free of known vulnerabilities.
+- Added `devices`, `podcast_feeds`, `device_subscriptions`, `episodes`, and
+  `episode_actions` persistence with Alembic migration support.
+- Added authenticated Device API endpoints for device create/update, account
+  device listing, and device-specific incremental updates.
+- Added device ID and `since` validation helpers plus shared Device API schemas
+  and service-layer ownership enforcement.
+- Added automated tests covering device validation, service behavior, API
+  contracts, incremental updates, and cross-account denial paths.
+- Added `make test-device` and `make verify-device` shortcuts for focused local
+  verification.
 
 ## Verification
 
-- `uv run ruff check .`
-- `uv run mypy app tests`
-- `uv run pytest -q` -> `39 passed`
-- `uv run bandit -r . -c pyproject.toml`
-- `uv run pip-audit`
+- `make test-device` -> `18 passed`
+- `uv run pytest tests/unit/test_device_service.py tests/contract/test_device_api.py tests/integration/test_device_updates_api.py -q` -> `18 passed`
 
 ## Manual Checks
 
-- Registration page verified with mobile-first layout adapted for desktop rendering.
-- Login page verified with generic invalid-login messaging.
-- Profile page verified with locale precedence: authenticated user preference overrides stale guest cookie.
-- Compatibility API login/logout verified with cookie issuance, mismatch handling, and logout invalidation.
+- Valid device creation and partial updates verified with HTTP Basic
+  authentication.
+- Cross-account device registration attempts verified as forbidden.
+- Device listing verified for populated and empty account states.
+- Incremental update retrieval verified for initial sync, `since` filtering,
+  optional action inclusion, and unknown-device `404` handling.
 
 ## Notes
 
-- `google_stitch_templates/` remains untracked and was used only as visual reference material.
-- Existing non-auth suppressions outside the feature scope were not expanded; auth-related changes were implemented without adding `# noqa` or `# nosec`.
+- Existing non-device suppressions outside the feature scope were not expanded.
+- The Device API reuses the existing authentication/session configuration and
+  introduces no new runtime environment variables.
