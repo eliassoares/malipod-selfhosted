@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-04-15
 
 ## Active Technologies
+- Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, (004-user-auth)
+- PostgreSQL for runtime and development, SQLite for automated tests (004-user-auth)
 
 - Python 3.13 + FastAPI, Uvicorn, Pydantic Settings, SQLAlchemy 2.x, (003-podcast-sync-platform)
 
@@ -22,6 +24,7 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 004-user-auth: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings,
 
 - 003-podcast-sync-platform: Added Python 3.13 + FastAPI, Uvicorn, Pydantic Settings, SQLAlchemy 2.x,
 
