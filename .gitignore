@@ -21,3 +21,4 @@ wheels/
 
 .DS_Store
 .playground
+.agents

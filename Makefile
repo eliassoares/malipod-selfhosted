@@ -3,6 +3,7 @@
 install: ## Install dependencies and pre-commit hooks
 	uv sync
 	uv run pre-commit install
+	uv run pre-commit install --hook-type commit-msg
 
 lint: ## Run linter
 	uv run ruff check .
