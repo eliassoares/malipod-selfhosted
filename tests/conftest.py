@@ -6,15 +6,22 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.core.config import clear_settings_cache
-from app.db.session import close_database_connections
+from app.core.config import Settings, clear_settings_cache, get_settings
+from app.db.session import (
+    close_database_connections,
+    get_db_session,
+    initialize_database,
+)
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import AsyncIterator, Iterator
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.fixture(autouse=True)
@@ -45,3 +52,15 @@ def client() -> Iterator[TestClient]:
 
     with TestClient(create_app()) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def settings() -> Settings:
+    return get_settings()
+
+
+@pytest_asyncio.fixture
+async def db_session(settings: Settings) -> AsyncIterator[AsyncSession]:
+    await initialize_database(settings)
+    async for session in get_db_session(settings):
+        yield session

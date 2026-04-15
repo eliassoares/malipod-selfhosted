@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from importlib import import_module
 from typing import TYPE_CHECKING
 
 from sqlalchemy import text
@@ -11,9 +12,6 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.db.base import Base
-from app.db.models import (
-    foundation,  # noqa: F401 - side-effect import required to register ORM models with Base.metadata before create_all runs
-)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -48,6 +46,7 @@ async def get_db_session(settings: Settings) -> AsyncIterator[AsyncSession]:
 
 
 async def initialize_database(settings: Settings) -> None:
+    import_module("app.db.models")
     engine = get_engine(settings)
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)

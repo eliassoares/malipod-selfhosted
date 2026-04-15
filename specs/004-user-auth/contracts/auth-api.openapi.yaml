@@ -1,0 +1,109 @@
+openapi: 3.1.0
+info:
+  title: Malipod Auth API
+  version: 0.1.0-user-auth
+  summary: Authentication compatibility contract for Malipod user accounts
+  description: >
+    Contract for the first Malipod authentication API increment. Website
+    registration and profile views are intentionally excluded; this contract
+    covers only the compatibility login and logout endpoints described in the
+    feature specification.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Auth
+paths:
+  /api/2/auth/{username}/login.json:
+    post:
+      tags: [Auth]
+      summary: Log in a user and establish a session cookie
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Public nickname of the user being authenticated
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: User authenticated and session cookie established
+          headers:
+            Set-Cookie:
+              description: Contains the `sessionid` cookie for the authenticated session
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSessionResponse"
+        "400":
+          description: Cookie belongs to a different username than the path parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+        "401":
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+  /api/2/auth/{username}/logout.json:
+    post:
+      tags: [Auth]
+      summary: Log out a user and revoke the active session
+      operationId: logoutUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Public nickname of the user being logged out
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Logout completed or no cookie was provided
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+        "400":
+          description: Cookie belongs to a different username than the path parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    AuthSessionResponse:
+      type: object
+      required: [username, status]
+      properties:
+        username:
+          type: string
+        status:
+          type: string
+          enum: [authenticated]
+    LogoutResponse:
+      type: object
+      required: [username, status]
+      properties:
+        username:
+          type: string
+        status:
+          type: string
+          enum: [logged_out]
+    AuthError:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string

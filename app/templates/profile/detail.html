@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="profile-grid">
+  <article class="profile-card">
+    <div class="profile-identity">
+      <div class="avatar">
+        {% if profile.picture_url %}
+        <img src="{{ profile.picture_url }}" alt="{{ profile.nickname }}" />
+        {% else %}
+        {{ profile.nickname[0].upper() }}
+        {% endif %}
+      </div>
+      <div>
+        <h1>{{ copy["profile.title"] }}</h1>
+        <p>{{ copy["profile.subtitle"] }}</p>
+        <strong>@{{ profile.nickname }}</strong>
+      </div>
+    </div>
+    <div class="meta-list">
+      <div class="meta-row">
+        <span class="meta-label">{{ copy["profile.email"] }}</span>
+        <strong>{{ profile.email }}</strong>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">{{ copy["profile.picture_url"] }}</span>
+        <strong>{{ profile.picture_url or "—" }}</strong>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">{{ copy["profile.last_access"] }}</span>
+        <strong>{{ profile.accessed_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">{{ copy["profile.created_at"] }}</span>
+        <strong>{{ profile.created_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">{{ copy["profile.updated_at"] }}</span>
+        <strong>{{ profile.updated_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      </div>
+    </div>
+  </article>
+  <article class="profile-card">
+    <h2>{{ copy["profile.language"] }}</h2>
+    <form class="stack" action="/user/profile/{{ profile.nickname }}/language" method="post">
+      <label>
+        {{ copy["profile.language"] }}
+        <select name="language_preference">
+          {% for code in supported_locales %}
+          <option value="{{ code }}" {% if profile.language_preference == code %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button--primary" type="submit">{{ copy["profile.save_language"] }}</button>
+    </form>
+    <form action="/logout" method="post" style="margin-top: 18px;">
+      <button class="button--secondary" type="submit">{{ copy["profile.logout"] }}</button>
+    </form>
+  </article>
+</section>
+{% endblock %}

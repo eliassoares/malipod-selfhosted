@@ -1,4 +1,4 @@
-.PHONY: install lint fix format typecheck security audit check test run compose-up compose-down compose-logs verify clean help
+.PHONY: install lint fix format typecheck security audit check test test-auth run compose-up compose-down compose-logs verify verify-auth clean help
 
 install: ## Install dependencies and pre-commit hooks
 	uv sync
@@ -28,6 +28,9 @@ check: lint typecheck security audit ## Run all checks
 test: ## Run automated tests with isolated SQLite configuration
 	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
 
+test-auth: ## Run only authentication and localization tests
+	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_user_validation.py tests/unit/test_auth_service.py tests/unit/test_localization.py tests/integration/test_auth_pages.py tests/integration/test_auth_sessions.py tests/integration/test_profile_page.py tests/contract/test_auth_api.py -q
+
 run: ## Run the FastAPI application locally
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
@@ -41,6 +44,8 @@ compose-logs: ## Tail Docker Compose logs
 	docker compose logs -f app db
 
 verify: check test ## Run full local verification
+
+verify-auth: check test-auth ## Run auth feature verification
 
 clean: ## Remove build artifacts and caches
 	find . -type d -name __pycache__ -exec rm -rf {} +

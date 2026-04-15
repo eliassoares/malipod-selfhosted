@@ -19,5 +19,5 @@ def test_secret_key_requires_minimum_length() -> None:
     with pytest.raises(ValueError, match="secret_key"):
         Settings(
             database_url="sqlite+aiosqlite:///./test.db",
-            secret_key="not-secure",  # noqa: S106 - intentionally invalid test value
+            secret_key="not-secure",
         )
