@@ -1,6 +1,38 @@
-def main() -> None:
-    print("Hello from malipod!")
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
+
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+from app.api.routes.health import router as health_router
+from app.api.routes.site import router as site_router
+from app.core.config import get_settings
+from app.core.logging import configure_logging
+from app.db.session import close_database_connections, initialize_database
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
-if __name__ == "__main__":
-    main()
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+    configure_logging(settings.log_level)
+    await initialize_database(settings)
+    try:
+        yield
+    finally:
+        await close_database_connections()
+
+
+def create_app() -> FastAPI:
+    app = FastAPI(title="Malipod", version="0.1.0", lifespan=lifespan)
+    app.include_router(site_router)
+    app.include_router(health_router)
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
+    return app
+
+
+app = create_app()

@@ -28,7 +28,7 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-        args: [app/]
+        args: [app/, tests/]
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.9.4

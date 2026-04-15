@@ -1,9 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 -> 1.1.0
+- Version change: 1.1.0 -> 1.2.0
 - Modified principles:
   - I. Spec-First Delivery -> I. Spec-First Delivery
   - III. Verification Before Merge -> III. Verification Before Merge
+  - IV. Strict Python Quality Gates -> IV. Strict Python Quality Gates
 - Added sections:
   - None
 - Removed sections:
@@ -55,6 +56,12 @@ Production code MUST remain compatible with Python 3.13 and pass the repository'
 quality gates: Ruff, MyPy strict mode, Bandit, and dependency audit where
 applicable. New code MUST include precise typing, small focused modules, and clear
 interfaces that match the actual project structure under `app/` and `tests/`.
+Suppressing tool output with `# noqa`, `# nosec`, or equivalent inline waivers is
+not allowed as a convenience shortcut. Contributors MUST first try to fix the
+underlying typing, lint, or security issue directly. An exception is acceptable
+only when the rule is demonstrably incorrect for the specific code path and the
+justification is documented in the plan's Complexity Tracking section and called
+out during review.
 
 Rationale: this repository is already wired for strict static analysis and security
 tooling, so the constitution makes those checks non-optional.
@@ -90,6 +97,9 @@ are both deliberate rather than accidental.
   specification, such as `feat:`, `fix:`, `docs:`, `refactor:`, or `test:`.
 - Code review MUST reject changes that lack spec traceability, verification
   evidence, or justification for added complexity.
+- Code review MUST reject changes that silence Ruff, MyPy, or Bandit findings
+  with inline waivers unless the waiver is explicitly justified, documented, and
+  reviewed as an exception.
 - Before merge, contributors MUST run the relevant local checks from the current
   change set, which normally includes `uv run ruff check .`, `uv run mypy .`,
   `uv run bandit -r . -c pyproject.toml`, and feature-specific tests.
@@ -115,4 +125,4 @@ Compliance review is mandatory during planning and review. Every implementation
 plan MUST document constitution gates, and every pull request or equivalent review
 MUST confirm those gates were satisfied or explicitly waived with justification.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-08 | **Last Amended**: 2026-04-15
+**Version**: 1.2.0 | **Ratified**: 2026-04-08 | **Last Amended**: 2026-04-15

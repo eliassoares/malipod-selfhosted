@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info:
+  title: Malipod Foundation API
+  version: 0.1.0-foundation
+  summary: Initial operational contract for the Malipod foundation layer
+  description: >
+    Minimal API contract for the first platform foundation increment. It exposes
+    service metadata, liveness, and readiness signals while the broader podcast
+    synchronization feature set is still under development.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Site
+  - name: Health
+paths:
+  /:
+    get:
+      tags: [Site]
+      summary: Foundation site entry point
+      operationId: getHomePage
+      responses:
+        "200":
+          description: HTML home page rendered successfully
+          content:
+            text/html:
+              schema:
+                type: string
+        "503":
+          description: Application started but is not ready to serve the site
+  /api/v1:
+    get:
+      tags: [Health]
+      summary: API foundation entry point
+      operationId: getApiRoot
+      responses:
+        "200":
+          description: Service metadata available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiRootResponse"
+  /api/v1/health/live:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      operationId: getLiveness
+      responses:
+        "200":
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /api/v1/health/ready:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      operationId: getReadiness
+      responses:
+        "200":
+          description: Application is ready to accept normal traffic
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessStatus"
+        "503":
+          description: Application is not ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessStatus"
+components:
+  schemas:
+    ApiRootResponse:
+      type: object
+      required: [name, status, docs]
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [starting, ready, degraded]
+        docs:
+          type: string
+          format: uri-reference
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [alive]
+    ReadinessStatus:
+      type: object
+      required: [status, checks]
+      properties:
+        status:
+          type: string
+          enum: [ready, not_ready]
+        checks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReadinessCheck"
+    ReadinessCheck:
+      type: object
+      required: [name, passed]
+      properties:
+        name:
+          type: string
+        passed:
+          type: boolean
+        detail:
+          type: string
