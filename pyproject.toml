@@ -1,7 +1,7 @@
 [project]
 name = "malipod"
 version = "0.1.0"
-description = ""
+description = "Modern implementation of the gpodder.net sync API with a web dashboard for podcast management"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
