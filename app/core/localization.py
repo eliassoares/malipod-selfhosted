@@ -42,12 +42,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Updated",
         "profile.save_language": "Update language",
         "profile.logout": "Log out",
-        "errors.user_exists": "user already exists",
-        "errors.invalid_login": "login inválido",
+        "errors.user_exists": "User already exists.",
+        "errors.invalid_login": "Invalid login.",
         "errors.nickname": (
             "Nickname must use 8 to 16 letters, numbers, underscores, or hyphens."
         ),
         "errors.password_match": "Passwords must match.",
+        "errors.password_length": "Password must contain at least 8 characters.",
         "errors.email": "Enter a valid email address.",
         "errors.picture_url": "Enter a valid picture URL.",
         "errors.language": "Choose a supported language.",
@@ -92,13 +93,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Actualizado",
         "profile.save_language": "Actualizar idioma",
         "profile.logout": "Cerrar sesión",
-        "errors.user_exists": "user already exists",
-        "errors.invalid_login": "login inválido",
+        "errors.user_exists": "El usuario ya existe.",
+        "errors.invalid_login": "Login inválido.",
         "errors.nickname": (
             "El nickname debe usar entre 8 y 16 letras, números, guiones bajos "
             "o guiones."
         ),
         "errors.password_match": "Las contraseñas deben coincidir.",
+        "errors.password_length": "La contraseña debe tener al menos 8 caracteres.",
         "errors.email": "Ingresa un correo válido.",
         "errors.picture_url": "Ingresa una URL válida para la imagen.",
         "errors.language": "Elige un idioma soportado.",
@@ -143,12 +145,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Atualizado em",
         "profile.save_language": "Atualizar idioma",
         "profile.logout": "Sair",
-        "errors.user_exists": "user already exists",
-        "errors.invalid_login": "login inválido",
+        "errors.user_exists": "Usuário já existe.",
+        "errors.invalid_login": "Login inválido.",
         "errors.nickname": (
             "O nickname deve usar de 8 a 16 letras, números, sublinhados ou hífens."
         ),
         "errors.password_match": "As senhas precisam ser iguais.",
+        "errors.password_length": "A senha precisa ter pelo menos 8 caracteres.",
         "errors.email": "Informe um e-mail válido.",
         "errors.picture_url": "Informe uma URL válida para a foto.",
         "errors.language": "Escolha um idioma suportado.",

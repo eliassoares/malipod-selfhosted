@@ -30,6 +30,42 @@ LocalizationServiceDep = Annotated[
 ]
 CurrentUserDep = Annotated[UserModel | None, Depends(get_current_user)]
 
+_FIELD_ERROR_KEY: dict[str, str] = {
+    "nickname": "errors.nickname",
+    "email": "errors.email",
+    "picture_url": "errors.picture_url",
+    "language_preference": "errors.language",
+}
+
+_MSG_ERROR_KEY: dict[str, str] = {
+    "passwords must match": "errors.password_match",
+    "password must contain at least 8 characters": "errors.password_length",
+}
+
+
+def _normalize_pydantic_msg(msg: str) -> str:
+    lowered = msg.lower()
+    prefix = "value error, "
+    return lowered[len(prefix) :] if lowered.startswith(prefix) else lowered
+
+
+def _translate_validation_errors(
+    exc: ValidationError, copy: dict[str, str]
+) -> list[str]:
+    seen: set[str] = set()
+    messages: list[str] = []
+    for error in exc.errors():
+        loc = error.get("loc", ())
+        field = loc[0] if loc else None
+        key = _FIELD_ERROR_KEY.get(str(field)) if field is not None else None
+        if key is None:
+            key = _MSG_ERROR_KEY.get(_normalize_pydantic_msg(error.get("msg", "")))
+        msg = copy.get(key or "", error.get("msg", ""))
+        if msg not in seen:
+            seen.add(msg)
+            messages.append(msg)
+    return messages
+
 
 def build_context(
     request: Request,
@@ -154,6 +190,7 @@ async def register_user(
             request.cookies.get("malipod_locale"),
             explicit_locale=language_preference,
         ).effective_locale
+        copy = localization_service.build_copy(locale)
         response: Response = templates.TemplateResponse(
             request=request,
             name="auth/register.html",
@@ -164,7 +201,7 @@ async def register_user(
                 localization_service,
                 "Register",
                 None,
-                [error["msg"] for error in exc.errors()],
+                _translate_validation_errors(exc, copy),
                 form_data,
             ),
             status_code=status.HTTP_400_BAD_REQUEST,

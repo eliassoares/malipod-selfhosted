@@ -47,10 +47,6 @@
         </label>
       </div>
       <label>
-        {{ copy["register.picture_url"] }}
-        <input name="picture_url" type="url" value="{{ form_data.get('picture_url', '') }}" />
-      </label>
-      <label>
         {{ copy["language.label"] }}
         <select name="language_preference">
           {% for code in supported_locales %}
