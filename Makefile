@@ -1,4 +1,4 @@
-.PHONY: install lint fix format typecheck security audit check clean help
+.PHONY: install lint fix format typecheck security audit check test run compose-up compose-down compose-logs verify clean help
 
 install: ## Install dependencies and pre-commit hooks
 	uv sync
@@ -25,10 +25,28 @@ audit: ## Run dependency vulnerability check
 
 check: lint typecheck security audit ## Run all checks
 
+test: ## Run automated tests with isolated SQLite configuration
+	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
+
+run: ## Run the FastAPI application locally
+	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+compose-up: ## Start the Docker Compose stack
+	docker compose up --build
+
+compose-down: ## Stop the Docker Compose stack
+	docker compose down --remove-orphans
+
+compose-logs: ## Tail Docker Compose logs
+	docker compose logs -f app db
+
+verify: check test ## Run full local verification
+
 clean: ## Remove build artifacts and caches
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type d -name .mypy_cache -exec rm -rf {} +
 	find . -type d -name .ruff_cache -exec rm -rf {} +
+	find . -type d -name .pytest_cache -exec rm -rf {} +
 	rm -rf build/ dist/ *.egg-info
 
 help: ## Show this help

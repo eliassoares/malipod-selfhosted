@@ -143,6 +143,9 @@
 - **Branch Plan**: Confirm the feature will be implemented on a branch created
   from `main`.
 - **Verification Plan**: List the checks that must pass before merge.
+- **Quality Gate Strategy**: State how the feature will resolve lint, typing, and
+  security findings without relying on `# noqa`, `# nosec`, or similar inline
+  suppressions as shortcuts.
 - **Review Readiness**: State what the final pull request must summarize for this
   feature.
 - **Security/Simplicity Notes**: Record any notable risk, dependency, or complexity

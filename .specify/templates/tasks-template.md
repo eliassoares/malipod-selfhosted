@@ -184,6 +184,8 @@ Examples of foundational tasks (adjust based on your project):
 - Verification tasks MUST be defined before implementation and tests MUST fail
   before implementation when tests are part of the plan
 - Commits MUST follow Conventional Commits throughout the branch history
+- Tasks that address lint, typing, or security findings MUST prefer fixing root
+  causes over adding `# noqa`, `# nosec`, or similar inline suppressions
 - Models before services
 - Services before endpoints
 - Core implementation before integration

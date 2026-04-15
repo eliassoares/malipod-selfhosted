@@ -41,7 +41,10 @@
   validation needed for this feature; explain any area with no automated coverage
   and what the pull request must include before merge.
 - `Strict Python Quality Gates`: List the affected Ruff, MyPy, Bandit, audit, and
-  pytest commands required for this work.
+  pytest commands required for this work. Confirm the implementation plan does
+  not rely on `# noqa`, `# nosec`, or similar inline suppressions as a shortcut;
+  if an exception is unavoidable, document why the warning is incorrect and how
+  review will verify it.
 - `Security and Simplicity by Default`: Justify any new dependency, persistence
   choice, external integration, or added architectural layer.
 
