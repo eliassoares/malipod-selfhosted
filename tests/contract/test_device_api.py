@@ -195,6 +195,7 @@ def seed_device_update_data(settings: Settings) -> None:
 
 
 def test_device_upsert_contract(client: TestClient) -> None:
+    """POST upsert returns empty 200 per gpodder spec."""
     register_user(client)
 
     response = client.post(
@@ -204,12 +205,26 @@ def test_device_upsert_contract(client: TestClient) -> None:
     )
 
     assert response.status_code == 200
-    assert response.json() == {
-        "id": "workstation-1",
-        "caption": "Desk Machine",
-        "type": "desktop",
-        "subscriptions": 0,
-    }
+    assert response.content == b""
+
+
+def test_device_upsert_empty_body_creates_device(client: TestClient) -> None:
+    """The spec allows empty body — device is created with defaults."""
+    register_user(client)
+
+    response = client.post(
+        "/api/2/devices/listener_1/my-phone.json",
+        auth=("listener_1", "supersecret"),
+        json={},
+    )
+    assert response.status_code == 200
+
+    devices = client.get(
+        "/api/2/devices/listener_1.json",
+        auth=("listener_1", "supersecret"),
+    )
+    device_ids = [d["id"] for d in devices.json()]
+    assert "my-phone" in device_ids
 
 
 def test_device_upsert_requires_valid_device_id(client: TestClient) -> None:

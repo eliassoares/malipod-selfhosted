@@ -146,7 +146,6 @@ def test_device_create_and_partial_update_flow(client: TestClient) -> None:
         auth=("listener_1", "supersecret"),
         json={"caption": "Desk Machine", "type": "desktop"},
     )
-
     assert created.status_code == 200
 
     updated = client.post(
@@ -154,10 +153,15 @@ def test_device_create_and_partial_update_flow(client: TestClient) -> None:
         auth=("listener_1", "supersecret"),
         json={"caption": "Renamed Machine"},
     )
-
     assert updated.status_code == 200
-    assert updated.json()["caption"] == "Renamed Machine"
-    assert updated.json()["type"] == "desktop"
+
+    devices = client.get(
+        "/api/2/devices/listener_1.json",
+        auth=("listener_1", "supersecret"),
+    )
+    device = next(d for d in devices.json() if d["id"] == "workstation-1")
+    assert device["caption"] == "Renamed Machine"
+    assert device["type"] == "desktop"
 
 
 def test_device_list_returns_empty_array_for_user_without_devices(

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import ValidationError
 
 from app.api.deps import get_auth_service, get_device_service
+from app.core.security import validate_device_id
 from app.schemas.auth import AuthErrorResponse
 from app.schemas.device import (
     DeviceMutationPayload,
@@ -68,7 +69,7 @@ def raise_bad_request(detail: str) -> None:
 
 @router.post(
     "/devices/{username}/{deviceid}.json",
-    response_model=DeviceSummary,
+    status_code=status.HTTP_200_OK,
     responses={
         400: {"model": AuthErrorResponse},
         401: {"model": AuthErrorResponse},
@@ -82,7 +83,7 @@ async def upsert_device(
     auth_service: AuthServiceDep,
     device_service: DeviceServiceDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
-) -> DeviceSummary:
+) -> Response:
     user = await authenticate_basic_user(username, auth_service, credentials)
     try:
         request_payload = DeviceUpsertRequest(
@@ -92,8 +93,8 @@ async def upsert_device(
     except ValidationError as exc:
         raise_bad_request(exc.errors()[0]["msg"])
 
-    device = await device_service.upsert_device(user, request_payload)
-    return await device_service.build_device_summary(device)
+    await device_service.upsert_device(user, request_payload)
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @router.get(
@@ -127,7 +128,6 @@ async def list_devices(
 async def get_device_updates(
     username: str,
     deviceid: str,
-    request: Request,
     auth_service: AuthServiceDep,
     device_service: DeviceServiceDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
@@ -135,17 +135,16 @@ async def get_device_updates(
     include_actions: bool = False,
 ) -> JSONResponse:
     user = await authenticate_basic_user(username, auth_service, credentials)
-    del request
     try:
-        DeviceUpsertRequest(device_id=deviceid, caption="")
+        validate_device_id(deviceid)
         payload = await device_service.get_updates_for_device(
             user,
             deviceid,
             since,
             include_actions,
         )
-    except ValidationError as exc:
-        raise_bad_request(exc.errors()[0]["msg"])
+    except ValueError as exc:
+        raise_bad_request(str(exc))
     except DeviceError as exc:
         if exc.code == "device_not_found":
             raise HTTPException(

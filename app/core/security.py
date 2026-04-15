@@ -39,8 +39,10 @@ def validate_email_address(email: str) -> str:
 
 def validate_device_id(device_id: str) -> str:
     cleaned = device_id.strip()
-    if not DEVICE_ID_RE.fullmatch(cleaned):
+    if not cleaned or not DEVICE_ID_RE.fullmatch(cleaned):
         raise ValueError("device_id must match [\\w.-]+")
+    if len(cleaned) > 255:
+        raise ValueError("device_id must not exceed 255 characters")
     return cleaned
 
 

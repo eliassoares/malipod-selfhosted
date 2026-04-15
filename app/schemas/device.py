@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import AwareDatetime, BaseModel, Field, field_validator, model_validator
+from pydantic import AwareDatetime, BaseModel, Field, field_validator
 
 from app.core.security import validate_device_id, validate_since_timestamp
 
@@ -33,12 +33,6 @@ class DeviceMutationPayload(BaseModel):
                 "type must be one of desktop, laptop, mobile, server, other"
             )
         return cleaned
-
-    @model_validator(mode="after")
-    def require_at_least_one_field(self) -> DeviceMutationPayload:
-        if self.caption is None and self.type is None:
-            raise ValueError("at least one mutable device field must be supplied")
-        return self
 
 
 class DeviceUpsertRequest(DeviceMutationPayload):
