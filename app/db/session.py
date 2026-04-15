@@ -11,7 +11,9 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.db.base import Base
-from app.db.models import foundation  # noqa: F401
+from app.db.models import (
+    foundation,  # noqa: F401 - side-effect import required to register ORM models with Base.metadata before create_all runs
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator

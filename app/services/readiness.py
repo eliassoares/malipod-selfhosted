@@ -31,7 +31,7 @@ class ReadinessService:
                     detail=redact_database_url(self.settings.effective_database_url),
                 )
             )
-        except Exception as exc:  # pragma: no cover - error path exercised in tests
+        except Exception as exc:
             checks.append(
                 ReadinessCheck(
                     name="database",

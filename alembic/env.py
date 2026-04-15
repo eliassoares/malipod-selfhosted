@@ -6,7 +6,9 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.db.base import Base
-from app.db.models import foundation  # noqa: F401
+from app.db.models import (
+    foundation,  # noqa: F401 - side-effect import required to register ORM models with Base.metadata before migrations run
+)
 
 config = context.config
 

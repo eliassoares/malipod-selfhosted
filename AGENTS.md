@@ -9,13 +9,13 @@ Auto-generated from all feature plans. Last updated: 2026-04-15
 ## Project Structure
 
 ```text
-src/
+app/
 tests/
 ```
 
 ## Commands
 
-cd src && pytest && ruff check .
+uv run pytest && uv run ruff check .
 
 ## Code Style
 
