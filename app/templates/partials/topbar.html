@@ -25,10 +25,10 @@
           </button>
         </form>
         {% else %}
-        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/register">
+        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}" href="/register">
           {{ copy["nav.register"] }}
         </a>
-        <a class="flex items-center gap-1.5 px-5 py-2 gradient-primary text-on-primary text-sm font-bold font-headline rounded-full shadow-sm hover:opacity-90 transition-all" href="/login">
+        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}" href="/login">
           {{ copy["nav.login"] }}
         </a>
         {% endif %}
@@ -69,10 +69,10 @@
         </button>
       </form>
       {% else %}
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/register">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}" href="/register">
         {{ copy["nav.register"] }}
       </a>
-      <a class="flex items-center justify-center gap-2 px-4 py-3 gradient-primary text-on-primary text-sm font-bold font-headline rounded-2xl shadow-sm hover:opacity-90 transition-all" href="/login">
+      <a class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}" href="/login">
         {{ copy["nav.login"] }}
       </a>
       {% endif %}
