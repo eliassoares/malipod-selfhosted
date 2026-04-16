@@ -1,0 +1,326 @@
+openapi: 3.1.0
+info:
+  title: Malipod Subscriptions API
+  version: 0.1.0-subscriptions
+  summary: Compatibility contracts for device and account subscription sync
+  description: >
+    Authenticated compatibility API for exporting subscriptions per device or
+    per account, replacing a device subscription list, and exchanging
+    incremental subscription deltas.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Subscriptions
+  - name: Subscription Sync
+paths:
+  /subscriptions/{username}.{format}:
+    get:
+      tags: [Subscriptions]
+      summary: Get all subscriptions for one account
+      operationId: getAllSubscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/SubscriptionFormat"
+        - $ref: "#/components/parameters/Jsonp"
+      responses:
+        "200":
+          description: Account-wide subscriptions returned in the requested format
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SubscriptionJsonResponse"
+                  - type: string
+                    description: JSONP-wrapped JSON export
+            application/xml:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /subscriptions/{username}/{deviceid}.{format}:
+    get:
+      tags: [Subscriptions]
+      summary: Get subscriptions for one device
+      operationId: getDeviceSubscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/DeviceId"
+        - $ref: "#/components/parameters/SubscriptionFormat"
+        - $ref: "#/components/parameters/Jsonp"
+      responses:
+        "200":
+          description: Device subscriptions returned in the requested format
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SubscriptionJsonResponse"
+                  - type: string
+                    description: JSONP-wrapped JSON export
+            application/xml:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Subscriptions]
+      summary: Replace subscriptions for one device
+      operationId: putDeviceSubscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/DeviceId"
+        - $ref: "#/components/parameters/SubscriptionFormat"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionJsonRequest"
+          application/xml:
+            schema:
+              type: string
+              description: OPML document containing subscription outlines
+          text/plain:
+            schema:
+              type: string
+              description: Plaintext document with one feed URL per line
+      responses:
+        "200":
+          description: Device subscriptions replaced successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                maxLength: 0
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/2/subscriptions/{username}/{deviceid}.json:
+    get:
+      tags: [Subscription Sync]
+      summary: Get subscription changes for one device since a prior timestamp
+      operationId: getSubscriptionChanges
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/DeviceId"
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+          description: Last server-issued timestamp previously returned to the client
+      responses:
+        "200":
+          description: Incremental add/remove changes for the device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionDeltaResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [Subscription Sync]
+      summary: Upload subscription changes for one device
+      operationId: postSubscriptionChanges
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/DeviceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionDeltaRequest"
+      responses:
+        "200":
+          description: Delta changes applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionDeltaUploadResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    DeviceId:
+      name: deviceid
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[\w.-]+$'
+    SubscriptionFormat:
+      name: format
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [json, opml, txt]
+    Jsonp:
+      name: jsonp
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Callback function name used only for JSON read responses
+  responses:
+    BadRequest:
+      description: Invalid format, invalid request payload, or invalid sync parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing or invalid HTTP Basic authentication
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Authenticated user does not match the targeted username
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested device does not exist for the targeted user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+    SubscriptionJsonRequest:
+      type: array
+      description: Simplified JSON upload containing one feed URL per item
+      items:
+        type: string
+        format: uri-reference
+    SubscriptionJsonResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/SubscriptionItem"
+    SubscriptionItem:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+        title:
+          type: string
+        description:
+          type: string
+        website:
+          type: string
+          format: uri
+        logo_url:
+          type: string
+          format: uri
+        mygpo_link:
+          type: string
+          format: uri
+    SubscriptionDeltaRequest:
+      type: object
+      required: [add, remove]
+      properties:
+        add:
+          type: array
+          items:
+            type: string
+            format: uri-reference
+        remove:
+          type: array
+          items:
+            type: string
+            format: uri-reference
+    SubscriptionDeltaResponse:
+      type: object
+      required: [add, remove, timestamp]
+      properties:
+        add:
+          type: array
+          items:
+            type: string
+            format: uri
+        remove:
+          type: array
+          items:
+            type: string
+            format: uri
+        timestamp:
+          type: integer
+          minimum: 0
+    SubscriptionDeltaUploadResponse:
+      type: object
+      required: [timestamp, update_urls]
+      properties:
+        timestamp:
+          type: integer
+          minimum: 0
+        update_urls:
+          type: array
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: string

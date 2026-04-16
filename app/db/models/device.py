@@ -9,7 +9,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
-    from app.db.models.podcast import DeviceSubscriptionModel, EpisodeActionModel
+    from app.db.models.podcast import (
+        DeviceSubscriptionModel,
+        EpisodeActionModel,
+        SubscriptionChangeEventModel,
+    )
     from app.db.models.user import UserModel
 
 
@@ -48,4 +52,8 @@ class DeviceModel(Base):
     )
     episode_actions: Mapped[list[EpisodeActionModel]] = relationship(
         back_populates="device",
+    )
+    subscription_events: Mapped[list[SubscriptionChangeEventModel]] = relationship(
+        back_populates="device",
+        cascade="all, delete-orphan",
     )

@@ -85,6 +85,26 @@ class DeviceSubscriptionModel(Base):
     feed: Mapped[PodcastFeedModel] = relationship(back_populates="subscriptions")
 
 
+class SubscriptionChangeEventModel(Base):
+    __tablename__ = "subscription_change_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    device_pk: Mapped[int] = mapped_column(
+        ForeignKey("devices.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    feed_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    operation: Mapped[str] = mapped_column(String(16), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+
+    device: Mapped[DeviceModel] = relationship(back_populates="subscription_events")
+
+
 class EpisodeModel(Base):
     __tablename__ = "episodes"
 
