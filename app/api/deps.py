@@ -10,6 +10,7 @@ from app.services.auth import AuthService
 from app.services.devices import DeviceService
 from app.services.localization import LocalizationService
 from app.services.readiness import ReadinessService
+from app.services.subscriptions import SubscriptionService
 
 if TYPE_CHECKING:
     from app.db.models.user import UserModel
@@ -43,6 +44,12 @@ def get_device_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> DeviceService:
     return DeviceService(session=session)
+
+
+def get_subscription_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> SubscriptionService:
+    return SubscriptionService(session=session)
 
 
 def get_localization_service(

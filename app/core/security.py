@@ -10,6 +10,9 @@ from urllib.parse import urlsplit, urlunsplit
 NICKNAME_RE = re.compile(r"^[A-Za-z0-9_-]{8,16}$")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 DEVICE_ID_RE = re.compile(r"^[\w.-]+$")
+JSONP_CALLBACK_RE = re.compile(r"^[A-Za-z_$][\w.$]*$")
+
+SUBSCRIPTION_FORMATS = ("json", "opml", "txt")
 
 PBKDF2_ALGORITHM = "sha256"
 PBKDF2_ITERATIONS = 600_000
@@ -52,6 +55,34 @@ def validate_since_timestamp(value: int | None) -> int | None:
     if value < 0:
         raise ValueError("since must be greater than or equal to zero")
     return value
+
+
+def validate_subscription_format(value: str) -> str:
+    cleaned = value.strip().lower()
+    if cleaned not in SUBSCRIPTION_FORMATS:
+        raise ValueError("format must be one of json, opml, txt")
+    return cleaned
+
+
+def validate_jsonp_callback(value: str | None) -> str | None:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError("jsonp callback must not be empty")
+    if not JSONP_CALLBACK_RE.fullmatch(cleaned):
+        raise ValueError("jsonp callback contains invalid characters")
+    return cleaned
+
+
+def sanitize_subscription_url(value: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        return ""
+    parsed = urlsplit(cleaned)
+    if parsed.scheme.lower() not in {"http", "https"}:
+        return ""
+    return cleaned
 
 
 def derive_password_hash(password: str) -> tuple[str, str]:

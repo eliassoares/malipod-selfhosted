@@ -1,9 +1,11 @@
 # Malipod
 
 Malipod is the foundation of a podcast synchronization platform inspired by the
-gpodder ecosystem. This first increment delivers a single FastAPI application
-that exposes both a browser-visible site and a JSON API, with secure startup
-validation, pinned dependencies, and isolated verification workflows.
+gpodder ecosystem. The current increments deliver a single FastAPI application
+that exposes both a browser-visible site and a compatibility-focused JSON API,
+with secure startup validation, pinned dependencies, isolated verification
+workflows, authenticated device management, and authenticated subscription
+synchronization endpoints.
 
 ## Stack
 
@@ -49,6 +51,9 @@ Once the stack is ready:
 - API root: `http://localhost:8000/api/v1`
 - Liveness: `http://localhost:8000/api/v1/health/live`
 - Readiness: `http://localhost:8000/api/v1/health/ready`
+- Device API: `http://localhost:8000/api/2/devices/{username}.json`
+- Subscriptions API: `http://localhost:8000/subscriptions/{username}.json`
+- Subscription delta sync: `http://localhost:8000/api/2/subscriptions/{username}/{deviceid}.json`
 
 ### Local process
 
@@ -76,6 +81,12 @@ This executes:
 
 Automated tests use the isolated SQLite context and do not modify the main
 PostgreSQL development database.
+
+Feature-specific shortcuts are also available:
+
+- `make verify-auth`
+- `make verify-device`
+- `make verify-subscriptions`
 
 ## Contribution Workflow
 
