@@ -207,3 +207,39 @@ def test_updates_endpoint_rejects_unknown_device(client: TestClient) -> None:
     )
 
     assert response.status_code == 404
+
+
+def test_updates_endpoint_includes_projection_from_episodes_api_upload(
+    client: TestClient,
+) -> None:
+    register_user(client)
+
+    create_device = client.post(
+        "/api/2/devices/listener_1/sync-box.json",
+        auth=("listener_1", "supersecret"),
+        json={"caption": "Sync Box", "type": "server"},
+    )
+    uploaded = client.post(
+        "/api/2/episodes/listener_1.json",
+        auth=("listener_1", "supersecret"),
+        json=[
+            {
+                "podcast": "https://example.com/feed-current.xml",
+                "episode": "https://example.com/episode-1.mp3",
+                "device": "sync-box",
+                "action": "download",
+            }
+        ],
+    )
+    since = uploaded.json()["timestamp"] - 1
+    updates = client.get(
+        f"/api/2/updates/listener_1/sync-box.json?since={since}&include_actions=true",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert create_device.status_code == 200
+    assert uploaded.status_code == 200
+    assert updates.status_code == 200
+    assert len(updates.json()["updates"]) == 1
+    assert updates.json()["updates"][0]["status"] == "download"
+    assert updates.json()["updates"][0]["action"] == {}

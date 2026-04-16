@@ -8,6 +8,7 @@ from app.core.config import Settings, get_settings
 from app.db.session import get_db_session
 from app.services.auth import AuthService
 from app.services.devices import DeviceService
+from app.services.episodes import EpisodeService
 from app.services.localization import LocalizationService
 from app.services.readiness import ReadinessService
 from app.services.subscriptions import SubscriptionService
@@ -50,6 +51,12 @@ def get_subscription_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> SubscriptionService:
     return SubscriptionService(session=session)
+
+
+def get_episode_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> EpisodeService:
+    return EpisodeService(session=session)
 
 
 def get_localization_service(

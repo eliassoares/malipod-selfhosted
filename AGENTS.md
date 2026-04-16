@@ -25,9 +25,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 007-episodes-api: Added Python 3.13 + FastAPI, Starlette, Pydantic Settings, SQLAlchemy 2.x,
 - 006-subscriptions-api: Added Python 3.13 + FastAPI, Starlette, Pydantic Settings, SQLAlchemy 2.x,
 - 005-device-api: Added Python 3.13 + FastAPI, Starlette, Pydantic Settings, SQLAlchemy 2.x,
-- 004-user-auth: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings,
 
 
 <!-- MANUAL ADDITIONS START -->

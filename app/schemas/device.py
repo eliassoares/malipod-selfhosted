@@ -8,7 +8,7 @@ from pydantic import AwareDatetime, BaseModel, Field, field_validator
 from app.core.security import validate_device_id, validate_since_timestamp
 
 DEVICE_TYPES = ("desktop", "laptop", "mobile", "server", "other")
-EPISODE_STATUSES = ("new", "play", "download", "delete")
+EPISODE_STATUSES = ("new", "play", "download", "delete", "flattr")
 
 
 class DeviceMutationPayload(BaseModel):
@@ -95,7 +95,9 @@ class EpisodeUpdate(BaseModel):
     def validate_status(cls, value: str) -> str:
         cleaned = value.strip().lower()
         if cleaned not in EPISODE_STATUSES:
-            raise ValueError("status must be one of new, play, download, delete")
+            raise ValueError(
+                "status must be one of new, play, download, delete, flattr"
+            )
         return cleaned
 
 

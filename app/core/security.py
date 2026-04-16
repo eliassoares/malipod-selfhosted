@@ -13,6 +13,7 @@ DEVICE_ID_RE = re.compile(r"^[\w.-]+$")
 JSONP_CALLBACK_RE = re.compile(r"^[A-Za-z_$][\w.$]*$")
 
 SUBSCRIPTION_FORMATS = ("json", "opml", "txt")
+EPISODE_ACTION_TYPES = ("download", "delete", "play", "new", "flattr")
 
 PBKDF2_ALGORITHM = "sha256"
 PBKDF2_ITERATIONS = 600_000
@@ -83,6 +84,55 @@ def sanitize_subscription_url(value: str) -> str:
     if parsed.scheme.lower() not in {"http", "https"}:
         return ""
     return cleaned
+
+
+def sanitize_episode_url(value: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        return ""
+    try:
+        cleaned.encode("ascii")
+    except UnicodeEncodeError:
+        return ""
+    parsed = urlsplit(cleaned)
+    if parsed.scheme.lower() not in {"http", "https"}:
+        return ""
+    return cleaned
+
+
+def validate_episode_action(value: str) -> str:
+    cleaned = value.strip().lower()
+    if cleaned not in EPISODE_ACTION_TYPES:
+        raise ValueError("action must be one of download, delete, play, new, flattr")
+    return cleaned
+
+
+def validate_episode_query_url(value: str | None, *, field_name: str) -> str | None:
+    if value is None:
+        return None
+    sanitized = sanitize_episode_url(value)
+    if not sanitized:
+        raise ValueError(f"{field_name} must be an ASCII http or https URL")
+    return sanitized
+
+
+def validate_episode_progress(
+    *,
+    action: str,
+    started: int | None,
+    position: int | None,
+    total: int | None,
+) -> tuple[int | None, int | None, int | None]:
+    values = (started, position, total)
+    if action == "play":
+        if any(value is None for value in values):
+            raise ValueError(
+                "play actions require started, position, and total together"
+            )
+        return values
+    if any(value is not None for value in values):
+        raise ValueError("started, position, and total are only valid for play")
+    return values
 
 
 def derive_password_hash(password: str) -> tuple[str, str]:

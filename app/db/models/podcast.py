@@ -141,6 +141,10 @@ class EpisodeModel(Base):
         back_populates="episode",
         cascade="all, delete-orphan",
     )
+    action_events: Mapped[list[EpisodeActionEventModel]] = relationship(
+        back_populates="episode",
+        cascade="all, delete-orphan",
+    )
 
 
 class EpisodeActionModel(Base):
@@ -182,3 +186,37 @@ class EpisodeActionModel(Base):
     user: Mapped[UserModel] = relationship(back_populates="episode_actions")
     device: Mapped[DeviceModel | None] = relationship(back_populates="episode_actions")
     episode: Mapped[EpisodeModel] = relationship(back_populates="actions")
+
+
+class EpisodeActionEventModel(Base):
+    __tablename__ = "episode_action_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    episode_id: Mapped[int] = mapped_column(
+        ForeignKey("episodes.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    podcast_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    episode_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    action: Mapped[str] = mapped_column(String(16), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    started: Mapped[int | None] = mapped_column(nullable=True)
+    position: Mapped[int | None] = mapped_column(nullable=True)
+    total: Mapped[int | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+
+    user: Mapped[UserModel] = relationship(back_populates="episode_action_events")
+    episode: Mapped[EpisodeModel] = relationship(back_populates="action_events")

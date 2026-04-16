@@ -5,7 +5,9 @@ gpodder ecosystem. The current increments deliver a single FastAPI application
 that exposes both a browser-visible site and a compatibility-focused JSON API,
 with secure startup validation, pinned dependencies, isolated verification
 workflows, authenticated device management, and authenticated subscription
-synchronization endpoints.
+synchronization endpoints. The current branch also adds authenticated
+episode-action synchronization with upload, incremental retrieval, filtering,
+and aggregation support.
 
 ## Stack
 
@@ -54,6 +56,7 @@ Once the stack is ready:
 - Device API: `http://localhost:8000/api/2/devices/{username}.json`
 - Subscriptions API: `http://localhost:8000/subscriptions/{username}.json`
 - Subscription delta sync: `http://localhost:8000/api/2/subscriptions/{username}/{deviceid}.json`
+- Episodes API: `http://localhost:8000/api/2/episodes/{username}.json`
 
 ### Local process
 
@@ -87,6 +90,7 @@ Feature-specific shortcuts are also available:
 - `make verify-auth`
 - `make verify-device`
 - `make verify-subscriptions`
+- `make verify-episodes`
 
 ## Contribution Workflow
 
