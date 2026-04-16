@@ -3,9 +3,9 @@
   <head>
     {% include "partials/head.html" %}
   </head>
-  <body>
+  <body class="bg-background font-body text-on-surface min-h-screen" style="background: radial-gradient(circle at top left, rgba(255,201,218,0.35) 0%, transparent 28%), radial-gradient(circle at bottom right, rgba(234,216,210,0.45) 0%, transparent 30%), #fcf5f4;">
     {% include "partials/topbar.html" %}
-    <main class="page-shell">
+    <main class="{% block main_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16{% endblock %}">
       {% block content %}{% endblock %}
     </main>
     {% include "partials/footer.html" %}
