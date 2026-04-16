@@ -4,13 +4,13 @@
 <div class="space-y-6 max-w-3xl mx-auto">
 
   <!-- Profile Hero Card -->
-  <article class="bg-surface-container-lowest rounded-2xl ambient-shadow overflow-hidden">
-    <!-- Gradient banner -->
-    <div class="h-28 gradient-primary relative overflow-hidden">
+  <article class="bg-surface-container-lowest rounded-2xl ambient-shadow">
+    <!-- Gradient banner: overflow-hidden aqui para clipar os cantos arredondados do gradiente -->
+    <div class="h-28 gradient-primary relative overflow-hidden rounded-t-2xl">
       <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
     </div>
 
-    <!-- Avatar (overlapping banner) -->
+    <!-- Avatar (overlapping banner) — funciona pois article não tem overflow-hidden -->
     <div class="px-6 sm:px-8 pb-6">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-6">
         <div class="w-24 h-24 rounded-2xl border-4 border-surface-container-lowest overflow-hidden bg-surface-container-low flex items-center justify-center shadow-lg flex-shrink-0">
