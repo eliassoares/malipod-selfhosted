@@ -1,61 +1,159 @@
 {% extends "base.html" %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
-<section class="hero-grid">
-  <div class="hero-copy">
-    <span class="hero-kicker">{{ copy["nav.register"] }}</span>
-    <h1>{{ copy["register.title"] }}</h1>
-    <p>{{ copy["register.subtitle"] }}</p>
-    <div class="hero-points">
-      <div class="hero-point">
-        <strong>URL-safe</strong>
-        <span>{{ copy["errors.nickname"] }}</span>
+<div class="flex min-h-[calc(100vh-4rem)]">
+
+  <!-- Left: Gradient Branding Panel (desktop only) -->
+  <div class="hidden lg:flex lg:w-5/12 xl:w-2/5 gradient-primary flex-col justify-between p-12 relative overflow-hidden flex-shrink-0">
+    <div class="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-primary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-10">
+        <span class="material-symbols-outlined text-white" style="font-size:2rem; font-variation-settings: 'FILL' 1;">podcasts</span>
+        <span class="font-headline font-black text-white text-2xl tracking-tighter">{{ copy["brand"] }}</span>
       </div>
-      <div class="hero-point">
-        <strong>Localized</strong>
-        <span>{{ copy["language.label"] }}: {{ locale }}</span>
+      <h1 class="font-headline font-black text-white text-4xl leading-tight tracking-tight mb-4">
+        {{ copy["register.title"] }}
+      </h1>
+      <p class="text-on-primary opacity-90 text-lg max-w-sm leading-relaxed">
+        {{ copy["register.subtitle"] }}
+      </p>
+    </div>
+
+    <div class="relative z-10 grid grid-cols-2 gap-4">
+      <div class="glass-panel p-5 rounded-2xl border border-white/20">
+        <span class="material-symbols-outlined text-primary block mb-2" style="font-size:1.5rem;">sync</span>
+        <strong class="font-headline font-bold text-on-surface block text-sm mb-1">Universal</strong>
+        <span class="text-xs text-on-surface-variant">Sync entre todos os devices</span>
+      </div>
+      <div class="glass-panel p-5 rounded-2xl border border-white/20">
+        <span class="material-symbols-outlined text-primary block mb-2" style="font-size:1.5rem;">tag</span>
+        <strong class="font-headline font-bold text-on-surface block text-sm mb-1">URL-safe</strong>
+        <span class="text-xs text-on-surface-variant">{{ copy["errors.nickname"] }}</span>
       </div>
     </div>
   </div>
-  <div class="card">
-    <h2>{{ copy["register.title"] }}</h2>
-    <p>{{ copy["register.login_link"] }} <a href="/login">{{ copy["nav.login"] }}</a></p>
-    {% if errors %}
-    <ul class="feedback-list">
-      {% for error in errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    <form class="stack" action="/register" method="post">
-      <label>
-        {{ copy["register.nickname"] }}
-        <input name="nickname" type="text" required value="{{ form_data.get('nickname', '') }}" />
-      </label>
-      <label>
-        {{ copy["register.email"] }}
-        <input name="email" type="email" required value="{{ form_data.get('email', '') }}" />
-      </label>
-      <div class="split-fields">
-        <label>
-          {{ copy["register.password"] }}
-          <input name="password" type="password" required />
-        </label>
-        <label>
-          {{ copy["register.confirm_password"] }}
-          <input name="password_confirmation" type="password" required />
-        </label>
+
+  <!-- Right: Registration Form -->
+  <div class="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 bg-surface-container-lowest overflow-y-auto">
+    <div class="w-full max-w-md py-8">
+
+      <!-- Mobile brand -->
+      <div class="lg:hidden text-center mb-8">
+        <span class="material-symbols-outlined text-primary" style="font-size:2.5rem; font-variation-settings: 'FILL' 1;">podcasts</span>
+        <div class="font-headline font-black text-primary text-2xl tracking-tighter mt-1">{{ copy["brand"] }}</div>
       </div>
-      <label>
-        {{ copy["language.label"] }}
-        <select name="language_preference">
-          {% for code in supported_locales %}
-          <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+
+      <header class="mb-8">
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-widest font-label mb-3">
+          {{ copy["nav.register"] }}
+        </span>
+        <h2 class="font-headline font-bold text-3xl text-on-surface tracking-tight">{{ copy["register.title"] }}</h2>
+        <p class="text-on-surface-variant mt-2 text-sm">
+          {{ copy["register.login_link"] }}
+          <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 transition-all" href="/login">{{ copy["nav.login"] }}</a>
+        </p>
+      </header>
+
+      {% if errors %}
+      <div class="flex items-start gap-2 p-4 bg-error/10 border border-error/20 rounded-2xl text-error text-sm mb-6">
+        <span class="material-symbols-outlined text-base flex-shrink-0 mt-0.5">error</span>
+        <ul class="space-y-1">
+          {% for error in errors %}
+          <li>{{ error }}</li>
           {% endfor %}
-        </select>
-      </label>
-      <button class="button--primary" type="submit">{{ copy["register.submit"] }}</button>
-    </form>
+        </ul>
+      </div>
+      {% endif %}
+
+      <form class="space-y-5" action="/register" method="post">
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="nickname">
+            {{ copy["register.nickname"] }}
+          </label>
+          <div class="relative group">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">badge</span>
+            <input
+              class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+              id="nickname" name="nickname" type="text" required
+              value="{{ form_data.get('nickname', '') }}"
+              placeholder="seu_nickname"
+            />
+          </div>
+          <p class="text-[11px] text-on-surface-variant italic px-1 font-label">
+            Será usado na URL da API: <span class="font-mono text-primary">/api/2/subscriptions/{nickname}/</span>
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="email">
+            {{ copy["register.email"] }}
+          </label>
+          <div class="relative group">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">alternate_email</span>
+            <input
+              class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+              id="email" name="email" type="email" required
+              value="{{ form_data.get('email', '') }}"
+              placeholder="seu@email.com"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="password">
+              {{ copy["register.password"] }}
+            </label>
+            <div class="relative group">
+              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">lock</span>
+              <input
+                class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+                id="password" name="password" type="password" required
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="password_confirmation">
+              {{ copy["register.confirm_password"] }}
+            </label>
+            <div class="relative group">
+              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">lock_reset</span>
+              <input
+                class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+                id="password_confirmation" name="password_confirmation" type="password" required
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="language">
+            {{ copy["language.label"] }}
+          </label>
+          <select
+            class="w-full px-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+            id="language" name="language_preference"
+          >
+            {% for code in supported_locales %}
+            <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          class="w-full gradient-primary text-on-primary font-bold font-headline py-4 rounded-full shadow-lg shadow-primary/25 hover:opacity-90 active:scale-[0.98] transition-all flex justify-center items-center gap-2 mt-2 border-0 cursor-pointer"
+          type="submit"
+        >
+          {{ copy["register.submit"] }}
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
+        </button>
+      </form>
+    </div>
   </div>
-</section>
+</div>
 {% endblock %}

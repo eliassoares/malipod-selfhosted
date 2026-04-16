@@ -1,54 +1,133 @@
 {% extends "base.html" %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
-<section class="hero-grid">
-  <div class="hero-copy">
-    <span class="hero-kicker">{{ copy["nav.login"] }}</span>
-    <h1>{{ copy["login.title"] }}</h1>
-    <p>{{ copy["login.subtitle"] }}</p>
-    <div class="hero-points">
-      <div class="hero-point">
-        <strong>Web + API</strong>
-        <span>/api/2/auth/&lt;username&gt;/login.json</span>
+<div class="flex min-h-[calc(100vh-4rem)]">
+
+  <!-- Left: Gradient Branding Panel (desktop only) -->
+  <div class="hidden lg:flex lg:w-5/12 xl:w-2/5 gradient-primary flex-col justify-between p-12 relative overflow-hidden flex-shrink-0">
+    <div class="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-primary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-10">
+        <span class="material-symbols-outlined text-white" style="font-size:2rem; font-variation-settings: 'FILL' 1;">podcasts</span>
+        <span class="font-headline font-black text-white text-2xl tracking-tighter">{{ copy["brand"] }}</span>
       </div>
-      <div class="hero-point">
-        <strong>Privacy</strong>
-        <span>{{ copy["errors.invalid_login"] }}</span>
+      <h1 class="font-headline font-black text-white text-4xl leading-tight tracking-tight mb-4">
+        {{ copy["login.title"] }}
+      </h1>
+      <p class="text-on-primary opacity-90 text-lg max-w-sm leading-relaxed">
+        {{ copy["login.subtitle"] }}
+      </p>
+    </div>
+
+    <div class="relative z-10 grid grid-cols-2 gap-4">
+      <div class="glass-panel p-5 rounded-2xl border border-white/20">
+        <span class="material-symbols-outlined text-primary block mb-2" style="font-size:1.5rem;">api</span>
+        <strong class="font-headline font-bold text-on-surface block text-sm mb-1">Web + API</strong>
+        <span class="text-xs text-on-surface-variant">/api/2/auth/</span>
+      </div>
+      <div class="glass-panel p-5 rounded-2xl border border-white/20">
+        <span class="material-symbols-outlined text-primary block mb-2" style="font-size:1.5rem;">lock</span>
+        <strong class="font-headline font-bold text-on-surface block text-sm mb-1">Privacy</strong>
+        <span class="text-xs text-on-surface-variant">Dados protegidos</span>
       </div>
     </div>
   </div>
-  <div class="card">
-    <h2>{{ copy["login.title"] }}</h2>
-    <p>{{ copy["login.register_link"] }} <a href="/register">{{ copy["nav.register"] }}</a></p>
-    {% if success_message %}
-    <p class="feedback-success">{{ success_message }}</p>
-    {% endif %}
-    {% if errors %}
-    <ul class="feedback-list">
-      {% for error in errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    <form class="stack" action="/login" method="post">
-      <label>
-        {{ copy["login.identifier"] }}
-        <input name="identifier" type="text" required value="{{ form_data.get('identifier', '') }}" />
-      </label>
-      <label>
-        {{ copy["login.password"] }}
-        <input name="password" type="password" required />
-      </label>
-      <label>
-        {{ copy["language.label"] }}
-        <select name="language_preference">
-          {% for code in supported_locales %}
-          <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+
+  <!-- Right: Login Form -->
+  <div class="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 bg-surface-container-lowest">
+    <div class="w-full max-w-md">
+
+      <!-- Mobile brand -->
+      <div class="lg:hidden text-center mb-8">
+        <span class="material-symbols-outlined text-primary" style="font-size:2.5rem; font-variation-settings: 'FILL' 1;">podcasts</span>
+        <div class="font-headline font-black text-primary text-2xl tracking-tighter mt-1">{{ copy["brand"] }}</div>
+      </div>
+
+      <header class="mb-8">
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-widest font-label mb-3">
+          {{ copy["nav.login"] }}
+        </span>
+        <h2 class="font-headline font-bold text-3xl text-on-surface tracking-tight">{{ copy["login.title"] }}</h2>
+        <p class="text-on-surface-variant mt-2 text-sm">
+          {{ copy["login.register_link"] }}
+          <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 transition-all" href="/register">{{ copy["nav.register"] }}</a>
+        </p>
+      </header>
+
+      {% if success_message %}
+      <div class="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm mb-6">
+        <span class="material-symbols-outlined text-base flex-shrink-0">check_circle</span>
+        {{ success_message }}
+      </div>
+      {% endif %}
+
+      {% if errors %}
+      <div class="flex items-start gap-2 p-4 bg-error/10 border border-error/20 rounded-2xl text-error text-sm mb-6">
+        <span class="material-symbols-outlined text-base flex-shrink-0 mt-0.5">error</span>
+        <ul class="space-y-1">
+          {% for error in errors %}
+          <li>{{ error }}</li>
           {% endfor %}
-        </select>
-      </label>
-      <button class="button--primary" type="submit">{{ copy["login.submit"] }}</button>
-    </form>
+        </ul>
+      </div>
+      {% endif %}
+
+      <form class="space-y-5" action="/login" method="post">
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="identifier">
+            {{ copy["login.identifier"] }}
+          </label>
+          <div class="relative group">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">alternate_email</span>
+            <input
+              class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+              id="identifier" name="identifier" type="text" required
+              value="{{ form_data.get('identifier', '') }}"
+              placeholder="ex: voce@email.com"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="password">
+            {{ copy["login.password"] }}
+          </label>
+          <div class="relative group">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" style="font-size:1.2rem;">lock</span>
+            <input
+              class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-outline/50 font-body"
+              id="password" name="password" type="password" required
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="language">
+            {{ copy["language.label"] }}
+          </label>
+          <select
+            class="w-full px-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+            id="language" name="language_preference"
+          >
+            {% for code in supported_locales %}
+            <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          class="w-full gradient-primary text-on-primary font-bold font-headline py-4 rounded-full shadow-lg shadow-primary/25 hover:opacity-90 active:scale-[0.98] transition-all flex justify-center items-center gap-2 mt-2 border-0 cursor-pointer"
+          type="submit"
+        >
+          {{ copy["login.submit"] }}
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
+        </button>
+      </form>
+    </div>
   </div>
-</section>
+</div>
 {% endblock %}

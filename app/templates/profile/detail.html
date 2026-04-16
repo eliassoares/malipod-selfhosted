@@ -1,61 +1,124 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="profile-grid">
-  <article class="profile-card">
-    <div class="profile-identity">
-      <div class="avatar">
-        {% if profile.picture_url %}
-        <img src="{{ profile.picture_url }}" alt="{{ profile.nickname }}" />
-        {% else %}
-        {{ profile.nickname[0].upper() }}
-        {% endif %}
-      </div>
-      <div>
-        <h1>{{ copy["profile.title"] }}</h1>
-        <p>{{ copy["profile.subtitle"] }}</p>
-        <strong>@{{ profile.nickname }}</strong>
-      </div>
+<div class="space-y-6 max-w-3xl mx-auto">
+
+  <!-- Profile Hero Card -->
+  <article class="bg-surface-container-lowest rounded-2xl ambient-shadow overflow-hidden">
+    <!-- Gradient banner -->
+    <div class="h-28 gradient-primary relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
     </div>
-    <div class="meta-list">
-      <div class="meta-row">
-        <span class="meta-label">{{ copy["profile.email"] }}</span>
-        <strong>{{ profile.email }}</strong>
+
+    <!-- Avatar (overlapping banner) -->
+    <div class="px-6 sm:px-8 pb-6">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-6">
+        <div class="w-24 h-24 rounded-2xl border-4 border-surface-container-lowest overflow-hidden bg-surface-container-low flex items-center justify-center shadow-lg flex-shrink-0">
+          {% if profile.picture_url %}
+          <img src="{{ profile.picture_url }}" alt="{{ profile.nickname }}" class="w-full h-full object-cover" />
+          {% else %}
+          <span class="font-headline font-black text-primary text-3xl">{{ profile.nickname[0].upper() }}</span>
+          {% endif %}
+        </div>
+        <div class="pb-1">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-widest font-label">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">verified</span>
+            {{ copy["profile.title"] }}
+          </span>
+        </div>
       </div>
-      <div class="meta-row">
-        <span class="meta-label">{{ copy["profile.picture_url"] }}</span>
-        <strong>{{ profile.picture_url or "—" }}</strong>
+
+      <h1 class="font-headline font-black text-2xl text-on-surface tracking-tight">@{{ profile.nickname }}</h1>
+      <p class="text-on-surface-variant text-sm mt-1">{{ copy["profile.subtitle"] }}</p>
+    </div>
+
+    <!-- Meta rows -->
+    <div class="border-t border-outline-variant/20 divide-y divide-outline-variant/10">
+      <div class="flex items-center justify-between px-6 sm:px-8 py-4 gap-4">
+        <span class="text-sm text-on-surface-variant font-label flex items-center gap-2">
+          <span class="material-symbols-outlined text-outline" style="font-size:1rem;">alternate_email</span>
+          {{ copy["profile.email"] }}
+        </span>
+        <strong class="text-sm font-medium text-on-surface truncate max-w-[55%] text-right">{{ profile.email }}</strong>
       </div>
-      <div class="meta-row">
-        <span class="meta-label">{{ copy["profile.last_access"] }}</span>
-        <strong>{{ profile.accessed_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      <div class="flex items-center justify-between px-6 sm:px-8 py-4 gap-4">
+        <span class="text-sm text-on-surface-variant font-label flex items-center gap-2">
+          <span class="material-symbols-outlined text-outline" style="font-size:1rem;">schedule</span>
+          {{ copy["profile.last_access"] }}
+        </span>
+        <strong class="text-sm font-medium text-on-surface">{{ profile.accessed_at.strftime("%Y-%m-%d %H:%M") }}</strong>
       </div>
-      <div class="meta-row">
-        <span class="meta-label">{{ copy["profile.created_at"] }}</span>
-        <strong>{{ profile.created_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      <div class="flex items-center justify-between px-6 sm:px-8 py-4 gap-4">
+        <span class="text-sm text-on-surface-variant font-label flex items-center gap-2">
+          <span class="material-symbols-outlined text-outline" style="font-size:1rem;">calendar_today</span>
+          {{ copy["profile.created_at"] }}
+        </span>
+        <strong class="text-sm font-medium text-on-surface">{{ profile.created_at.strftime("%Y-%m-%d %H:%M") }}</strong>
       </div>
-      <div class="meta-row">
-        <span class="meta-label">{{ copy["profile.updated_at"] }}</span>
-        <strong>{{ profile.updated_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+      {% if profile.picture_url %}
+      <div class="flex items-center justify-between px-6 sm:px-8 py-4 gap-4">
+        <span class="text-sm text-on-surface-variant font-label flex items-center gap-2">
+          <span class="material-symbols-outlined text-outline" style="font-size:1rem;">image</span>
+          {{ copy["profile.picture_url"] }}
+        </span>
+        <strong class="text-sm font-medium text-on-surface truncate max-w-[55%] text-right">{{ profile.picture_url }}</strong>
       </div>
+      {% endif %}
     </div>
   </article>
-  <article class="profile-card">
-    <h2>{{ copy["profile.language"] }}</h2>
-    <form class="stack" action="/user/profile/{{ profile.nickname }}/language" method="post">
-      <label>
-        {{ copy["profile.language"] }}
-        <select name="language_preference">
+
+  <!-- Settings Cards (bento) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+    <!-- Language Card -->
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-primary" style="font-size:1.2rem;">language</span>
+        </div>
+        <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["profile.language"] }}</h2>
+      </div>
+      <form class="space-y-4" action="/user/profile/{{ profile.nickname }}/language" method="post">
+        <select
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+          name="language_preference"
+        >
           {% for code in supported_locales %}
           <option value="{{ code }}" {% if profile.language_preference == code %}selected{% endif %}>{{ code }}</option>
           {% endfor %}
         </select>
-      </label>
-      <button class="button--primary" type="submit">{{ copy["profile.save_language"] }}</button>
-    </form>
-    <form action="/logout" method="post" style="margin-top: 18px;">
-      <button class="button--secondary" type="submit">{{ copy["profile.logout"] }}</button>
-    </form>
-  </article>
-</section>
+        <button
+          class="w-full gradient-primary text-on-primary font-bold font-headline py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer"
+          type="submit"
+        >
+          {{ copy["profile.save_language"] }}
+        </button>
+      </form>
+    </article>
+
+    <!-- Account Actions Card -->
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-error/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-error" style="font-size:1.2rem;">manage_accounts</span>
+        </div>
+        <h2 class="font-headline font-bold text-on-surface text-lg">Conta</h2>
+      </div>
+      <div class="space-y-3">
+        <form action="/logout" method="post">
+          <button
+            class="w-full flex items-center justify-between px-5 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface font-medium font-headline transition-all group border-0 cursor-pointer"
+            type="submit"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors" style="font-size:1.1rem;">logout</span>
+              {{ copy["profile.logout"] }}
+            </span>
+            <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+      </div>
+    </article>
+  </div>
+</div>
 {% endblock %}

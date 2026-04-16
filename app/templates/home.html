@@ -4,66 +4,61 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ page.app_name }}</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: "Iowan Old Style", "Palatino Linotype", serif;
-        background: linear-gradient(180deg, #f7f2e9 0%, #efe5d7 100%);
-        color: #2a2a2a;
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              headline: ["Plus Jakarta Sans", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+          },
+        },
       }
-      main {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 64px 24px;
-      }
-      .hero {
-        background: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(42, 42, 42, 0.08);
-        border-radius: 24px;
-        padding: 32px;
-        box-shadow: 0 20px 40px rgba(42, 42, 42, 0.08);
-      }
-      .status {
-        display: inline-block;
-        padding: 8px 14px;
-        border-radius: 999px;
-        background: {% if page.status == "ready" %}#d7f3df{% else %}#fde1d8{% endif %};
-        color: #1f5133;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-      ul {
-        padding-left: 20px;
-      }
-      code {
-        background: rgba(42, 42, 42, 0.08);
-        padding: 2px 6px;
-        border-radius: 6px;
-      }
-    </style>
+    </script>
   </head>
-  <body>
-    <main>
-      <section class="hero">
-        <p class="status">{{ page.status }}</p>
-        <h1>{{ page.app_name }}</h1>
-        <p>
-          A secure foundation for podcast synchronization with a browser-visible
-          site and JSON API.
+  <body class="font-body bg-gradient-to-br from-[#f7f2e9] to-[#efe5d7] min-h-screen text-[#2a2a2a]">
+    <main class="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+
+      <div class="bg-white/75 backdrop-blur-sm border border-black/8 rounded-3xl p-8 sm:p-10 shadow-[0_20px_40px_rgba(42,42,42,0.08)]">
+
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight leading-tight">
+            {{ page.app_name }}
+          </h1>
+          <span class="flex-shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest
+            {% if page.status == 'ready' %}bg-emerald-100 text-emerald-800{% else %}bg-orange-100 text-orange-800{% endif %}">
+            {{ page.status }}
+          </span>
+        </div>
+
+        <p class="text-[#555] mb-6 leading-relaxed">
+          A secure foundation for podcast synchronization with a browser-visible site and JSON API.
         </p>
-        <p>Environment: <code>{{ page.environment }}</code></p>
-        <h2>Readiness checks</h2>
-        <ul>
-          {% for check in page.checks %}
-          <li>
-            <strong>{{ check.name }}</strong>:
-            {{ "ok" if check.passed else "failed" }} -
-            {{ check.detail }}
-          </li>
-          {% endfor %}
-        </ul>
-      </section>
+
+        <div class="flex items-center gap-2 mb-8 text-sm text-[#666]">
+          <span class="font-medium">Environment:</span>
+          <code class="bg-black/6 px-2.5 py-1 rounded-lg font-mono text-[#333]">{{ page.environment }}</code>
+        </div>
+
+        <div class="border-t border-black/8 pt-6">
+          <h2 class="font-headline font-bold text-lg mb-4">Readiness checks</h2>
+          <ul class="space-y-3">
+            {% for check in page.checks %}
+            <li class="flex items-start gap-3 p-3 rounded-xl
+              {% if check.passed %}bg-emerald-50 border border-emerald-200/60{% else %}bg-red-50 border border-red-200/60{% endif %}">
+              <span class="flex-shrink-0 mt-0.5 text-lg">{% if check.passed %}✓{% else %}✗{% endif %}</span>
+              <div>
+                <strong class="font-medium text-sm">{{ check.name }}</strong>
+                <span class="text-sm text-[#666] ml-1">— {{ check.detail }}</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
     </main>
   </body>
 </html>
