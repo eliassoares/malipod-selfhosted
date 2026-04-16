@@ -12,7 +12,7 @@
 
     <!-- Avatar (overlapping banner) — funciona pois article não tem overflow-hidden -->
     <div class="px-6 sm:px-8 pb-6">
-      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-6 relative z-10">
         <div class="w-24 h-24 rounded-2xl border-4 border-surface-container-lowest overflow-hidden bg-surface-container-low flex items-center justify-center shadow-lg flex-shrink-0">
           {% if profile.picture_url %}
           <img src="{{ profile.picture_url }}" alt="{{ profile.nickname }}" class="w-full h-full object-cover" />
