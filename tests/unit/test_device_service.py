@@ -8,8 +8,10 @@ from pydantic import ValidationError
 
 from app.schemas.auth import RegistrationInput
 from app.schemas.device import DeviceUpsertRequest
+from app.schemas.episode import EpisodeActionInput
 from app.services.auth import AuthService
 from app.services.devices import DeviceError, DeviceService
+from app.services.episodes import EpisodeService
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -206,3 +208,50 @@ async def test_device_service_returns_incremental_updates_with_optional_actions(
     assert len(incremental.updates) == 1
     assert incremental.updates[0].status == "download"
     assert incremental.updates[0].action == {"downloaded": True}
+
+
+@pytest.mark.asyncio
+async def test_device_updates_remain_compatible_with_episode_history_uploads(
+    db_session: AsyncSession, settings: Settings
+) -> None:
+    auth_service = AuthService(db_session, settings)
+    user = await auth_service.create_user(build_registration())
+    device_service = DeviceService(db_session)
+    episode_service = EpisodeService(db_session)
+    device = await device_service.upsert_device(
+        user,
+        DeviceUpsertRequest(
+            device_id="sync-box",
+            caption="Sync Box",
+            type="server",
+        ),
+    )
+
+    upload = await episode_service.upload_actions(
+        user,
+        [
+            EpisodeActionInput(
+                podcast="https://example.com/feed-current.xml",
+                episode="https://example.com/episode-1.mp3",
+                device=device.device_id,
+                action="play",
+                started=20,
+                position=180,
+                total=600,
+            )
+        ],
+    )
+    updates = await device_service.get_updates_for_device(
+        user,
+        device.device_id,
+        upload.timestamp - 1,
+        True,
+    )
+
+    assert len(updates.updates) == 1
+    assert updates.updates[0].status == "play"
+    assert updates.updates[0].action == {
+        "started": 20,
+        "position": 180,
+        "total": 600,
+    }

@@ -153,7 +153,27 @@ before opening a pull request.
    make verify-episodes
    ```
 
-## 7. Prepare for review
+## 7. Validation Notes
+
+Automated verification completed for this feature during implementation with:
+
+```bash
+uv run ruff check app tests
+uv run mypy app tests
+SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_episode_service.py tests/contract/test_episodes_api.py tests/integration/test_episodes_sync_api.py tests/unit/test_device_service.py tests/integration/test_device_updates_api.py -q
+make verify-episodes
+```
+
+The automated coverage validates:
+
+- mixed upload batches and invalid `play` payload rejection
+- URL sanitation and `update_urls` reporting
+- initial and incremental retrieval via `since`
+- filtering by `podcast` and `device`
+- `aggregated=true` latest-action behavior
+- compatibility with `/api/2/updates/{username}/{deviceid}.json`
+
+## 8. Prepare for review
 
 1. Ensure commits follow Conventional Commits.
 2. Capture a successful mixed-action upload with a returned `timestamp`.

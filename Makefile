@@ -1,4 +1,4 @@
-.PHONY: install lint fix format typecheck security audit check test test-auth test-device test-subscriptions run compose-up compose-down compose-logs verify verify-auth verify-device verify-subscriptions clean help
+.PHONY: install lint fix format typecheck security audit check test test-auth test-device test-subscriptions test-episodes run compose-up compose-down compose-logs verify verify-auth verify-device verify-subscriptions verify-episodes clean help
 
 install: ## Install dependencies and pre-commit hooks
 	uv sync
@@ -37,6 +37,9 @@ test-device: ## Run only Device API tests
 test-subscriptions: ## Run only Subscriptions API tests
 	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_subscription_formats.py tests/unit/test_subscription_service.py tests/contract/test_subscriptions_api.py tests/integration/test_subscriptions_sync_api.py -q
 
+test-episodes: ## Run only Episodes API tests and compatibility checks
+	SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_episode_service.py tests/contract/test_episodes_api.py tests/integration/test_episodes_sync_api.py tests/unit/test_device_service.py tests/integration/test_device_updates_api.py -q
+
 run: ## Run the FastAPI application locally
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
@@ -56,6 +59,8 @@ verify-auth: check test-auth ## Run auth feature verification
 verify-device: check test-device ## Run Device API verification
 
 verify-subscriptions: check test-subscriptions ## Run Subscriptions API verification
+
+verify-episodes: check test-episodes ## Run Episodes API verification
 
 clean: ## Remove build artifacts and caches
 	find . -type d -name __pycache__ -exec rm -rf {} +
