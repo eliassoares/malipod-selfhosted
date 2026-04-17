@@ -54,7 +54,6 @@ async def authenticate_basic_user(
     responses={
         401: {"model": AuthErrorResponse},
         403: {"model": AuthErrorResponse},
-        404: {"model": AuthErrorResponse},
     },
 )
 async def get_favorites(
@@ -71,11 +70,6 @@ async def get_favorites(
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="authenticated user does not match requested username",
-            ) from exc
-        if exc.code == "target_not_found":
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="target_not_found",
             ) from exc
         raise
     return JSONResponse(

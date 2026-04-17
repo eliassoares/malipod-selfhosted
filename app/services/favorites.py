@@ -6,15 +6,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db.models.podcast import EpisodeModel, FavoriteEpisodeModel
-from app.db.models.user import UserModel
 from app.schemas.favorite import FavoriteEpisodeItem
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+    from app.db.models.user import UserModel
+
 
 class FavoritesError(Exception):
-    def __init__(self, code: Literal["forbidden", "target_not_found"]) -> None:
+    def __init__(self, code: Literal["forbidden"]) -> None:
         self.code = code
         super().__init__(code)
 
@@ -23,27 +24,15 @@ class FavoritesService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _get_target_user(self, username: str) -> UserModel | None:
-        result = await self.session.execute(
-            select(UserModel).where(
-                UserModel.nickname == username,
-                UserModel.deactivated_at.is_(None),
-            )
-        )
-        return result.scalar_one_or_none()
-
     async def list_favorites(
         self,
         authenticated_user: UserModel,
         *,
         username: str,
     ) -> list[FavoriteEpisodeItem]:
+        # Always 403 for any cross-account request — avoids leaking whether a
+        # username exists to other authenticated users.
         if authenticated_user.nickname != username:
-            target_user = await self._get_target_user(username)
-            if target_user is None:
-                raise FavoritesError("target_not_found")
-            # 404 before 403: gpodder.net returns not-found for absent users even
-            # to authenticated callers; 403 only when the target account exists.
             raise FavoritesError("forbidden")
 
         result = await self.session.execute(

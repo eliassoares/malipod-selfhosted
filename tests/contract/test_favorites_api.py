@@ -215,14 +215,14 @@ def test_get_favorites_contract_rejects_unauthorized_and_foreign_user(
         "/api/2/favorites/listener_1.json",
         auth=("listener_2", "supersecret"),
     )
-    not_found = client.get(
+    missing_user = client.get(
         "/api/2/favorites/missing-user.json",
         auth=("listener_2", "supersecret"),
     )
 
     assert unauthorized.status_code == 401
     assert forbidden.status_code == 403
-    assert not_found.status_code == 404
+    assert missing_user.status_code == 403
 
 
 def test_get_favorites_contract_returns_null_compatible_optional_fields(

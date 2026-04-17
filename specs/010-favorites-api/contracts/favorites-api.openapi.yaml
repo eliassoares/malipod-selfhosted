@@ -34,8 +34,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
 components:
   securitySchemes:
     basicAuth:
@@ -57,13 +55,8 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
     Forbidden:
-      description: Authenticated user does not match the targeted username
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    NotFound:
-      description: Requested user does not exist
+      description: Authenticated user does not match the targeted username, or the
+        requested username does not exist
       content:
         application/json:
           schema:

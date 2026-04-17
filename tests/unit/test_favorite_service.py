@@ -156,5 +156,5 @@ async def test_favorites_service_raises_for_foreign_and_missing_users(
     with pytest.raises(FavoritesError, match="forbidden"):
         await service.list_favorites(other, username=owner.nickname)
 
-    with pytest.raises(FavoritesError, match="target_not_found"):
+    with pytest.raises(FavoritesError, match="forbidden"):
         await service.list_favorites(other, username="missing-user")

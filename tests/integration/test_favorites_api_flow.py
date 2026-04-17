@@ -206,7 +206,7 @@ def test_favorites_flow_rejects_cross_account_and_unknown_user_reads(
     )
 
     assert denied.status_code == 403
-    assert missing.status_code == 404
+    assert missing.status_code == 403
 
 
 def test_favorites_flow_requires_authentication(
