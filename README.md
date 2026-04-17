@@ -7,7 +7,8 @@ with secure startup validation, pinned dependencies, isolated verification
 workflows, authenticated device management, and authenticated subscription
 synchronization endpoints. The current branch also adds authenticated
 episode-action synchronization with upload, incremental retrieval, filtering,
-and aggregation support.
+and aggregation support, plus a podcast-lists API for public curated list reads
+and authenticated list management.
 
 ## Stack
 
@@ -57,6 +58,7 @@ Once the stack is ready:
 - Subscriptions API: `http://localhost:8000/subscriptions/{username}.json`
 - Subscription delta sync: `http://localhost:8000/api/2/subscriptions/{username}/{deviceid}.json`
 - Episodes API: `http://localhost:8000/api/2/episodes/{username}.json`
+- Podcast Lists API: `http://localhost:8000/api/2/lists/{username}.json`
 
 ### Local process
 
@@ -91,6 +93,7 @@ Feature-specific shortcuts are also available:
 - `make verify-device`
 - `make verify-subscriptions`
 - `make verify-episodes`
+- `make verify-lists`
 
 ## Contribution Workflow
 

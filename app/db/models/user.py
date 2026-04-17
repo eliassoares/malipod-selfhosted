@@ -10,7 +10,11 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.db.models.device import DeviceModel
-    from app.db.models.podcast import EpisodeActionEventModel, EpisodeActionModel
+    from app.db.models.podcast import (
+        EpisodeActionEventModel,
+        EpisodeActionModel,
+        PodcastListModel,
+    )
     from app.db.models.session import AuthenticatedSessionModel
 
 
@@ -56,6 +60,10 @@ class UserModel(Base):
         cascade="all, delete-orphan",
     )
     episode_action_events: Mapped[list[EpisodeActionEventModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    podcast_lists: Mapped[list[PodcastListModel]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )

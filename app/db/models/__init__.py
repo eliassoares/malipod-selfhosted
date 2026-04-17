@@ -6,6 +6,8 @@ from app.db.models.podcast import (
     EpisodeActionModel,
     EpisodeModel,
     PodcastFeedModel,
+    PodcastListItemModel,
+    PodcastListModel,
     SubscriptionChangeEventModel,
 )
 from app.db.models.session import AuthenticatedSessionModel
@@ -20,6 +22,8 @@ __all__ = [
     "EpisodeActionModel",
     "EpisodeModel",
     "PodcastFeedModel",
+    "PodcastListItemModel",
+    "PodcastListModel",
     "ReadinessCheckModel",
     "SubscriptionChangeEventModel",
     "UserModel",
