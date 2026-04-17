@@ -7,6 +7,7 @@ from app.schemas.episode import (
     EpisodeActionQueryResponse,
     EpisodeActionUploadResponse,
 )
+from app.schemas.favorite import FavoriteEpisodeItem
 from app.schemas.podcast_list import (
     PodcastListCreateRequest,
     PodcastListCreateResponse,
@@ -34,6 +35,7 @@ __all__ = [
     "EpisodeActionQuery",
     "EpisodeActionQueryResponse",
     "EpisodeActionUploadResponse",
+    "FavoriteEpisodeItem",
     "PodcastListCreateRequest",
     "PodcastListCreateResponse",
     "PodcastListDocument",

@@ -240,6 +240,51 @@ class EpisodeModel(Base):
         back_populates="episode",
         cascade="all, delete-orphan",
     )
+    favorites: Mapped[list[FavoriteEpisodeModel]] = relationship(
+        back_populates="episode",
+        cascade="all, delete-orphan",
+    )
+
+
+class FavoriteEpisodeModel(Base):
+    __tablename__ = "favorite_episodes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "episode_id",
+            name="uq_favorite_episodes_user_id_episode_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    episode_id: Mapped[int] = mapped_column(
+        ForeignKey("episodes.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    favorited_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    user: Mapped[UserModel] = relationship(back_populates="favorite_episodes")
+    episode: Mapped[EpisodeModel] = relationship(back_populates="favorites")
 
 
 class EpisodeActionModel(Base):

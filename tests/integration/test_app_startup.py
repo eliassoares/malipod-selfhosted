@@ -17,6 +17,11 @@ def test_settings_api_route_is_registered(client: TestClient) -> None:
     assert response.status_code == 401
 
 
+def test_favorites_api_route_is_registered(client: TestClient) -> None:
+    response = client.get("/api/2/favorites/listener_1.json")
+    assert response.status_code == 401
+
+
 def test_invalid_configuration_raises_on_startup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

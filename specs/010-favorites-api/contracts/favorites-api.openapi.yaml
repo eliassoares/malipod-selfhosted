@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info:
+  title: Malipod Favorites API
+  version: 0.1.0-favorites
+  summary: Compatibility contract for authenticated favorite episode retrieval
+  description: >
+    Authenticated compatibility API for retrieving one user's favorite episodes
+    as a JSON array containing episode and podcast metadata.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Favorites
+paths:
+  /api/2/favorites/{username}.json:
+    get:
+      tags: [Favorites]
+      summary: Retrieve favorite episodes for one account
+      operationId: getFavoriteEpisodes
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      responses:
+        "200":
+          description: Favorite episodes returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FavoriteEpisodeItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Username whose favorites are being requested
+  responses:
+    Unauthorized:
+      description: Missing or invalid HTTP Basic authentication
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Authenticated user does not match the targeted username
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested user does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+    FavoriteEpisodeItem:
+      type: object
+      required:
+        - title
+        - url
+        - podcast_title
+        - podcast_url
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        podcast_title:
+          type: string
+        podcast_url:
+          type: string
+          format: uri
+        description:
+          type:
+            - string
+            - "null"
+        website:
+          type:
+            - string
+            - "null"
+          format: uri
+        released:
+          type:
+            - string
+            - "null"
+          format: date-time
+        mygpo_link:
+          type:
+            - string
+            - "null"
+          format: uri
