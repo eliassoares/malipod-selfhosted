@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated, Any
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request, status
 
 from app.core.config import Settings, get_settings
 from app.db.session import get_db_session
-from app.services.auth import AuthService
+from app.services.auth import AuthError, AuthService
 from app.services.devices import DeviceService
 from app.services.episodes import EpisodeService
 from app.services.favorites import FavoritesService
@@ -17,6 +17,8 @@ from app.services.settings import SettingsService
 from app.services.subscriptions import SubscriptionService
 
 if TYPE_CHECKING:
+    from fastapi.security import HTTPBasicCredentials
+
     from app.db.models.user import UserModel
 
 
@@ -97,3 +99,49 @@ async def get_current_user(
     if session_model is None:
         return None
     return session_model.user
+
+
+async def authenticate_api_user(
+    username: str,
+    request: Request,
+    auth_service: AuthService,
+    settings: Settings,
+    credentials: HTTPBasicCredentials | None,
+) -> UserModel:
+    session_id = request.cookies.get(settings.session_cookie_name)
+    if session_id:
+        session_model = await auth_service.get_active_session(session_id)
+        if session_model is not None:
+            if session_model.user.nickname != username:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="authenticated user does not match requested username",
+                )
+            return session_model.user
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication required",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    try:
+        authenticated = await auth_service.authenticate_username(
+            credentials.username,
+            credentials.password,
+        )
+    except AuthError as exc:
+        if exc.code == "invalid_login":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="authentication required",
+                headers={"WWW-Authenticate": "Basic"},
+            ) from exc
+        raise
+
+    if authenticated.nickname != username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="authenticated user does not match requested username",
+        )
+    return authenticated
