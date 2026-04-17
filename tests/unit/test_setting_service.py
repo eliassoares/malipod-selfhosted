@@ -179,6 +179,25 @@ async def test_settings_service_round_trips_known_and_nested_json_values(
 
 
 @pytest.mark.asyncio
+async def test_settings_service_remove_wins_over_set_for_same_key(
+    db_session: AsyncSession, settings: Settings
+) -> None:
+    user = await create_user(db_session, settings)
+    service = SettingsService(db_session)
+
+    result = await service.save_settings(
+        user,
+        SettingsScopeQuery(scope="account"),
+        SettingsMutationRequest(
+            set={"key": "value"},
+            remove=["key"],
+        ),
+    )
+
+    assert "key" not in result.root
+
+
+@pytest.mark.asyncio
 async def test_settings_service_raises_for_missing_targets(
     db_session: AsyncSession, settings: Settings
 ) -> None:
