@@ -210,7 +210,17 @@ opening a pull request.
 
 ## 9. Validation Notes
 
-Automated verification for this feature should cover:
+Automated verification completed for this feature during implementation with:
+
+```bash
+uv run ruff check app tests alembic
+uv run mypy app tests
+uv run bandit -r . -c pyproject.toml
+uv run pip-audit
+uv run pytest -q
+```
+
+The automated verification covers:
 
 - authenticated account, device, podcast, and episode reads
 - authenticated writes with `set` and `remove`
@@ -219,6 +229,12 @@ Automated verification for this feature should cover:
 - missing required query parameter rejection
 - nested JSON round-tripping without type loss
 - cross-account denial and missing-target `404` behavior
+
+Focused settings coverage was exercised through:
+
+```bash
+uv run pytest tests/unit/test_setting_service.py tests/contract/test_settings_api.py tests/integration/test_settings_api_flow.py tests/integration/test_app_startup.py -q
+```
 
 ## 10. Prepare for review
 

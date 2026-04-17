@@ -2,5 +2,6 @@
 
 from app.services.episodes import EpisodeService
 from app.services.podcast_lists import PodcastListService
+from app.services.settings import SettingsService
 
-__all__ = ["EpisodeService", "PodcastListService"]
+__all__ = ["EpisodeService", "PodcastListService", "SettingsService"]

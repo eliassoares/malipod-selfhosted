@@ -12,6 +12,11 @@ def test_app_starts_with_valid_configuration(client: TestClient) -> None:
     assert response.status_code == 200
 
 
+def test_settings_api_route_is_registered(client: TestClient) -> None:
+    response = client.get("/api/2/settings/listener_1/account.json")
+    assert response.status_code == 401
+
+
 def test_invalid_configuration_raises_on_startup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

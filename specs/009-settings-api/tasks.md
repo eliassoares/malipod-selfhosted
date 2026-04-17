@@ -28,10 +28,10 @@ behavior, and cross-account protections.
 
 **Purpose**: Align the settings-api workspace, verification path, and integration points before implementation begins
 
-- [ ] T001 Confirm the active branch is `009-settings-api` and the feature directory in `./.specify/feature.json` points to `specs/009-settings-api`
-- [ ] T002 Review settings-api verification expectations in `specs/009-settings-api/plan.md`, `specs/009-settings-api/quickstart.md`, and `specs/009-settings-api/contracts/settings-api.openapi.yaml`
-- [ ] T003 [P] Review current authenticated compatibility route patterns in `app/api/routes/subscriptions_api.py` and `app/api/routes/episodes_api.py`
-- [ ] T004 [P] Review current model export and migration conventions in `app/db/models/__init__.py`, `app/db/base.py`, and `alembic/versions/`
+- [X] T001 Confirm the active branch is `009-settings-api` and the feature directory in `./.specify/feature.json` points to `specs/009-settings-api`
+- [X] T002 Review settings-api verification expectations in `specs/009-settings-api/plan.md`, `specs/009-settings-api/quickstart.md`, and `specs/009-settings-api/contracts/settings-api.openapi.yaml`
+- [X] T003 [P] Review current authenticated compatibility route patterns in `app/api/routes/subscriptions_api.py` and `app/api/routes/episodes_api.py`
+- [X] T004 [P] Review current model export and migration conventions in `app/db/models/__init__.py`, `app/db/base.py`, and `alembic/versions/`
 
 ---
 
@@ -41,14 +41,14 @@ behavior, and cross-account protections.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create scoped settings ORM models in `app/db/models/settings.py`
-- [ ] T006 Update ORM exports and relationship wiring in `app/db/models/__init__.py`, `app/db/models/user.py`, `app/db/models/device.py`, and `app/db/models/podcast.py`
-- [ ] T007 Create the Alembic migration for scoped settings tables in `alembic/versions/0007_settings_api.py`
-- [ ] T008 [P] Add shared scope, query, mutation, and response schemas in `app/schemas/setting.py` and export them from `app/schemas/__init__.py`
-- [ ] T009 [P] Add settings scope, JSON-object, and target query validation helpers in `app/core/security.py`
-- [ ] T010 [P] Add dependency wiring for the settings service in `app/api/deps.py`, `app/services/__init__.py`, and `app/api/routes/__init__.py`
-- [ ] T011 Implement the shared `SettingsService` scaffolding for scope resolution and atomic document mutation in `app/services/settings.py`
-- [ ] T012 Register the settings API router in `app/api/routes/settings_api.py` and `app/main.py`
+- [X] T005 Create scoped settings ORM models in `app/db/models/settings.py`
+- [X] T006 Update ORM exports and relationship wiring in `app/db/models/__init__.py`, `app/db/models/user.py`, `app/db/models/device.py`, and `app/db/models/podcast.py`
+- [X] T007 Create the Alembic migration for scoped settings tables in `alembic/versions/0007_settings_api.py`
+- [X] T008 [P] Add shared scope, query, mutation, and response schemas in `app/schemas/setting.py` and export them from `app/schemas/__init__.py`
+- [X] T009 [P] Add settings scope, JSON-object, and target query validation helpers in `app/core/security.py`
+- [X] T010 [P] Add dependency wiring for the settings service in `app/api/deps.py`, `app/services/__init__.py`, and `app/api/routes/__init__.py`
+- [X] T011 Implement the shared `SettingsService` scaffolding for scope resolution and atomic document mutation in `app/services/settings.py`
+- [X] T012 Register the settings API router in `app/api/routes/settings_api.py` and `app/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,17 +64,17 @@ behavior, and cross-account protections.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Create contract tests for `GET /api/2/settings/{username}/{scope}.json` in `tests/contract/test_settings_api.py`
-- [ ] T014 [P] [US1] Create unit tests for scope query validation and empty-document reads in `tests/unit/test_setting_service.py`
-- [ ] T015 [P] [US1] Create integration tests for account, device, podcast, and episode reads plus invalid-target behavior in `tests/integration/test_settings_api_flow.py`
+- [X] T013 [P] [US1] Create contract tests for `GET /api/2/settings/{username}/{scope}.json` in `tests/contract/test_settings_api.py`
+- [X] T014 [P] [US1] Create unit tests for scope query validation and empty-document reads in `tests/unit/test_setting_service.py`
+- [X] T015 [P] [US1] Create integration tests for account, device, podcast, and episode reads plus invalid-target behavior in `tests/integration/test_settings_api_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Implement account and device scope read resolution in `app/services/settings.py`
-- [ ] T017 [P] [US1] Implement podcast and episode scope read resolution in `app/services/settings.py`
-- [ ] T018 [P] [US1] Implement authenticated `GET /api/2/settings/{username}/{scope}.json` in `app/api/routes/settings_api.py`
-- [ ] T019 [US1] Integrate read response serialization, empty valid scope handling, and domain error mapping across `app/services/settings.py`, `app/schemas/setting.py`, and `app/api/routes/settings_api.py`
-- [ ] T020 [US1] Document manual read validation for all four scopes in `specs/009-settings-api/quickstart.md`
+- [X] T016 [P] [US1] Implement account and device scope read resolution in `app/services/settings.py`
+- [X] T017 [P] [US1] Implement podcast and episode scope read resolution in `app/services/settings.py`
+- [X] T018 [P] [US1] Implement authenticated `GET /api/2/settings/{username}/{scope}.json` in `app/api/routes/settings_api.py`
+- [X] T019 [US1] Integrate read response serialization, empty valid scope handling, and domain error mapping across `app/services/settings.py`, `app/schemas/setting.py`, and `app/api/routes/settings_api.py`
+- [X] T020 [US1] Document manual read validation for all four scopes in `specs/009-settings-api/quickstart.md`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,17 +90,17 @@ behavior, and cross-account protections.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T021 [P] [US2] Extend contract coverage for `POST /api/2/settings/{username}/{scope}.json` in `tests/contract/test_settings_api.py`
-- [ ] T022 [P] [US2] Add unit tests for atomic `set` and `remove` mutation behavior in `tests/unit/test_setting_service.py`
-- [ ] T023 [P] [US2] Add integration tests for successful writes, removals, malformed payloads, and cross-account denial in `tests/integration/test_settings_api_flow.py`
+- [X] T021 [P] [US2] Extend contract coverage for `POST /api/2/settings/{username}/{scope}.json` in `tests/contract/test_settings_api.py`
+- [X] T022 [P] [US2] Add unit tests for atomic `set` and `remove` mutation behavior in `tests/unit/test_setting_service.py`
+- [X] T023 [P] [US2] Add integration tests for successful writes, removals, malformed payloads, and cross-account denial in `tests/integration/test_settings_api_flow.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Implement lazy document creation and mutation application for account and device scopes in `app/services/settings.py`
-- [ ] T025 [P] [US2] Implement lazy document creation and mutation application for podcast and episode scopes in `app/services/settings.py`
-- [ ] T026 [P] [US2] Implement authenticated `POST /api/2/settings/{username}/{scope}.json` in `app/api/routes/settings_api.py`
-- [ ] T027 [US2] Integrate request-body validation, atomic transaction boundaries, and resulting-document responses across `app/services/settings.py`, `app/schemas/setting.py`, and `app/api/routes/settings_api.py`
-- [ ] T028 [US2] Document manual write and removal validation for all four scopes in `specs/009-settings-api/quickstart.md`
+- [X] T024 [P] [US2] Implement lazy document creation and mutation application for account and device scopes in `app/services/settings.py`
+- [X] T025 [P] [US2] Implement lazy document creation and mutation application for podcast and episode scopes in `app/services/settings.py`
+- [X] T026 [P] [US2] Implement authenticated `POST /api/2/settings/{username}/{scope}.json` in `app/api/routes/settings_api.py`
+- [X] T027 [US2] Integrate request-body validation, atomic transaction boundaries, and resulting-document responses across `app/services/settings.py`, `app/schemas/setting.py`, and `app/api/routes/settings_api.py`
+- [X] T028 [US2] Document manual write and removal validation for all four scopes in `specs/009-settings-api/quickstart.md`
 
 **Checkpoint**: At this point, User Stories 1 and 2 should both work independently
 
@@ -116,17 +116,17 @@ behavior, and cross-account protections.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T029 [P] [US3] Extend contract tests for scope-specific validation and not-found semantics in `tests/contract/test_settings_api.py`
-- [ ] T030 [P] [US3] Add unit tests for known-setting round-tripping, unknown-key retention, and JSON type preservation in `tests/unit/test_setting_service.py`
-- [ ] T031 [P] [US3] Add integration tests for nested JSON values, missing query parameters, podcast-episode mismatch, and missing-target `404` behavior in `tests/integration/test_settings_api_flow.py`
+- [X] T029 [P] [US3] Extend contract tests for scope-specific validation and not-found semantics in `tests/contract/test_settings_api.py`
+- [X] T030 [P] [US3] Add unit tests for known-setting round-tripping, unknown-key retention, and JSON type preservation in `tests/unit/test_setting_service.py`
+- [X] T031 [P] [US3] Add integration tests for nested JSON values, missing query parameters, podcast-episode mismatch, and missing-target `404` behavior in `tests/integration/test_settings_api_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement strict scope-target validation and podcast-episode matching rules in `app/services/settings.py`
-- [ ] T033 [P] [US3] Implement schema-level validation for known scopes, required query parameters, and JSON-object payload rules in `app/schemas/setting.py` and `app/core/security.py`
-- [ ] T034 [P] [US3] Refine route-level error translation for invalid scope, missing identifiers, and missing targets in `app/api/routes/settings_api.py`
-- [ ] T035 [US3] Ensure known settings and arbitrary JSON values round-trip without coercion across `app/services/settings.py`, `app/db/models/settings.py`, and `app/schemas/setting.py`
-- [ ] T036 [US3] Document manual validation for known settings, nested JSON values, and scope-rule failures in `specs/009-settings-api/quickstart.md`
+- [X] T032 [P] [US3] Implement strict scope-target validation and podcast-episode matching rules in `app/services/settings.py`
+- [X] T033 [P] [US3] Implement schema-level validation for known scopes, required query parameters, and JSON-object payload rules in `app/schemas/setting.py` and `app/core/security.py`
+- [X] T034 [P] [US3] Refine route-level error translation for invalid scope, missing identifiers, and missing targets in `app/api/routes/settings_api.py`
+- [X] T035 [US3] Ensure known settings and arbitrary JSON values round-trip without coercion across `app/services/settings.py`, `app/db/models/settings.py`, and `app/schemas/setting.py`
+- [X] T036 [US3] Document manual validation for known settings, nested JSON values, and scope-rule failures in `specs/009-settings-api/quickstart.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,10 +136,10 @@ behavior, and cross-account protections.
 
 **Purpose**: Finish repository-wide verification, cleanup, and review preparation
 
-- [ ] T037 [P] Add startup and router registration coverage for the settings API in `tests/integration/test_app_startup.py`
-- [ ] T038 [P] Run repository quality gates and record the commands/results in `specs/009-settings-api/quickstart.md`
-- [ ] T039 Run the full settings quickstart validation and capture any final documentation refinements in `specs/009-settings-api/quickstart.md`
-- [ ] T040 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred follow-ups in `./PR_SUMMARY.md`
+- [X] T037 [P] Add startup and router registration coverage for the settings API in `tests/integration/test_app_startup.py`
+- [X] T038 [P] Run repository quality gates and record the commands/results in `specs/009-settings-api/quickstart.md`
+- [X] T039 Run the full settings quickstart validation and capture any final documentation refinements in `specs/009-settings-api/quickstart.md`
+- [X] T040 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred follow-ups in `./PR_SUMMARY.md`
 
 ---
 
