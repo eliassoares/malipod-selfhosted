@@ -15,6 +15,7 @@ JSONP_CALLBACK_RE = re.compile(r"^[A-Za-z_$][\w.$]*$")
 
 SUBSCRIPTION_FORMATS = ("json", "opml", "txt")
 EPISODE_ACTION_TYPES = ("download", "delete", "play", "new", "flattr")
+SETTINGS_SCOPES = ("account", "device", "podcast", "episode")
 
 PBKDF2_ALGORITHM = "sha256"
 PBKDF2_ITERATIONS = 600_000
@@ -70,6 +71,13 @@ def validate_list_format(value: str) -> str:
     return validate_subscription_format(value)
 
 
+def validate_settings_scope(value: str) -> str:
+    cleaned = value.strip().lower()
+    if cleaned not in SETTINGS_SCOPES:
+        raise ValueError("scope must be one of account, device, podcast, episode")
+    return cleaned
+
+
 def validate_jsonp_callback(value: str | None) -> str | None:
     if value is None:
         return None
@@ -122,6 +130,36 @@ def sanitize_episode_url(value: str) -> str:
     if parsed.scheme.lower() not in {"http", "https"}:
         return ""
     return cleaned
+
+
+def validate_settings_podcast_url(value: str | None) -> str | None:
+    if value is None:
+        return None
+    sanitized = sanitize_subscription_url(value)
+    if not sanitized:
+        raise ValueError("podcast must be an http or https URL")
+    return sanitized
+
+
+def validate_settings_episode_url(value: str | None) -> str | None:
+    if value is None:
+        return None
+    sanitized = sanitize_episode_url(value)
+    if not sanitized:
+        raise ValueError("episode must be an ASCII http or https URL")
+    return sanitized
+
+
+def validate_settings_json_object(
+    value: object | None,
+    *,
+    field_name: str,
+) -> dict[str, object]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ValueError(f"{field_name} must be a JSON object")
+    return {str(key): item for key, item in value.items()}
 
 
 def validate_episode_action(value: str) -> str:

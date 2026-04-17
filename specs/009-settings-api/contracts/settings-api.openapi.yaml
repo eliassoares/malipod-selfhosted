@@ -1,0 +1,175 @@
+openapi: 3.1.0
+info:
+  title: Malipod Settings API
+  version: 0.1.0-settings
+  summary: Compatibility contracts for scoped account, device, podcast, and episode settings
+  description: >
+    Authenticated compatibility API for storing and retrieving settings as
+    key-value pairs attached to one user-owned scope target. Both read and save
+    operations return the full resulting settings document for the requested
+    scope.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: Settings
+paths:
+  /api/2/settings/{username}/{scope}.json:
+    get:
+      tags: [Settings]
+      summary: Retrieve settings for one scoped target
+      operationId: getScopedSettings
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Podcast"
+        - $ref: "#/components/parameters/Device"
+        - $ref: "#/components/parameters/Episode"
+      responses:
+        "200":
+          description: Current settings returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsDocument"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [Settings]
+      summary: Save settings for one scoped target
+      operationId: saveScopedSettings
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Podcast"
+        - $ref: "#/components/parameters/Device"
+        - $ref: "#/components/parameters/Episode"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsMutationRequest"
+      responses:
+        "200":
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsDocument"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Username of the targeted account
+    Scope:
+      name: scope
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [account, device, podcast, episode]
+      description: Scope of the settings document
+    Podcast:
+      name: podcast
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uri
+      description: Required for podcast and episode scopes
+    Device:
+      name: device
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Required for device scope
+    Episode:
+      name: episode
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uri
+      description: Required for episode scope
+  responses:
+    BadRequest:
+      description: Invalid scope, missing required query parameters, or malformed JSON payload
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing or invalid HTTP Basic authentication
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Authenticated user does not match the targeted username
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested user or scoped target does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+    SettingsDocument:
+      type: object
+      description: JSON object containing all currently stored settings for the targeted scope
+      additionalProperties: true
+    SettingsMutationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        set:
+          type: object
+          description: Key-value pairs to add or replace
+          additionalProperties: true
+          default: {}
+        remove:
+          type: array
+          description: Keys to remove from the targeted scope
+          items:
+            type: string
+          default: []
+      description: >
+        Mutation request for one scope target. The service applies all removals
+        and additions atomically and returns the resulting settings document.

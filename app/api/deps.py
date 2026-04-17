@@ -12,6 +12,7 @@ from app.services.episodes import EpisodeService
 from app.services.localization import LocalizationService
 from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
+from app.services.settings import SettingsService
 from app.services.subscriptions import SubscriptionService
 
 if TYPE_CHECKING:
@@ -65,6 +66,12 @@ def get_podcast_list_service(
     settings: Annotated[Settings, Depends(get_runtime_settings)],
 ) -> PodcastListService:
     return PodcastListService(session=session, base_url=settings.base_url)
+
+
+def get_settings_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> SettingsService:
+    return SettingsService(session=session)
 
 
 def get_localization_service(

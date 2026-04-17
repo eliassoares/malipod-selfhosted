@@ -14,6 +14,7 @@ if TYPE_CHECKING:
         EpisodeActionModel,
         SubscriptionChangeEventModel,
     )
+    from app.db.models.settings import DeviceSettingModel
     from app.db.models.user import UserModel
 
 
@@ -54,6 +55,10 @@ class DeviceModel(Base):
         back_populates="device",
     )
     subscription_events: Mapped[list[SubscriptionChangeEventModel]] = relationship(
+        back_populates="device",
+        cascade="all, delete-orphan",
+    )
+    settings_documents: Mapped[list[DeviceSettingModel]] = relationship(
         back_populates="device",
         cascade="all, delete-orphan",
     )

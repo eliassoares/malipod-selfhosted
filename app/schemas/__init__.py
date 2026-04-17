@@ -22,6 +22,11 @@ from app.schemas.podcast_list import (
     PodcastListSummary,
     PodcastListUpdateRequest,
 )
+from app.schemas.setting import (
+    SettingsDocument,
+    SettingsMutationRequest,
+    SettingsScopeQuery,
+)
 
 __all__ = [
     "EpisodeActionInput",
@@ -42,4 +47,7 @@ __all__ = [
     "PodcastListRenderResult",
     "PodcastListSummary",
     "PodcastListUpdateRequest",
+    "SettingsDocument",
+    "SettingsMutationRequest",
+    "SettingsScopeQuery",
 ]

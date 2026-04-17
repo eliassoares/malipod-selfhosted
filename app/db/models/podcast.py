@@ -18,6 +18,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.db.models.device import DeviceModel
+    from app.db.models.settings import EpisodeSettingModel, PodcastSettingModel
     from app.db.models.user import UserModel
 
 
@@ -55,6 +56,10 @@ class PodcastFeedModel(Base):
         passive_deletes=True,
     )
     episodes: Mapped[list[EpisodeModel]] = relationship(
+        back_populates="feed",
+        cascade="all, delete-orphan",
+    )
+    podcast_settings: Mapped[list[PodcastSettingModel]] = relationship(
         back_populates="feed",
         cascade="all, delete-orphan",
     )
@@ -228,6 +233,10 @@ class EpisodeModel(Base):
         cascade="all, delete-orphan",
     )
     action_events: Mapped[list[EpisodeActionEventModel]] = relationship(
+        back_populates="episode",
+        cascade="all, delete-orphan",
+    )
+    settings_documents: Mapped[list[EpisodeSettingModel]] = relationship(
         back_populates="episode",
         cascade="all, delete-orphan",
     )

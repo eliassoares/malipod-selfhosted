@@ -16,6 +16,12 @@ if TYPE_CHECKING:
         PodcastListModel,
     )
     from app.db.models.session import AuthenticatedSessionModel
+    from app.db.models.settings import (
+        AccountSettingModel,
+        DeviceSettingModel,
+        EpisodeSettingModel,
+        PodcastSettingModel,
+    )
 
 
 class UserModel(Base):
@@ -64,6 +70,22 @@ class UserModel(Base):
         cascade="all, delete-orphan",
     )
     podcast_lists: Mapped[list[PodcastListModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    account_settings: Mapped[AccountSettingModel | None] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    device_settings: Mapped[list[DeviceSettingModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    podcast_settings: Mapped[list[PodcastSettingModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    episode_settings: Mapped[list[EpisodeSettingModel]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
