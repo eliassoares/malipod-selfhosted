@@ -55,7 +55,16 @@ def upgrade() -> None:
             name="uq_favorite_episodes_user_id_episode_id",
         ),
     )
+    op.create_index(
+        "ix_favorite_episodes_user_id_favorited_at",
+        "favorite_episodes",
+        ["user_id", "favorited_at"],
+    )
 
 
 def downgrade() -> None:
+    op.drop_index(
+        "ix_favorite_episodes_user_id_favorited_at",
+        table_name="favorite_episodes",
+    )
     op.drop_table("favorite_episodes")

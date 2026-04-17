@@ -42,6 +42,8 @@ class FavoritesService:
             target_user = await self._get_target_user(username)
             if target_user is None:
                 raise FavoritesError("target_not_found")
+            # 404 before 403: gpodder.net returns not-found for absent users even
+            # to authenticated callers; 403 only when the target account exists.
             raise FavoritesError("forbidden")
 
         result = await self.session.execute(
