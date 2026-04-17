@@ -28,10 +28,10 @@ and create/update/delete flows.
 
 **Purpose**: Align the podcast-lists workspace, developer verification path, and API route entry points before implementation begins
 
-- [ ] T001 Confirm the active branch is `008-podcast-lists-api` and the feature directory in `./.specify/feature.json` points to `specs/008-podcast-lists-api`
-- [ ] T002 Review and update podcast-lists verification shortcuts in `./Makefile` and `./pyproject.toml`
-- [ ] T003 [P] Review local environment and manual validation prerequisites for podcast lists in `./.env.example` and `specs/008-podcast-lists-api/quickstart.md`
-- [ ] T004 [P] Review API router registration points and current compatibility route layout in `app/main.py` and `app/api/routes/__init__.py`
+- [X] T001 Confirm the active branch is `008-podcast-lists-api` and the feature directory in `./.specify/feature.json` points to `specs/008-podcast-lists-api`
+- [X] T002 Review and update podcast-lists verification shortcuts in `./Makefile` and `./pyproject.toml`
+- [X] T003 [P] Review local environment and manual validation prerequisites for podcast lists in `./.env.example` and `specs/008-podcast-lists-api/quickstart.md`
+- [X] T004 [P] Review API router registration points and current compatibility route layout in `app/main.py` and `app/api/routes/__init__.py`
 
 ---
 
@@ -41,15 +41,15 @@ and create/update/delete flows.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create the `PodcastList` and `PodcastListItem` ORM models plus feed relationships in `app/db/models/podcast.py` and `app/db/models/user.py`
-- [ ] T006 Update ORM exports and metadata wiring for the podcast-lists domain in `app/db/models/__init__.py` and `app/db/base.py`
-- [ ] T007 Create the Alembic migration for podcast-list tables in `alembic/versions/0006_podcast_lists.py`
-- [ ] T008 [P] Add shared podcast-list request and response schemas in `app/schemas/podcast_list.py` and export them from `app/schemas/__init__.py`
-- [ ] T009 [P] Add canonical-name, list-format, and shared feed URL validation helpers in `app/core/security.py`
-- [ ] T010 [P] Extend dependency wiring for podcast-list services in `app/api/deps.py`
-- [ ] T011 [P] Extend shared JSON, OPML, and plaintext parsing/rendering utilities for podcast-list documents in `app/services/subscription_formats.py`
-- [ ] T012 Implement shared podcast-list persistence, feed resolution, canonical-name generation, and ordering scaffolding in `app/services/podcast_lists.py`
-- [ ] T013 Register the podcast-lists API router in `app/api/routes/lists_api.py`, `app/api/routes/__init__.py`, `app/services/__init__.py`, and `app/main.py`
+- [X] T005 Create the `PodcastList` and `PodcastListItem` ORM models plus feed relationships in `app/db/models/podcast.py` and `app/db/models/user.py`
+- [X] T006 Update ORM exports and metadata wiring for the podcast-lists domain in `app/db/models/__init__.py` and `app/db/base.py`
+- [X] T007 Create the Alembic migration for podcast-list tables in `alembic/versions/0006_podcast_lists.py`
+- [X] T008 [P] Add shared podcast-list request and response schemas in `app/schemas/podcast_list.py` and export them from `app/schemas/__init__.py`
+- [X] T009 [P] Add canonical-name, list-format, and shared feed URL validation helpers in `app/core/security.py`
+- [X] T010 [P] Extend dependency wiring for podcast-list services in `app/api/deps.py`
+- [X] T011 [P] Extend shared JSON, OPML, and plaintext parsing/rendering utilities for podcast-list documents in `app/services/subscription_formats.py`
+- [X] T012 Implement shared podcast-list persistence, feed resolution, canonical-name generation, and ordering scaffolding in `app/services/podcast_lists.py`
+- [X] T013 Register the podcast-lists API router in `app/api/routes/lists_api.py`, `app/api/routes/__init__.py`, `app/services/__init__.py`, and `app/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,17 +65,17 @@ and create/update/delete flows.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T014 [P] [US1] Create contract tests for `GET /api/2/lists/{username}.json` and `GET /api/2/lists/{username}/list/{listname}.{format}` in `tests/contract/test_lists_api.py`
-- [ ] T015 [P] [US1] Create unit tests for summary ordering, web URL derivation, and list document rendering in `tests/unit/test_podcast_list_service.py`
-- [ ] T016 [P] [US1] Create integration tests for summary reads, per-list reads, and `404` missing-resource behavior in `tests/integration/test_lists_api_flow.py`
+- [X] T014 [P] [US1] Create contract tests for `GET /api/2/lists/{username}.json` and `GET /api/2/lists/{username}/list/{listname}.{format}` in `tests/contract/test_lists_api.py`
+- [X] T015 [P] [US1] Create unit tests for summary ordering, web URL derivation, and list document rendering in `tests/unit/test_podcast_list_service.py`
+- [X] T016 [P] [US1] Create integration tests for summary reads, per-list reads, and `404` missing-resource behavior in `tests/integration/test_lists_api_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement user-scoped list summary queries and public web URL serialization in `app/services/podcast_lists.py`
-- [ ] T018 [P] [US1] Implement per-list read queries and supported-format rendering in `app/services/podcast_lists.py` and `app/services/subscription_formats.py`
-- [ ] T019 [P] [US1] Implement `GET /api/2/lists/{username}.json` and `GET /api/2/lists/{username}/list/{listname}.{format}` in `app/api/routes/lists_api.py`
-- [ ] T020 [US1] Integrate public read schemas, not-found handling, and response serialization across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, and `app/api/routes/lists_api.py`
-- [ ] T021 [US1] Document manual verification for list-summary and per-list read flows in `specs/008-podcast-lists-api/quickstart.md`
+- [X] T017 [P] [US1] Implement user-scoped list summary queries and public web URL serialization in `app/services/podcast_lists.py`
+- [X] T018 [P] [US1] Implement per-list read queries and supported-format rendering in `app/services/podcast_lists.py` and `app/services/subscription_formats.py`
+- [X] T019 [P] [US1] Implement `GET /api/2/lists/{username}.json` and `GET /api/2/lists/{username}/list/{listname}.{format}` in `app/api/routes/lists_api.py`
+- [X] T020 [US1] Integrate public read schemas, not-found handling, and response serialization across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, and `app/api/routes/lists_api.py`
+- [X] T021 [US1] Document manual verification for list-summary and per-list read flows in `specs/008-podcast-lists-api/quickstart.md`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,17 +91,17 @@ and create/update/delete flows.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T022 [P] [US2] Extend contract coverage for `POST /api/2/lists/{username}/create.{format}` in `tests/contract/test_lists_api.py`
-- [ ] T023 [P] [US2] Add unit tests for canonical-name generation, fallback slug behavior, feed normalization, and duplicate-name conflict detection in `tests/unit/test_podcast_list_service.py`
-- [ ] T024 [P] [US2] Add integration tests for successful creation, `303` redirect responses, and cross-account rejection in `tests/integration/test_lists_api_flow.py`
+- [X] T022 [P] [US2] Extend contract coverage for `POST /api/2/lists/{username}/create.{format}` in `tests/contract/test_lists_api.py`
+- [X] T023 [P] [US2] Add unit tests for canonical-name generation, fallback slug behavior, feed normalization, and duplicate-name conflict detection in `tests/unit/test_podcast_list_service.py`
+- [X] T024 [P] [US2] Add integration tests for successful creation, `303` redirect responses, and cross-account rejection in `tests/integration/test_lists_api_flow.py`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement create-document parsing and ordered feed normalization in `app/services/subscription_formats.py` and `app/services/podcast_lists.py`
-- [ ] T026 [P] [US2] Implement canonical-name generation, conflict checks, feed upsert, and list creation in `app/services/podcast_lists.py`
-- [ ] T027 [P] [US2] Implement `POST /api/2/lists/{username}/create.{format}` in `app/api/routes/lists_api.py`
-- [ ] T028 [US2] Integrate redirect response handling, ownership enforcement, and create request validation across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, `app/core/security.py`, and `app/api/routes/lists_api.py`
-- [ ] T029 [US2] Document manual verification for create success, conflict, and ownership rejection in `specs/008-podcast-lists-api/quickstart.md`
+- [X] T025 [P] [US2] Implement create-document parsing and ordered feed normalization in `app/services/subscription_formats.py` and `app/services/podcast_lists.py`
+- [X] T026 [P] [US2] Implement canonical-name generation, conflict checks, feed upsert, and list creation in `app/services/podcast_lists.py`
+- [X] T027 [P] [US2] Implement `POST /api/2/lists/{username}/create.{format}` in `app/api/routes/lists_api.py`
+- [X] T028 [US2] Integrate redirect response handling, ownership enforcement, and create request validation across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, `app/core/security.py`, and `app/api/routes/lists_api.py`
+- [X] T029 [US2] Document manual verification for create success, conflict, and ownership rejection in `specs/008-podcast-lists-api/quickstart.md`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,17 +117,17 @@ and create/update/delete flows.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T030 [P] [US3] Extend contract coverage for `PUT /api/2/lists/{username}/list/{listname}.{format}` and `DELETE /api/2/lists/{username}/list/{listname}.{format}` in `tests/contract/test_lists_api.py`
-- [ ] T031 [P] [US3] Add unit tests for ordered list-item replacement, empty-list updates, and delete semantics in `tests/unit/test_podcast_list_service.py`
-- [ ] T032 [P] [US3] Add integration tests for update, delete, repeated delete, and missing-list flows in `tests/integration/test_lists_api_flow.py`
+- [X] T030 [P] [US3] Extend contract coverage for `PUT /api/2/lists/{username}/list/{listname}.{format}` and `DELETE /api/2/lists/{username}/list/{listname}.{format}` in `tests/contract/test_lists_api.py`
+- [X] T031 [P] [US3] Add unit tests for ordered list-item replacement, empty-list updates, and delete semantics in `tests/unit/test_podcast_list_service.py`
+- [X] T032 [P] [US3] Add integration tests for update, delete, repeated delete, and missing-list flows in `tests/integration/test_lists_api_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement list replacement logic, stable item reordering, and update timestamps in `app/services/podcast_lists.py`
-- [ ] T034 [P] [US3] Implement list deletion and missing-resource detection in `app/services/podcast_lists.py`
-- [ ] T035 [P] [US3] Implement `PUT /api/2/lists/{username}/list/{listname}.{format}` and `DELETE /api/2/lists/{username}/list/{listname}.{format}` in `app/api/routes/lists_api.py`
-- [ ] T036 [US3] Integrate `204` empty responses, ownership enforcement, and format-aware update validation across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, and `app/api/routes/lists_api.py`
-- [ ] T037 [US3] Document manual verification for update, delete, and missing-list behavior in `specs/008-podcast-lists-api/quickstart.md`
+- [X] T033 [P] [US3] Implement list replacement logic, stable item reordering, and update timestamps in `app/services/podcast_lists.py`
+- [X] T034 [P] [US3] Implement list deletion and missing-resource detection in `app/services/podcast_lists.py`
+- [X] T035 [P] [US3] Implement `PUT /api/2/lists/{username}/list/{listname}.{format}` and `DELETE /api/2/lists/{username}/list/{listname}.{format}` in `app/api/routes/lists_api.py`
+- [X] T036 [US3] Integrate `204` empty responses, ownership enforcement, and format-aware update validation across `app/services/podcast_lists.py`, `app/schemas/podcast_list.py`, and `app/api/routes/lists_api.py`
+- [X] T037 [US3] Document manual verification for update, delete, and missing-list behavior in `specs/008-podcast-lists-api/quickstart.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,12 +137,12 @@ and create/update/delete flows.
 
 **Purpose**: Finish contract alignment, full verification, and review readiness across all podcast-list stories
 
-- [ ] T038 [P] Align implemented behavior with `specs/008-podcast-lists-api/contracts/podcast-lists-api.openapi.yaml`
-- [ ] T039 [P] Add any remaining podcast-lists verification required by the constitution in `tests/contract/test_lists_api.py`, `tests/integration/test_lists_api_flow.py`, and `tests/unit/test_podcast_list_service.py`
-- [ ] T040 [P] Remove or refactor any podcast-lists-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
-- [ ] T041 Update developer verification shortcuts and feature notes in `./Makefile`, `./README.md`, and `specs/008-podcast-lists-api/quickstart.md`
-- [ ] T042 Run and document the full podcast-lists quickstart validation in `specs/008-podcast-lists-api/quickstart.md`
-- [ ] T043 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred follow-ups in `./PR_SUMMARY.md`
+- [X] T038 [P] Align implemented behavior with `specs/008-podcast-lists-api/contracts/podcast-lists-api.openapi.yaml`
+- [X] T039 [P] Add any remaining podcast-lists verification required by the constitution in `tests/contract/test_lists_api.py`, `tests/integration/test_lists_api_flow.py`, and `tests/unit/test_podcast_list_service.py`
+- [X] T040 [P] Remove or refactor any podcast-lists-related inline suppressions encountered while implementing the feature in `app/` and `tests/`
+- [X] T041 Update developer verification shortcuts and feature notes in `./Makefile`, `./README.md`, and `specs/008-podcast-lists-api/quickstart.md`
+- [X] T042 Run and document the full podcast-lists quickstart validation in `specs/008-podcast-lists-api/quickstart.md`
+- [X] T043 Prepare PR summary with implemented scope, verification evidence, migration notes, and deferred follow-ups in `./PR_SUMMARY.md`
 
 ---
 
@@ -275,4 +275,4 @@ With multiple developers:
 - Every user story includes an independent test target
 - All tasks include explicit file paths
 - Suggested MVP scope: Phase 1 + Phase 2 + Phase 3 (User Story 1)
-- Format validation: all tasks follow the required `- [ ] T### [P] [US#] Description with file path` structure where applicable
+- Format validation: all tasks follow the required `- [X] T### [P] [US#] Description with file path` structure where applicable

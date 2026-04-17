@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import re
 import secrets
+import unicodedata
 from urllib.parse import urlsplit, urlunsplit
 
 NICKNAME_RE = re.compile(r"^[A-Za-z0-9_-]{8,16}$")
@@ -65,6 +66,10 @@ def validate_subscription_format(value: str) -> str:
     return cleaned
 
 
+def validate_list_format(value: str) -> str:
+    return validate_subscription_format(value)
+
+
 def validate_jsonp_callback(value: str | None) -> str | None:
     if value is None:
         return None
@@ -84,6 +89,25 @@ def sanitize_subscription_url(value: str) -> str:
     if parsed.scheme.lower() not in {"http", "https"}:
         return ""
     return cleaned
+
+
+def validate_podcast_list_title(value: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError("title must not be empty")
+    if len(cleaned) > 255:
+        raise ValueError("title must not exceed 255 characters")
+    return cleaned
+
+
+def normalize_podcast_list_name(value: str) -> str:
+    normalized = (
+        unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    )
+    lowered = normalized.strip().lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", lowered).strip("-")
+    slug = re.sub(r"-{2,}", "-", slug)
+    return slug or "list"
 
 
 def sanitize_episode_url(value: str) -> str:

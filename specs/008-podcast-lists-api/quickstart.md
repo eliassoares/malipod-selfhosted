@@ -154,7 +154,16 @@ a pull request.
 
 ## 8. Validation Notes
 
-Automated verification for this feature should cover:
+Automated verification completed for this feature during implementation with:
+
+```bash
+uv run ruff check app tests alembic
+uv run mypy app tests
+SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa DATABASE_URL=sqlite+aiosqlite:///./test.db TEST_DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest tests/unit/test_podcast_list_service.py tests/unit/test_subscription_formats.py tests/contract/test_lists_api.py tests/integration/test_lists_api_flow.py tests/integration/test_app_startup.py -q
+make verify-lists
+```
+
+The automated coverage validates:
 
 - canonical-name generation and same-user conflict handling
 - list-summary JSON responses and public list reads

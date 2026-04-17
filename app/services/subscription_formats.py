@@ -4,6 +4,12 @@ import json
 import re
 from dataclasses import dataclass
 
+from app.schemas.podcast_list import (
+    PodcastListEntry,
+    PodcastListJsonUpload,
+    PodcastListRenderPayload,
+    PodcastListRenderResult,
+)
 from app.schemas.subscription import (
     SubscriptionItem,
     SubscriptionJsonUpload,
@@ -16,6 +22,14 @@ from app.schemas.subscription import (
 class ImportedSubscription:
     url: str
     title: str | None = None
+
+
+@dataclass(slots=True)
+class ImportedPodcastListEntry:
+    url: str
+    title: str | None = None
+    website: str | None = None
+    description: str | None = None
 
 
 class SubscriptionFormatService:
@@ -68,10 +82,53 @@ class SubscriptionFormatService:
             raise ValueError("request body must be valid subscription JSON") from exc
         return [ImportedSubscription(url=url) for url in payload.to_urls()]
 
+    def parse_list_upload(
+        self, format_name: str, body: bytes
+    ) -> list[ImportedPodcastListEntry]:
+        if format_name == "json":
+            return self._parse_list_json(body)
+        if format_name == "opml":
+            return self._parse_list_opml(body)
+        if format_name == "txt":
+            return self._parse_list_txt(body)
+        raise ValueError("format must be one of json, opml, txt")
+
+    def render_list(self, payload: PodcastListRenderPayload) -> PodcastListRenderResult:
+        if payload.format == "json":
+            return PodcastListRenderResult(
+                media_type="application/json",
+                content={
+                    "title": payload.title,
+                    "name": payload.name,
+                    "podcasts": [
+                        item.model_dump(exclude_none=True) for item in payload.items
+                    ],
+                },
+            )
+        if payload.format == "opml":
+            return PodcastListRenderResult(
+                media_type="application/xml",
+                content=self._render_list_opml(payload),
+            )
+        if payload.format == "txt":
+            return PodcastListRenderResult(
+                media_type="text/plain; charset=utf-8",
+                content=self._render_list_txt(payload.items),
+            )
+        raise ValueError("format must be one of json, opml, txt")
+
     def _parse_txt(self, body: bytes) -> list[ImportedSubscription]:
         text = body.decode("utf-8")
         return [
             ImportedSubscription(url=line)
+            for line in (candidate.strip() for candidate in text.splitlines())
+            if line
+        ]
+
+    def _parse_list_txt(self, body: bytes) -> list[ImportedPodcastListEntry]:
+        text = body.decode("utf-8")
+        return [
+            ImportedPodcastListEntry(url=line)
             for line in (candidate.strip() for candidate in text.splitlines())
             if line
         ]
@@ -102,6 +159,49 @@ class SubscriptionFormatService:
             )
         return items
 
+    def _parse_list_opml(self, body: bytes) -> list[ImportedPodcastListEntry]:
+        text = body.decode("utf-8")
+        if "<opml" not in text.lower():
+            raise ValueError("request body must be valid OPML")
+        items: list[ImportedPodcastListEntry] = []
+        outline_matches = re.findall(
+            r"<outline\b([^>]*)/?>",
+            text,
+            flags=re.IGNORECASE,
+        )
+        for attributes in outline_matches:
+            attr_map = dict(
+                re.findall(r'([A-Za-z_:][\w:.-]*)\s*=\s*"([^"]*)"', attributes)
+            )
+            url = attr_map.get("xmlUrl", "").strip()
+            if not url:
+                continue
+            title = attr_map.get("title") or attr_map.get("text")
+            website = attr_map.get("htmlUrl")
+            items.append(
+                ImportedPodcastListEntry(
+                    url=url,
+                    title=title.strip() if title else None,
+                    website=website.strip() if website else None,
+                )
+            )
+        return items
+
+    def _parse_list_json(self, body: bytes) -> list[ImportedPodcastListEntry]:
+        try:
+            payload = PodcastListJsonUpload.model_validate_json(body)
+        except Exception as exc:  # pragma: no cover
+            raise ValueError("request body must be valid podcast list JSON") from exc
+        return [
+            ImportedPodcastListEntry(
+                url=item.url,
+                title=item.title,
+                website=item.website,
+                description=item.description,
+            )
+            for item in payload.to_entries()
+        ]
+
     def _render_txt(self, items: list[SubscriptionItem]) -> str:
         if not items:
             return ""
@@ -126,6 +226,37 @@ class SubscriptionFormatService:
             '<opml version="1.0">\n'
             "  <head>\n"
             "    <title>Malipod subscriptions</title>\n"
+            "  </head>\n"
+            "  <body>\n"
+            f"{outline_block}\n"
+            "  </body>\n"
+            "</opml>"
+        )
+
+    def _render_list_txt(self, items: list[PodcastListEntry]) -> str:
+        if not items:
+            return ""
+        return "\n".join(item.url for item in items) + "\n"
+
+    def _render_list_opml(self, payload: PodcastListRenderPayload) -> str:
+        outlines: list[str] = []
+        for item in payload.items:
+            label = item.title or item.url
+            attrs = [
+                'type="rss"',
+                f'xmlUrl="{self._escape_xml(item.url)}"',
+                f'text="{self._escape_xml(label)}"',
+                f'title="{self._escape_xml(label)}"',
+            ]
+            if item.website:
+                attrs.append(f'htmlUrl="{self._escape_xml(item.website)}"')
+            outlines.append(f"    <outline {' '.join(attrs)} />")
+        outline_block = "\n".join(outlines)
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<opml version="1.0">\n'
+            "  <head>\n"
+            f"    <title>{self._escape_xml(payload.title)}</title>\n"
             "  </head>\n"
             "  <body>\n"
             f"{outline_block}\n"

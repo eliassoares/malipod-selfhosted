@@ -10,6 +10,7 @@ from app.services.auth import AuthService
 from app.services.devices import DeviceService
 from app.services.episodes import EpisodeService
 from app.services.localization import LocalizationService
+from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
 from app.services.subscriptions import SubscriptionService
 
@@ -57,6 +58,12 @@ def get_episode_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> EpisodeService:
     return EpisodeService(session=session)
+
+
+def get_podcast_list_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> PodcastListService:
+    return PodcastListService(session=session)
 
 
 def get_localization_service(

@@ -3,7 +3,15 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -41,10 +49,87 @@ class PodcastFeedModel(Base):
         back_populates="feed",
         cascade="all, delete-orphan",
     )
+    list_items: Mapped[list[PodcastListItemModel]] = relationship(
+        back_populates="feed",
+        cascade="all, delete-orphan",
+    )
     episodes: Mapped[list[EpisodeModel]] = relationship(
         back_populates="feed",
         cascade="all, delete-orphan",
     )
+
+
+class PodcastListModel(Base):
+    __tablename__ = "podcast_lists"
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_podcast_lists_user_id_name"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    user: Mapped[UserModel] = relationship(back_populates="podcast_lists")
+    items: Mapped[list[PodcastListItemModel]] = relationship(
+        back_populates="podcast_list",
+        cascade="all, delete-orphan",
+        order_by="PodcastListItemModel.position",
+    )
+
+
+class PodcastListItemModel(Base):
+    __tablename__ = "podcast_list_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "list_id",
+            "feed_id",
+            name="uq_podcast_list_items_list_id_feed_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    list_id: Mapped[int] = mapped_column(
+        ForeignKey("podcast_lists.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    feed_id: Mapped[int] = mapped_column(
+        ForeignKey("podcast_feeds.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    podcast_list: Mapped[PodcastListModel] = relationship(back_populates="items")
+    feed: Mapped[PodcastFeedModel] = relationship(back_populates="list_items")
 
 
 class DeviceSubscriptionModel(Base):
