@@ -10,6 +10,7 @@ from app.api.routes.auth_api import router as auth_api_router
 from app.api.routes.auth_site import router as auth_site_router
 from app.api.routes.devices_api import router as devices_api_router
 from app.api.routes.episodes_api import router as episodes_api_router
+from app.api.routes.favorites_api import router as favorites_api_router
 from app.api.routes.health import router as health_router
 from app.api.routes.lists_api import router as lists_api_router
 from app.api.routes.profile_site import router as profile_site_router
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_api_router)
     app.include_router(devices_api_router)
     app.include_router(episodes_api_router)
+    app.include_router(favorites_api_router)
     app.include_router(lists_api_router)
     app.include_router(settings_api_router)
     app.include_router(subscriptions_api_router)

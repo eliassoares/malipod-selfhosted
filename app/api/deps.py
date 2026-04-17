@@ -9,6 +9,7 @@ from app.db.session import get_db_session
 from app.services.auth import AuthService
 from app.services.devices import DeviceService
 from app.services.episodes import EpisodeService
+from app.services.favorites import FavoritesService
 from app.services.localization import LocalizationService
 from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
@@ -59,6 +60,12 @@ def get_episode_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> EpisodeService:
     return EpisodeService(session=session)
+
+
+def get_favorites_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> FavoritesService:
+    return FavoritesService(session=session)
 
 
 def get_podcast_list_service(

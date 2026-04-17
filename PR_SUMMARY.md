@@ -1,45 +1,48 @@
-# Settings API PR Summary
+# Favorites API PR Summary
 
 ## Implemented Scope
 
-- Added authenticated compatibility endpoints for:
-  - `GET /api/2/settings/{username}/{scope}.json`
-  - `POST /api/2/settings/{username}/{scope}.json`
-- Supported all four scopes:
-  - `account`
-  - `device`
-  - `podcast`
-  - `episode`
-- Added scoped JSON persistence tables and ORM models for account, device,
-  podcast, and episode settings
-- Implemented lazy document creation for valid targets and `{}` responses for
-  valid empty scopes
-- Added strict query validation, cross-account protection, and target-not-found
-  handling
-- Preserved arbitrary JSON values and known setting keys such as
-  `public_profile`, `store_user_agent`, `public_subscriptions`,
-  `public_subscription`, and `is_favorite`
+- Added authenticated compatibility endpoint:
+  - `GET /api/2/favorites/{username}.json`
+- Introduced `favorite_episodes` persistence to track one user's favorites
+  without duplicating podcast or episode metadata
+- Reused existing `PodcastFeedModel` and `EpisodeModel` data to serialize:
+  - `title`
+  - `url`
+  - `podcast_title`
+  - `podcast_url`
+  - `description`
+  - `website`
+  - `released`
+  - `mygpo_link`
+- Enforced stable ordering by `favorited_at DESC, episode_id ASC`
+- Added authentication, cross-account protection, and missing-user handling
+- Added contract, integration, unit, and startup registration coverage for the
+  new favorites route
 
 ## Verification
 
-- `uv run ruff check app tests alembic`
+- `uv run ruff check .`
 - `uv run mypy app tests`
 - `uv run bandit -r . -c pyproject.toml`
 - `uv run pip-audit`
 - `uv run pytest -q`
-- `uv run pytest tests/unit/test_setting_service.py tests/contract/test_settings_api.py tests/integration/test_settings_api_flow.py tests/integration/test_app_startup.py -q`
+- `uv run pytest -q tests/unit/test_favorite_service.py tests/contract/test_favorites_api.py tests/integration/test_favorites_api_flow.py tests/integration/test_app_startup.py`
+- Manual-guided validation via `TestClient` confirmed:
+  - populated favorites response returns `200 OK`
+  - empty favorites response returns `200 OK` with `[]`
+  - unauthenticated request returns `401 Unauthorized`
+  - cross-account request returns `403 Forbidden`
+  - missing username returns `404 Not Found`
 
 ## Migration Notes
 
-- Added Alembic revision `0007_settings_api`
-- Introduced new tables:
-  - `account_settings`
-  - `device_settings`
-  - `podcast_settings`
-  - `episode_settings`
+- Added Alembic revision `0008_favorite_episodes`
+- Introduced new table:
+  - `favorite_episodes`
 
 ## Follow-ups
 
-- If website-side behavior should react to known settings like
-  `public_profile` or `is_favorite`, that can be layered on top of this stored
-  compatibility surface in a future feature.
+- If the product later exposes favorite creation or removal through the API,
+  those endpoints can build on the same projection table without changing the
+  read contract implemented here.
