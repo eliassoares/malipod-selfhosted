@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import ValidationError
 
-from app.api.deps import get_auth_service, get_device_service
+from app.api.deps import (
+    authenticate_api_user,
+    get_auth_service,
+    get_device_service,
+    get_runtime_settings,
+)
+from app.core.config import Settings
 from app.core.security import validate_device_id
 from app.schemas.auth import AuthErrorResponse
 from app.schemas.device import (
@@ -16,51 +22,15 @@ from app.schemas.device import (
     DeviceUpdatesResponse,
     DeviceUpsertRequest,
 )
-from app.services.auth import AuthError, AuthService
+from app.services.auth import AuthService
 from app.services.devices import DeviceError, DeviceService
-
-if TYPE_CHECKING:
-    from app.db.models.user import UserModel
 
 router = APIRouter(prefix="/api/2", tags=["Device API"])
 security = HTTPBasic(auto_error=False)
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 DeviceServiceDep = Annotated[DeviceService, Depends(get_device_service)]
-
-
-def build_unauthorized_error() -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="authentication required",
-        headers={"WWW-Authenticate": "Basic"},
-    )
-
-
-async def authenticate_basic_user(
-    username: str,
-    auth_service: AuthService,
-    credentials: HTTPBasicCredentials | None,
-) -> UserModel:
-    if credentials is None:
-        raise build_unauthorized_error()
-
-    try:
-        authenticated = await auth_service.authenticate_username(
-            credentials.username,
-            credentials.password,
-        )
-    except AuthError as exc:
-        if exc.code == "invalid_login":
-            raise build_unauthorized_error() from exc
-        raise
-
-    if authenticated.nickname != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="authenticated user does not match requested username",
-        )
-    return authenticated
+SettingsDep = Annotated[Settings, Depends(get_runtime_settings)]
 
 
 def raise_bad_request(detail: str) -> None:
@@ -80,11 +50,15 @@ async def upsert_device(
     username: str,
     deviceid: str,
     payload: DeviceMutationPayload,
+    request: Request,
     auth_service: AuthServiceDep,
     device_service: DeviceServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
 ) -> Response:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         request_payload = DeviceUpsertRequest(
             device_id=deviceid,
@@ -107,11 +81,15 @@ async def upsert_device(
 )
 async def list_devices(
     username: str,
+    request: Request,
     auth_service: AuthServiceDep,
     device_service: DeviceServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
 ) -> list[DeviceSummary]:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     return await device_service.list_devices_for_user(user)
 
 
@@ -128,13 +106,17 @@ async def list_devices(
 async def get_device_updates(
     username: str,
     deviceid: str,
+    request: Request,
     auth_service: AuthServiceDep,
     device_service: DeviceServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
     since: Annotated[int | None, Query(ge=0)] = None,
     include_actions: bool = False,
 ) -> JSONResponse:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         validate_device_id(deviceid)
         payload = await device_service.get_updates_for_device(

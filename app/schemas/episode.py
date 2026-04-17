@@ -42,6 +42,10 @@ class EpisodeActionInput(BaseModel):
     ) -> datetime | str | None:
         if isinstance(value, datetime) and value.tzinfo is None:
             return value.replace(tzinfo=UTC)
+        if isinstance(value, str) and not value.endswith("Z"):
+            has_offset = "+" in value or value.count("-") > 2
+            if not has_offset:
+                return value + "Z"
         return value
 
     @model_validator(mode="after")

@@ -1,12 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from app.api.deps import get_auth_service, get_subscription_service
+from app.api.deps import (
+    authenticate_api_user,
+    get_auth_service,
+    get_runtime_settings,
+    get_subscription_service,
+)
+from app.core.config import Settings
 from app.core.security import (
     validate_device_id,
     validate_jsonp_callback,
@@ -15,12 +21,9 @@ from app.core.security import (
 )
 from app.schemas.auth import AuthErrorResponse
 from app.schemas.subscription import SubscriptionItem, SubscriptionRenderPayload
-from app.services.auth import AuthError, AuthService
+from app.services.auth import AuthService
 from app.services.subscription_formats import SubscriptionFormatService
 from app.services.subscriptions import SubscriptionError, SubscriptionService
-
-if TYPE_CHECKING:
-    from app.db.models.user import UserModel
 
 router = APIRouter(tags=["Subscriptions API"])
 security = HTTPBasic(auto_error=False)
@@ -30,39 +33,7 @@ SubscriptionServiceDep = Annotated[
     SubscriptionService,
     Depends(get_subscription_service),
 ]
-
-
-def build_unauthorized_error() -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="authentication required",
-        headers={"WWW-Authenticate": "Basic"},
-    )
-
-
-async def authenticate_basic_user(
-    username: str,
-    auth_service: AuthService,
-    credentials: HTTPBasicCredentials | None,
-) -> UserModel:
-    if credentials is None:
-        raise build_unauthorized_error()
-    try:
-        authenticated = await auth_service.authenticate_username(
-            credentials.username,
-            credentials.password,
-        )
-    except AuthError as exc:
-        if exc.code == "invalid_login":
-            raise build_unauthorized_error() from exc
-        raise
-
-    if authenticated.nickname != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="authenticated user does not match requested username",
-        )
-    return authenticated
+SettingsDep = Annotated[Settings, Depends(get_runtime_settings)]
 
 
 def raise_bad_request(detail: str) -> None:
@@ -99,12 +70,16 @@ def build_read_response(
 async def get_account_subscriptions(
     username: str,
     subscription_format: Annotated[str, Path(alias="format")],
+    request: Request,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
     jsonp: str | None = None,
 ) -> Response:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         format_name = validate_subscription_format(subscription_format)
         callback = validate_jsonp_callback(jsonp)
@@ -129,12 +104,16 @@ async def get_device_subscriptions(
     username: str,
     deviceid: str,
     subscription_format: Annotated[str, Path(alias="format")],
+    request: Request,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
     jsonp: str | None = None,
 ) -> Response:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         validate_device_id(deviceid)
         format_name = validate_subscription_format(subscription_format)
@@ -170,9 +149,12 @@ async def put_device_subscriptions(
     request: Request,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
 ) -> Response:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     parser = SubscriptionFormatService()
     try:
         validate_device_id(deviceid)
@@ -203,9 +185,12 @@ async def post_subscription_changes(
     request: Request,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
 ) -> JSONResponse:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         validate_device_id(deviceid)
         payload = await request.json()
@@ -247,12 +232,16 @@ async def post_subscription_changes(
 async def get_subscription_changes(
     username: str,
     deviceid: str,
+    request: Request,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
+    settings: SettingsDep,
     credentials: Annotated[HTTPBasicCredentials | None, Depends(security)],
     since: int | None = None,
 ) -> JSONResponse:
-    user = await authenticate_basic_user(username, auth_service, credentials)
+    user = await authenticate_api_user(
+        username, request, auth_service, settings, credentials
+    )
     try:
         validate_device_id(deviceid)
         validated_since = validate_since_timestamp(since)
