@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-from sqlalchemy import Select, inspect, select
+from sqlalchemy import Select, select
 from sqlalchemy.orm import selectinload
 
 from app.core.security import normalize_podcast_list_name, sanitize_subscription_url
@@ -49,8 +49,13 @@ class NormalizedPodcastListEntry:
 
 
 class PodcastListService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        base_url: str = "http://localhost:8000",
+    ) -> None:
         self.session = session
+        self.base_url = base_url.rstrip("/")
         self.format_service = SubscriptionFormatService()
 
     async def _fetch_user(self, username: str) -> UserModel | None:
@@ -70,7 +75,6 @@ class PodcastListService:
         return result.scalar_one_or_none()
 
     async def _get_list(self, user_id: int, listname: str) -> PodcastListModel:
-        self.session.expire_all()
         podcast_list = await self._fetch_list_statement(
             select(PodcastListModel)
             .options(
@@ -144,25 +148,18 @@ class PodcastListService:
 
     @staticmethod
     def _user_id(user: UserModel) -> int:
-        identity = inspect(user).identity
-        if identity is None:
+        if user.id is None:
             raise ValueError("user must be persistent before managing podcast lists")
-        return int(identity[0])
+        return user.id
 
-    async def _user_nickname(self, user: UserModel) -> str:
-        nickname = inspect(user).dict.get("nickname")
-        if isinstance(nickname, str):
-            return nickname
-        result = await self.session.execute(
-            select(UserModel.nickname).where(UserModel.id == self._user_id(user))
-        )
-        loaded = result.scalar_one_or_none()
-        if loaded is None:
+    @staticmethod
+    def _user_nickname(user: UserModel) -> str:
+        if not user.nickname:
             raise ValueError("user nickname could not be resolved")
-        return loaded
+        return user.nickname
 
     def _build_web_url(self, username: str, listname: str) -> str:
-        return f"http://gpodder.net/user/{username}/lists/{listname}"
+        return f"{self.base_url}/user/{username}/lists/{listname}"
 
     def _build_resource_url(
         self, username: str, listname: str, format_name: str
@@ -220,7 +217,7 @@ class PodcastListService:
         body: bytes,
     ) -> str:
         user_id = self._user_id(user)
-        username = await self._user_nickname(user)
+        username = self._user_nickname(user)
         name = normalize_podcast_list_name(title)
         existing = await self._fetch_list_statement(
             select(PodcastListModel).where(
@@ -289,6 +286,7 @@ class PodcastListService:
             )
         podcast_list.updated_at = now
         await self.session.commit()
+        self.session.expire(podcast_list)
 
     async def delete_list(self, user: UserModel, listname: str) -> None:
         podcast_list = await self._get_list(self._user_id(user), listname)

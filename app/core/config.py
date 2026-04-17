@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(default="INFO")
     session_cookie_name: str = Field(default="sessionid")
     session_ttl_seconds: int = Field(default=1_209_600)
+    base_url: str = Field(default="http://localhost:8000")
     default_locale: str = Field(default=DEFAULT_LOCALE_CODE)
     supported_locales: list[str] = Field(
         default_factory=lambda: list(SUPPORTED_LOCALE_CODES)

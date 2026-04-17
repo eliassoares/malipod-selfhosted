@@ -116,7 +116,7 @@ def test_get_user_podcast_lists_contract_returns_public_summaries(
         {
             "title": "My Python Podcasts",
             "name": "my-python-podcasts",
-            "web": "http://gpodder.net/user/listener_1/lists/my-python-podcasts",
+            "web": "http://localhost:8000/user/listener_1/lists/my-python-podcasts",
         }
     ]
 
@@ -211,3 +211,76 @@ def test_update_and_delete_podcast_list_contract_require_owner_and_return_204(
     assert updated.status_code == 204
     assert denied.status_code == 403
     assert deleted.status_code == 204
+
+
+def test_create_podcast_list_with_empty_body(client: TestClient) -> None:
+    register_user(client)
+
+    response = client.post(
+        "/api/2/lists/listener_1/create.txt?title=Empty%20List",
+        auth=("listener_1", "supersecret"),
+        content="",
+        headers={"Content-Type": "text/plain"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert "empty-list" in response.headers["location"]
+
+
+def test_create_podcast_list_with_unicode_title(client: TestClient) -> None:
+    register_user(client)
+
+    response = client.post(
+        "/api/2/lists/listener_1/create.json?title=Podcasts%20em%20Portugu%C3%AAs",
+        auth=("listener_1", "supersecret"),
+        json=["https://example.com/feed.xml"],
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert "podcasts-em-portugues" in response.headers["location"]
+
+
+def test_get_user_podcast_lists_returns_empty_array_for_user_without_lists(
+    client: TestClient,
+) -> None:
+    register_user(client)
+
+    response = client.get("/api/2/lists/listener_1.json")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_update_podcast_list_with_different_format(
+    client: TestClient, settings: Settings
+) -> None:
+    register_user(client)
+    seed_list_state(settings)
+
+    updated = client.put(
+        "/api/2/lists/listener_1/list/my-python-podcasts.json",
+        auth=("listener_1", "supersecret"),
+        json=["https://example.com/feed-c.xml"],
+    )
+
+    assert updated.status_code == 204
+
+    verify = client.get("/api/2/lists/listener_1/list/my-python-podcasts.json")
+    assert verify.status_code == 200
+    assert [item["url"] for item in verify.json()["podcasts"]] == [
+        "https://example.com/feed-c.xml",
+    ]
+
+
+def test_create_podcast_list_without_auth_returns_401(client: TestClient) -> None:
+    register_user(client)
+
+    response = client.post(
+        "/api/2/lists/listener_1/create.json?title=Secret%20List",
+        json=["https://example.com/feed.xml"],
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 401

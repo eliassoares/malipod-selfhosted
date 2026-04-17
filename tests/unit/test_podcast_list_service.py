@@ -64,7 +64,7 @@ async def test_podcast_list_service_creates_slug_conflict_and_summary_read(
     assert [item.name for item in summaries] == ["my-python-podcasts"]
     assert (
         summaries[0].web
-        == "http://gpodder.net/user/listener_1/lists/my-python-podcasts"
+        == "http://localhost:8000/user/listener_1/lists/my-python-podcasts"
     )
     assert rendered.content["name"] == "my-python-podcasts"
     assert [item["url"] for item in rendered.content["podcasts"]] == [

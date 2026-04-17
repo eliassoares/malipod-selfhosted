@@ -62,8 +62,9 @@ def get_episode_service(
 
 def get_podcast_list_service(
     session: Annotated[Any, Depends(get_request_session)],
+    settings: Annotated[Settings, Depends(get_runtime_settings)],
 ) -> PodcastListService:
-    return PodcastListService(session=session)
+    return PodcastListService(session=session, base_url=settings.base_url)
 
 
 def get_localization_service(

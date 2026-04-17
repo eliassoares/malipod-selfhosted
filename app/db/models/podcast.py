@@ -51,7 +51,8 @@ class PodcastFeedModel(Base):
     )
     list_items: Mapped[list[PodcastListItemModel]] = relationship(
         back_populates="feed",
-        cascade="all, delete-orphan",
+        cascade="save-update, merge, delete",
+        passive_deletes=True,
     )
     episodes: Mapped[list[EpisodeModel]] = relationship(
         back_populates="feed",
