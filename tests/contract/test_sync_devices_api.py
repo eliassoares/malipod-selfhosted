@@ -166,3 +166,23 @@ def test_sync_devices_rejects_invalid_payload(client: TestClient) -> None:
     )
 
     assert response.status_code == 400
+
+
+def test_sync_devices_post_empty_body_returns_current_status(
+    client: TestClient,
+) -> None:
+    register_user(client)
+    create_device(client, "listener_1", "notebook")
+    create_device(client, "listener_1", "netbook")
+
+    response = client.post(
+        "/api/2/sync-devices/listener_1.json",
+        auth=("listener_1", "supersecret"),
+        json={},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "synchronized": [],
+        "not-synchronized": ["netbook", "notebook"],
+    }

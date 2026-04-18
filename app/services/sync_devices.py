@@ -5,14 +5,11 @@ from typing import TYPE_CHECKING, Literal
 
 from sqlalchemy import delete, func, select, update
 
-from app.core.security import validate_device_id
 from app.db.models.device import DeviceModel
 from app.db.models.device_sync_group import DeviceSyncGroupModel
 from app.schemas.sync_devices import SyncDevicesMutation, SyncDevicesStatus
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from app.db.models.user import UserModel
@@ -52,39 +49,43 @@ class SyncDevicesService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _count_devices_in_group(self, user_id: int, group_id: int) -> int:
+    async def _cleanup_small_groups(self, *, user_id: int, group_ids: set[int]) -> None:
+        if not group_ids:
+            return
+
+        ids = sorted(group_ids)
+
+        # Single query: member count per group.
         result = await self.session.execute(
-            select(func.count(DeviceModel.id)).where(
+            select(DeviceModel.sync_group_id, func.count(DeviceModel.id))
+            .where(
                 DeviceModel.user_id == user_id,
-                DeviceModel.sync_group_id == group_id,
+                DeviceModel.sync_group_id.in_(ids),
+            )
+            .group_by(DeviceModel.sync_group_id)
+        )
+        counts: dict[int, int] = {row[0]: row[1] for row in result.all()}
+
+        # Groups with fewer than 2 members (including groups already emptied).
+        small = [gid for gid in ids if counts.get(gid, 0) < 2]
+        if not small:
+            return
+
+        # Bulk-null singleton memberships, then bulk-delete the group rows.
+        await self.session.execute(
+            update(DeviceModel)
+            .where(
+                DeviceModel.user_id == user_id,
+                DeviceModel.sync_group_id.in_(small),
+            )
+            .values(sync_group_id=None)
+        )
+        await self.session.execute(
+            delete(DeviceSyncGroupModel).where(
+                DeviceSyncGroupModel.user_id == user_id,
+                DeviceSyncGroupModel.id.in_(small),
             )
         )
-        count = result.scalar_one()
-        return int(count or 0)
-
-    async def _cleanup_small_groups(
-        self, *, user_id: int, group_ids: Iterable[int]
-    ) -> None:
-        for group_id in group_ids:
-            count = await self._count_devices_in_group(user_id, group_id)
-            if count >= 2:
-                continue
-
-            # Null out any remaining singleton membership and delete the group row.
-            await self.session.execute(
-                update(DeviceModel)
-                .where(
-                    DeviceModel.user_id == user_id,
-                    DeviceModel.sync_group_id == group_id,
-                )
-                .values(sync_group_id=None)
-            )
-            await self.session.execute(
-                delete(DeviceSyncGroupModel).where(
-                    DeviceSyncGroupModel.id == group_id,
-                    DeviceSyncGroupModel.user_id == user_id,
-                )
-            )
 
     async def get_status(self, user: UserModel) -> SyncDevicesStatus:
         result = await self.session.execute(
@@ -134,12 +135,6 @@ class SyncDevicesService:
         for group_devices in synchronize:
             referenced.update(group_devices)
         referenced.update(stop)
-
-        for device_id in referenced:
-            try:
-                validate_device_id(device_id)
-            except ValueError as exc:
-                raise SyncDevicesError("invalid_device_id", detail=str(exc)) from exc
 
         # Fetch referenced devices; fail fast if any are missing (atomic semantics).
         result = await self.session.execute(

@@ -88,3 +88,26 @@ async def test_sync_mutation_cleans_up_singleton_groups(
     status = await sync_service.get_status(user)
     assert status.synchronized == []
     assert status.not_synchronized == ["netbook", "notebook"]
+
+
+@pytest.mark.asyncio
+async def test_stop_synchronize_unsynchronized_device_is_idempotent(
+    db_session: AsyncSession, settings: Settings
+) -> None:
+    auth_service = AuthService(db_session, settings)
+    user = await auth_service.create_user(build_registration())
+    device_service = DeviceService(db_session)
+    sync_service = SyncDevicesService(db_session)
+
+    await device_service.upsert_device(
+        user, DeviceUpsertRequest(device_id="notebook", caption="nb", type="laptop")
+    )
+
+    # Device is not in any group — stop-synchronize should be a no-op.
+    status = await sync_service.mutate(
+        user,
+        SyncDevicesMutation.model_validate({"stop-synchronize": ["notebook"]}),
+    )
+
+    assert status.synchronized == []
+    assert status.not_synchronized == ["notebook"]
