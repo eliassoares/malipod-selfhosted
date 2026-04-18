@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.db.models.device_sync_group import DeviceSyncGroupModel
     from app.db.models.podcast import (
         DeviceSubscriptionModel,
         EpisodeActionModel,
@@ -32,6 +33,10 @@ class DeviceModel(Base):
     device_id: Mapped[str] = mapped_column(String(255), nullable=False)
     caption: Mapped[str] = mapped_column(String(255), nullable=False, default="")
     device_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    sync_group_id: Mapped[int | None] = mapped_column(
+        ForeignKey("device_sync_groups.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -47,6 +52,9 @@ class DeviceModel(Base):
     )
 
     user: Mapped[UserModel] = relationship(back_populates="devices")
+    sync_group: Mapped[DeviceSyncGroupModel | None] = relationship(
+        back_populates="devices",
+    )
     subscriptions: Mapped[list[DeviceSubscriptionModel]] = relationship(
         back_populates="device",
         cascade="all, delete-orphan",

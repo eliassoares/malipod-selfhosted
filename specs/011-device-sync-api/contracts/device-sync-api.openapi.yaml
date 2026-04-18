@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: Malipod Device Synchronization API
+  version: 0.1.0-device-sync
+  summary: Compatibility contract for device synchronization status and grouping
+  description: >
+    Authenticated compatibility API for retrieving and mutating device
+    synchronization groupings for one user account.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+tags:
+  - name: DeviceSync
+paths:
+  /api/2/sync-devices/{username}.json:
+    get:
+      tags: [DeviceSync]
+      summary: Retrieve device synchronization status for one account
+      operationId: getSyncDevicesStatus
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      responses:
+        "200":
+          description: Current synchronization status returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncDevicesStatus"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [DeviceSync]
+      summary: Start or stop synchronization between devices
+      operationId: postSyncDevicesMutation
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncDevicesMutation"
+      responses:
+        "200":
+          description: Updated synchronization status returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncDevicesStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Username whose synchronization status is being requested
+  responses:
+    BadRequest:
+      description: Invalid request payload, invalid device IDs, or referenced devices not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Authenticated user does not match the targeted username
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+    SyncDevicesStatus:
+      type: object
+      required: [synchronized, "not-synchronized"]
+      properties:
+        synchronized:
+          type: array
+          description: List of synchronization groups (each group is a list of device IDs)
+          items:
+            type: array
+            minItems: 2
+            items:
+              type: string
+        "not-synchronized":
+          type: array
+          description: Devices not belonging to any synchronization group
+          items:
+            type: string
+    SyncDevicesMutation:
+      type: object
+      additionalProperties: false
+      properties:
+        synchronize:
+          type: array
+          description: Groups of devices that must end up synchronized together
+          items:
+            type: array
+            minItems: 2
+            items:
+              type: string
+        "stop-synchronize":
+          type: array
+          description: Devices to remove from any synchronization group
+          items:
+            type: string
