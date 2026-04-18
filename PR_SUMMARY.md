@@ -46,3 +46,45 @@
 - If the product later exposes favorite creation or removal through the API,
   those endpoints can build on the same projection table without changing the
   read contract implemented here.
+
+---
+
+# Device Sync API PR Summary
+
+## Implemented Scope
+
+- Added authenticated compatibility endpoint:
+  - `GET /api/2/sync-devices/{username}.json`
+  - `POST /api/2/sync-devices/{username}.json`
+- Implemented deterministic status output:
+  - `synchronized`: list of 2+ device IDs per group (sorted)
+  - `not-synchronized`: list of device IDs not in any group (sorted)
+- Implemented idempotent group mutations:
+  - merge groups via `synchronize`
+  - remove devices via `stop-synchronize`
+  - cleanup groups with fewer than 2 members
+- Enforced ownership via existing `authenticate_api_user`
+- Added contract, integration, and unit coverage for GET/POST behavior, access
+  control, idempotency, and atomic no-partial-apply semantics
+
+## Verification
+
+- `uv run ruff check .`
+- `uv run mypy app tests`
+- `uv run bandit -r . -c pyproject.toml`
+- `uv run pip-audit`
+- `uv run pytest -q`
+
+## Migration Notes
+
+- Added Alembic revision `0009_device_sync_groups`
+- Introduced new table:
+  - `device_sync_groups`
+- Added new column:
+  - `devices.sync_group_id`
+
+## Follow-ups
+
+- If future compatibility endpoints need to resolve a “current device group”
+  beyond membership (e.g., group metadata), we can extend `device_sync_groups`
+  without changing the current contract.

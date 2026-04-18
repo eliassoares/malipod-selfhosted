@@ -15,6 +15,7 @@ from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
 from app.services.settings import SettingsService
 from app.services.subscriptions import SubscriptionService
+from app.services.sync_devices import SyncDevicesService
 
 if TYPE_CHECKING:
     from fastapi.security import HTTPBasicCredentials
@@ -68,6 +69,12 @@ def get_favorites_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> FavoritesService:
     return FavoritesService(session=session)
+
+
+def get_sync_devices_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> SyncDevicesService:
+    return SyncDevicesService(session=session)
 
 
 def get_podcast_list_service(

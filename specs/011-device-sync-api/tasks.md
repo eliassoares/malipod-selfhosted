@@ -22,9 +22,9 @@ implementation and testing of each story.
 
 **Purpose**: Confirm baseline context and keep spec-kit artifacts consistent
 
-- [ ] T001 Confirm current branch is `011-device-sync-api` and that planning artifacts exist under `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/` (spec.md, plan.md, tasks.md)
-- [ ] T002 [P] Review `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/contracts/device-sync-api.openapi.yaml` and confirm it matches the intended endpoint paths and payload shape
-- [ ] T003 [P] Add a PR summary stub for this feature in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md` (device-sync section only)
+- [x] T001 Confirm current branch is `011-device-sync-api` and that planning artifacts exist under `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/` (spec.md, plan.md, tasks.md)
+- [x] T002 [P] Review `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/contracts/device-sync-api.openapi.yaml` and confirm it matches the intended endpoint paths and payload shape
+- [x] T003 [P] Add a PR summary stub for this feature in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md` (device-sync section only)
 
 ---
 
@@ -34,15 +34,15 @@ implementation and testing of each story.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Decide persistence shape for sync groups (device column + group table) and document final decision in `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/research.md`
-- [ ] T005 Add ORM model for sync groups in `/Users/eliassoares/Documents/projects/personal/malipod/app/db/models/device_sync_group.py`
-- [ ] T006 Update existing device model with optional group membership in `/Users/eliassoares/Documents/projects/personal/malipod/app/db/models/device.py`
-- [ ] T007 Create Alembic migration to add group table + device FK/column in `/Users/eliassoares/Documents/projects/personal/malipod/alembic/versions/0009_device_sync_groups.py`
-- [ ] T008 [P] Add request/response schemas with correct JSON aliases (`not-synchronized`, `stop-synchronize`) in `/Users/eliassoares/Documents/projects/personal/malipod/app/schemas/sync_devices.py`
-- [ ] T009 Create service skeleton and typed errors in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
-- [ ] T010 Wire dependency injection for the new service in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/deps.py`
-- [ ] T011 Create route module skeleton (router + auth dependency wiring only) in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
-- [ ] T012 Register the new router in `/Users/eliassoares/Documents/projects/personal/malipod/app/main.py`
+- [x] T004 Decide persistence shape for sync groups (device column + group table) and document final decision in `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/research.md`
+- [x] T005 Add ORM model for sync groups in `/Users/eliassoares/Documents/projects/personal/malipod/app/db/models/device_sync_group.py`
+- [x] T006 Update existing device model with optional group membership in `/Users/eliassoares/Documents/projects/personal/malipod/app/db/models/device.py`
+- [x] T007 Create Alembic migration to add group table + device FK/column in `/Users/eliassoares/Documents/projects/personal/malipod/alembic/versions/0009_device_sync_groups.py`
+- [x] T008 [P] Add request/response schemas with correct JSON aliases (`not-synchronized`, `stop-synchronize`) in `/Users/eliassoares/Documents/projects/personal/malipod/app/schemas/sync_devices.py`
+- [x] T009 Create service skeleton and typed errors in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
+- [x] T010 Wire dependency injection for the new service in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/deps.py`
+- [x] T011 Create route module skeleton (router + auth dependency wiring only) in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
+- [x] T012 Register the new router in `/Users/eliassoares/Documents/projects/personal/malipod/app/main.py`
 
 **Checkpoint**: Foundation ready — user story implementation can begin
 
@@ -56,15 +56,15 @@ implementation and testing of each story.
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T013 [P] [US1] Add contract tests for GET status shape + auth/403 in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
-- [ ] T014 [P] [US1] Add integration test for GET status with seeded devices in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
-- [ ] T015 [P] [US1] Add unit tests for status serialization ordering in `/Users/eliassoares/Documents/projects/personal/malipod/tests/unit/test_device_sync_service.py`
+- [x] T013 [P] [US1] Add contract tests for GET status shape + auth/403 in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
+- [x] T014 [P] [US1] Add integration test for GET status with seeded devices in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
+- [x] T015 [P] [US1] Add unit tests for status serialization ordering in `/Users/eliassoares/Documents/projects/personal/malipod/tests/unit/test_device_sync_service.py`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement device-group query + deterministic response ordering in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
-- [ ] T017 [US1] Implement GET handler returning `SyncDevicesStatus` in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
-- [ ] T018 [US1] Add SQLite test seeding helpers for sync-group state in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
+- [x] T016 [US1] Implement device-group query + deterministic response ordering in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
+- [x] T017 [US1] Implement GET handler returning `SyncDevicesStatus` in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
+- [x] T018 [US1] Add SQLite test seeding helpers for sync-group state in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
 
 **Checkpoint**: US1 works end-to-end (GET only) and tests pass independently
 
@@ -78,15 +78,15 @@ implementation and testing of each story.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T019 [P] [US2] Extend contract tests for POST mutation request/response in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
-- [ ] T020 [P] [US2] Extend integration flow test covering synchronize + stop-synchronize in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
-- [ ] T021 [P] [US2] Add unit tests for group merge/split/idempotency rules in `/Users/eliassoares/Documents/projects/personal/malipod/tests/unit/test_device_sync_service.py`
+- [x] T019 [P] [US2] Extend contract tests for POST mutation request/response in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
+- [x] T020 [P] [US2] Extend integration flow test covering synchronize + stop-synchronize in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
+- [x] T021 [P] [US2] Add unit tests for group merge/split/idempotency rules in `/Users/eliassoares/Documents/projects/personal/malipod/tests/unit/test_device_sync_service.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement POST payload validation + normalization (dedupe, validate device IDs) in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
-- [ ] T023 [US2] Implement mutation semantics (merge groups, detach devices, cleanup groups <2) in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
-- [ ] T024 [US2] Implement POST handler parsing `SyncDevicesMutation` and returning updated `SyncDevicesStatus` in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
+- [x] T022 [US2] Implement POST payload validation + normalization (dedupe, validate device IDs) in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
+- [x] T023 [US2] Implement mutation semantics (merge groups, detach devices, cleanup groups <2) in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
+- [x] T024 [US2] Implement POST handler parsing `SyncDevicesMutation` and returning updated `SyncDevicesStatus` in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
 
 **Checkpoint**: US2 works end-to-end (GET + POST) and remains independently testable
 
@@ -100,14 +100,14 @@ implementation and testing of each story.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T025 [P] [US3] Add tests for invalid payloads, unknown devices, cross-user references, and no-partial-apply semantics in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
-- [ ] T026 [P] [US3] Add integration test ensuring failed POST does not mutate existing groups in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
+- [x] T025 [P] [US3] Add tests for invalid payloads, unknown devices, cross-user references, and no-partial-apply semantics in `/Users/eliassoares/Documents/projects/personal/malipod/tests/contract/test_sync_devices_api.py`
+- [x] T026 [P] [US3] Add integration test ensuring failed POST does not mutate existing groups in `/Users/eliassoares/Documents/projects/personal/malipod/tests/integration/test_sync_devices_api_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Ensure all referenced devices belong to the authenticated user before applying any mutation in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
-- [ ] T028 [US3] Map domain errors to consistent HTTP responses (400/401/403/404) in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
-- [ ] T029 [US3] Add minimal logging for denied access and invalid mutation attempts using existing logging approach in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
+- [x] T027 [US3] Ensure all referenced devices belong to the authenticated user before applying any mutation in `/Users/eliassoares/Documents/projects/personal/malipod/app/services/sync_devices.py`
+- [x] T028 [US3] Map domain errors to consistent HTTP responses (400/401/403/404) in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
+- [x] T029 [US3] Add minimal logging for denied access and invalid mutation attempts using existing logging approach in `/Users/eliassoares/Documents/projects/personal/malipod/app/api/routes/sync_devices_api.py`
 
 **Checkpoint**: All security/error scenarios are covered by tests and consistent behavior
 
@@ -117,9 +117,9 @@ implementation and testing of each story.
 
 **Purpose**: Final verification, docs alignment, and review readiness
 
-- [ ] T030 [P] Validate `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/quickstart.md` commands still match implemented endpoints and update if needed
-- [ ] T031 Run repository checks (`uv run ruff check .`, `uv run mypy app tests`, `uv run bandit -r . -c pyproject.toml`, `uv run pip-audit`, `uv run pytest -q`) and record a short verification summary in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md`
-- [ ] T032 Prepare PR summary in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md` with scope, verification evidence, and follow-ups
+- [x] T030 [P] Validate `/Users/eliassoares/Documents/projects/personal/malipod/specs/011-device-sync-api/quickstart.md` commands still match implemented endpoints and update if needed
+- [x] T031 Run repository checks (`uv run ruff check .`, `uv run mypy app tests`, `uv run bandit -r . -c pyproject.toml`, `uv run pip-audit`, `uv run pytest -q`) and record a short verification summary in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md`
+- [x] T032 Prepare PR summary in `/Users/eliassoares/Documents/projects/personal/malipod/PR_SUMMARY.md` with scope, verification evidence, and follow-ups
 
 ---
 
