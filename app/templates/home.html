@@ -1,64 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ page.app_name }}</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              headline: ["Plus Jakarta Sans", "sans-serif"],
-              body: ["Inter", "sans-serif"],
-            },
-          },
-        },
-      }
-    </script>
-  </head>
-  <body class="font-body bg-gradient-to-br from-[#f7f2e9] to-[#efe5d7] min-h-screen text-[#2a2a2a]">
-    <main class="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+{% extends "base.html" %}
 
-      <div class="bg-white/75 backdrop-blur-sm border border-black/8 rounded-3xl p-8 sm:p-10 shadow-[0_20px_40px_rgba(42,42,42,0.08)]">
+{% block content %}
+<section class="pt-8 sm:pt-12">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="lg:col-span-7">
+      <div class="flex items-center gap-3 mb-5 flex-wrap">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-outline-variant/25 bg-surface-container-lowest/60">
+          <span class="material-symbols-outlined text-primary" style="font-size:1.1rem; font-variation-settings: 'FILL' 1;">podcasts</span>
+          Malipod
+        </span>
+        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest
+          {% if readiness.status == 'ready' %}bg-emerald-100 text-emerald-800{% else %}bg-orange-100 text-orange-800{% endif %}">
+          {{ readiness.status }}
+        </span>
+      </div>
 
-        <div class="flex items-start justify-between gap-4 mb-6">
-          <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight leading-tight">
-            {{ page.app_name }}
-          </h1>
-          <span class="flex-shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest
-            {% if page.status == 'ready' %}bg-emerald-100 text-emerald-800{% else %}bg-orange-100 text-orange-800{% endif %}">
-            {{ page.status }}
-          </span>
+      <h1 class="font-headline font-black tracking-tighter text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-on-background">
+        Sincronize seus podcasts <span class="text-primary">em qualquer app</span>.
+      </h1>
+      <p class="mt-5 text-lg text-on-surface-variant leading-relaxed max-w-2xl">
+        O Malipod é um servidor self-hosted compatível com gpodder para sincronizar
+        assinaturas, episódios e progresso entre dispositivos — com privacidade e controle.
+      </p>
+
+      <div class="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+        <div class="glass-panel ambient-shadow rounded-xl p-5 border border-outline-variant/15">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-primary" style="font-size:1.6rem;">sync</span>
+            <div>
+              <h3 class="font-headline font-bold text-on-background">Sincronização</h3>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Mantenha sua lista de podcasts e seus episódios alinhados em todos os seus dispositivos.
+              </p>
+            </div>
+          </div>
         </div>
-
-        <p class="text-[#555] mb-6 leading-relaxed">
-          A secure foundation for podcast synchronization with a browser-visible site and JSON API.
-        </p>
-
-        <div class="flex items-center gap-2 mb-8 text-sm text-[#666]">
-          <span class="font-medium">Environment:</span>
-          <code class="bg-black/6 px-2.5 py-1 rounded-lg font-mono text-[#333]">{{ page.environment }}</code>
-        </div>
-
-        <div class="border-t border-black/8 pt-6">
-          <h2 class="font-headline font-bold text-lg mb-4">Readiness checks</h2>
-          <ul class="space-y-3">
-            {% for check in page.checks %}
-            <li class="flex items-start gap-3 p-3 rounded-xl
-              {% if check.passed %}bg-emerald-50 border border-emerald-200/60{% else %}bg-red-50 border border-red-200/60{% endif %}">
-              <span class="flex-shrink-0 mt-0.5 text-lg">{% if check.passed %}✓{% else %}✗{% endif %}</span>
-              <div>
-                <strong class="font-medium text-sm">{{ check.name }}</strong>
-                <span class="text-sm text-[#666] ml-1">— {{ check.detail }}</span>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
+        <div class="glass-panel ambient-shadow rounded-xl p-5 border border-outline-variant/15">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-primary" style="font-size:1.6rem;">api</span>
+            <div>
+              <h3 class="font-headline font-bold text-on-background">API compatível</h3>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Endpoints compatíveis com clientes gpodder para configuração automática e catálogo local.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
-  </body>
-</html>
+
+      <div class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        {% if current_user %}
+        <a class="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" href="/user/profile/{{ current_user.nickname }}">
+          <span class="material-symbols-outlined" style="font-size:1.2rem;">person</span>
+          {{ copy["nav.profile"] }}
+        </a>
+        <form action="/logout" method="post" class="sm:inline">
+          <button class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline gradient-primary text-on-primary shadow-sm hover:opacity-90 transition-opacity border-0 cursor-pointer" type="submit">
+            <span class="material-symbols-outlined" style="font-size:1.2rem;">logout</span>
+            {{ copy["nav.logout"] }}
+          </button>
+        </form>
+        {% else %}
+        <a class="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline gradient-primary text-on-primary shadow-sm hover:opacity-90 transition-opacity" href="/register">
+          <span class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+          {{ copy["nav.register"] }}
+        </a>
+        <a class="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" href="/login">
+          <span class="material-symbols-outlined" style="font-size:1.2rem;">login</span>
+          {{ copy["nav.login"] }}
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="mt-6 text-sm text-on-surface-variant">
+        <span class="font-medium">Dica:</span>
+        muitos apps conseguem detectar o servidor automaticamente via <code class="bg-surface-container px-2 py-0.5 rounded-lg font-mono text-on-surface">/clientconfig.json</code>.
+      </div>
+    </div>
+
+    <div class="lg:col-span-5">
+      <div class="glass-panel ambient-shadow rounded-2xl p-6 sm:p-8 border border-outline-variant/15">
+        <h2 class="font-headline font-extrabold text-2xl tracking-tight text-on-background mb-4">
+          Comece em 2 minutos
+        </h2>
+        <ol class="space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="w-8 h-8 rounded-full gradient-primary text-on-primary flex items-center justify-center font-black">1</span>
+            <div>
+              <p class="font-medium text-on-background">Crie sua conta</p>
+              <p class="text-sm text-on-surface-variant leading-relaxed">Cadastre-se e defina seu nickname.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center font-black">2</span>
+            <div>
+              <p class="font-medium text-on-background">Conecte no seu app</p>
+              <p class="text-sm text-on-surface-variant leading-relaxed">Use as credenciais do Malipod no seu cliente compatível com gpodder.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center font-black">3</span>
+            <div>
+              <p class="font-medium text-on-background">Sincronize</p>
+              <p class="text-sm text-on-surface-variant leading-relaxed">Assinaturas e progresso ficam disponíveis em todos os dispositivos.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="mt-6 pt-6 border-t border-outline-variant/20">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">API</p>
+              <p class="text-sm text-on-background font-medium">Documentação do servidor</p>
+            </div>
+            <a class="px-4 py-2 rounded-full text-sm font-bold font-headline bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" href="/docs">
+              Abrir
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% if readiness.status != 'ready' %}
+      <div class="mt-6 bg-orange-50 border border-orange-200/60 rounded-2xl p-6">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-orange-700" style="font-size:1.6rem;">warning</span>
+          <div>
+            <p class="font-headline font-bold text-on-background">Servidor temporariamente indisponível</p>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+              Alguns checks de prontidão falharam. Tente novamente em instantes.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="mt-12 sm:mt-16">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-6">
+      <span class="material-symbols-outlined text-primary mb-3" style="font-size:2rem;">security</span>
+      <h3 class="font-headline font-bold text-on-background">Privacidade</h3>
+      <p class="text-sm text-on-surface-variant mt-2 leading-relaxed">
+        Seus dados ficam no seu servidor. Sem rastreamento e sem dependência de serviços externos.
+      </p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-6">
+      <span class="material-symbols-outlined text-primary mb-3" style="font-size:2rem;">tune</span>
+      <h3 class="font-headline font-bold text-on-background">Controle</h3>
+      <p class="text-sm text-on-surface-variant mt-2 leading-relaxed">
+        Use o Malipod como base para sincronização e evolua com recursos como listas e diretório local.
+      </p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-6">
+      <span class="material-symbols-outlined text-primary mb-3" style="font-size:2rem;">devices</span>
+      <h3 class="font-headline font-bold text-on-background">Multi-dispositivo</h3>
+      <p class="text-sm text-on-surface-variant mt-2 leading-relaxed">
+        Telefone, tablet, desktop — mantenha a experiência consistente e sincronizada.
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
