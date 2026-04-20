@@ -50,16 +50,9 @@
 
       <div class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         {% if current_user %}
-        <a class="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" href="/user/profile/{{ current_user.nickname }}">
-          <span class="material-symbols-outlined" style="font-size:1.2rem;">person</span>
-          {{ copy["nav.profile"] }}
-        </a>
-        <form action="/logout" method="post" class="sm:inline">
-          <button class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline gradient-primary text-on-primary shadow-sm hover:opacity-90 transition-opacity border-0 cursor-pointer" type="submit">
-            <span class="material-symbols-outlined" style="font-size:1.2rem;">logout</span>
-            {{ copy["nav.logout"] }}
-          </button>
-        </form>
+        <p class="text-sm text-on-surface-variant">
+          Você já está logado. Use o menu no topo para acessar seu perfil ou sair.
+        </p>
         {% else %}
         <a class="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold font-headline gradient-primary text-on-primary shadow-sm hover:opacity-90 transition-opacity" href="/register">
           <span class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
