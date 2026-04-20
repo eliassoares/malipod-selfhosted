@@ -112,7 +112,7 @@
 - [X] T018 [P] Rodar `uv run pytest` e registrar evidência no PR
 - [X] T019 [P] Rodar `uv run ruff check .` e corrigir issues sem `# noqa`
 - [X] T020 [P] Validar manualmente `specs/016-user-data-tools/quickstart.md`
-- [ ] T021 Preparar descrição do PR com: tabelas cobertas, regras de merge/recência e salvaguardas (segredos, isolamento, confirmação)
+- [X] T021 Preparar descrição do PR com: tabelas cobertas, regras de merge/recência e salvaguardas (segredos, isolamento, confirmação)
 
 ---
 
