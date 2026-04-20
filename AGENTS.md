@@ -14,6 +14,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-20
 - Python 3.13 + FastAPI, Starlette, Pydantic, SQLAlchemy 2.x (014-suggestions-api)
 - Python 3.13 + FastAPI, Starlette, Jinja2Templates, Tailwind CDN config (no build step) (015-home-landing)
 - PostgreSQL (runtime/dev), SQLite (tests) — *não há mudança de storage* (015-home-landing)
+- Python 3.13 + FastAPI, Starlette, Jinja2Templates, SQLAlchemy 2.x (016-user-data-tools)
 
 - Python 3.13 + FastAPI, Uvicorn, Pydantic Settings, SQLAlchemy 2.x, (003-podcast-sync-platform)
 
@@ -33,9 +34,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 016-user-data-tools: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, SQLAlchemy 2.x
 - 015-home-landing: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, Tailwind CDN config (no build step)
 - 014-suggestions-api: Added Python 3.13 + FastAPI, Starlette, Pydantic, SQLAlchemy 2.x
-- 013-directory-api: Added Python 3.13 + FastAPI + Starlette, Pydantic Settings, SQLAlchemy 2.x (existing stack)
 
 
 <!-- MANUAL ADDITIONS START -->
