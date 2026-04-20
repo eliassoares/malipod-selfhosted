@@ -53,6 +53,57 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Enter a valid picture URL.",
         "errors.language": "Choose a supported language.",
         "errors.profile_forbidden": "Profile not available.",
+        "home.hero_title_prefix": "Sync your podcasts",
+        "home.hero_title_highlight": "on any app",
+        "home.hero_description": (
+            "Malipod is a self-hosted gpodder-compatible server to sync "
+            "subscriptions, episodes, and progress across devices — "
+            "with privacy and control."
+        ),
+        "home.card_sync_title": "Synchronization",
+        "home.card_sync_description": (
+            "Keep your podcast list and episodes aligned across all your devices."
+        ),
+        "home.card_api_title": "Compatible API",
+        "home.card_api_description": (
+            "Endpoints compatible with gpodder clients for automatic "
+            "setup and local catalog."
+        ),
+        "home.logged_in_hint": (
+            "You are already logged in. Use the top menu to access "
+            "your profile or log out."
+        ),
+        "home.quickstart_title": "Get started in 2 minutes",
+        "home.step1_title": "Create your account",
+        "home.step1_description": "Register and set your nickname.",
+        "home.step2_title": "Connect your app",
+        "home.step2_description": (
+            "Use your Malipod credentials in your gpodder-compatible client."
+        ),
+        "home.step3_title": "Sync",
+        "home.step3_description": (
+            "Subscriptions and progress will be available on all your devices."
+        ),
+        "home.api_docs": "Server documentation",
+        "home.api_open": "Open",
+        "home.unavailable_title": "Server temporarily unavailable",
+        "home.unavailable_description": (
+            "Some readiness checks failed. Try again shortly."
+        ),
+        "home.feature_privacy_title": "Privacy",
+        "home.feature_privacy_description": (
+            "Your data stays on your server. No tracking and no "
+            "dependency on external services."
+        ),
+        "home.feature_control_title": "Control",
+        "home.feature_control_description": (
+            "Use Malipod as your sync foundation and evolve with "
+            "features like lists and a local directory."
+        ),
+        "home.feature_multidevice_title": "Multi-device",
+        "home.feature_multidevice_description": (
+            "Phone, tablet, desktop — keep the experience consistent and synced."
+        ),
     },
     "es": {
         "brand": "Malipod",
@@ -105,6 +156,60 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Ingresa una URL válida para la imagen.",
         "errors.language": "Elige un idioma soportado.",
         "errors.profile_forbidden": "Perfil no disponible.",
+        "home.hero_title_prefix": "Sincroniza tus podcasts",
+        "home.hero_title_highlight": "en cualquier app",
+        "home.hero_description": (
+            "Malipod es un servidor self-hosted compatible con gpodder "
+            "para sincronizar suscripciones, episodios y progreso entre "
+            "dispositivos — con privacidad y control."
+        ),
+        "home.card_sync_title": "Sincronización",
+        "home.card_sync_description": (
+            "Mantén tu lista de podcasts y episodios alineados en todos "
+            "tus dispositivos."
+        ),
+        "home.card_api_title": "API compatible",
+        "home.card_api_description": (
+            "Endpoints compatibles con clientes gpodder para "
+            "configuración automática y catálogo local."
+        ),
+        "home.logged_in_hint": (
+            "Ya estás conectado. Usa el menú de arriba para acceder "
+            "a tu perfil o cerrar sesión."
+        ),
+        "home.quickstart_title": "Empieza en 2 minutos",
+        "home.step1_title": "Crea tu cuenta",
+        "home.step1_description": "Regístrate y define tu nickname.",
+        "home.step2_title": "Conecta tu app",
+        "home.step2_description": (
+            "Usa tus credenciales de Malipod en tu cliente compatible con gpodder."
+        ),
+        "home.step3_title": "Sincroniza",
+        "home.step3_description": (
+            "Suscripciones y progreso estarán disponibles en todos tus dispositivos."
+        ),
+        "home.api_docs": "Documentación del servidor",
+        "home.api_open": "Abrir",
+        "home.unavailable_title": "Servidor temporalmente no disponible",
+        "home.unavailable_description": (
+            "Algunas verificaciones de disponibilidad fallaron. "
+            "Inténtalo de nuevo en unos instantes."
+        ),
+        "home.feature_privacy_title": "Privacidad",
+        "home.feature_privacy_description": (
+            "Tus datos se quedan en tu servidor. Sin rastreo y sin "
+            "dependencia de servicios externos."
+        ),
+        "home.feature_control_title": "Control",
+        "home.feature_control_description": (
+            "Usa Malipod como base de sincronización y evoluciona con "
+            "funciones como listas y directorio local."
+        ),
+        "home.feature_multidevice_title": "Multi-dispositivo",
+        "home.feature_multidevice_description": (
+            "Teléfono, tablet, escritorio — mantén la experiencia "
+            "consistente y sincronizada."
+        ),
     },
     "pt-BR": {
         "brand": "Malipod",
@@ -156,6 +261,58 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Informe uma URL válida para a foto.",
         "errors.language": "Escolha um idioma suportado.",
         "errors.profile_forbidden": "Perfil indisponível.",
+        "home.hero_title_prefix": "Sincronize seus podcasts",
+        "home.hero_title_highlight": "em qualquer app",
+        "home.hero_description": (
+            "O Malipod é um servidor self-hosted compatível com gpodder "
+            "para sincronizar assinaturas, episódios e progresso entre "
+            "dispositivos — com privacidade e controle."
+        ),
+        "home.card_sync_title": "Sincronização",
+        "home.card_sync_description": (
+            "Mantenha sua lista de podcasts e seus episódios alinhados "
+            "em todos os seus dispositivos."
+        ),
+        "home.card_api_title": "API compatível",
+        "home.card_api_description": (
+            "Endpoints compatíveis com clientes gpodder para "
+            "configuração automática e catálogo local."
+        ),
+        "home.logged_in_hint": (
+            "Você já está logado. Use o menu no topo para acessar seu perfil ou sair."
+        ),
+        "home.quickstart_title": "Comece em 2 minutos",
+        "home.step1_title": "Crie sua conta",
+        "home.step1_description": "Cadastre-se e defina seu nickname.",
+        "home.step2_title": "Conecte no seu app",
+        "home.step2_description": (
+            "Use as credenciais do Malipod no seu cliente compatível com gpodder."
+        ),
+        "home.step3_title": "Sincronize",
+        "home.step3_description": (
+            "Assinaturas e progresso ficam disponíveis em todos os dispositivos."
+        ),
+        "home.api_docs": "Documentação do servidor",
+        "home.api_open": "Abrir",
+        "home.unavailable_title": "Servidor temporariamente indisponível",
+        "home.unavailable_description": (
+            "Alguns checks de prontidão falharam. Tente novamente em instantes."
+        ),
+        "home.feature_privacy_title": "Privacidade",
+        "home.feature_privacy_description": (
+            "Seus dados ficam no seu servidor. Sem rastreamento e "
+            "sem dependência de serviços externos."
+        ),
+        "home.feature_control_title": "Controle",
+        "home.feature_control_description": (
+            "Use o Malipod como base para sincronização e evolua com "
+            "recursos como listas e diretório local."
+        ),
+        "home.feature_multidevice_title": "Multi-dispositivo",
+        "home.feature_multidevice_description": (
+            "Telefone, tablet, desktop — mantenha a experiência "
+            "consistente e sincronizada."
+        ),
     },
 }
 
