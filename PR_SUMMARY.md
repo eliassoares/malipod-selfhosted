@@ -88,3 +88,24 @@
 - If future compatibility endpoints need to resolve a “current device group”
   beyond membership (e.g., group metadata), we can extend `device_sync_groups`
   without changing the current contract.
+
+---
+
+# Client Parametrization PR Summary
+
+## Implemented Scope
+
+- Added public client auto-configuration endpoint:
+  - `GET /clientconfig.json`
+- Returns JSON with:
+  - `mygpo.baseurl` (normalized with trailing slash)
+  - `mygpo-feedservice.baseurl` (compatibility; same value)
+  - `update_timeout` (positive integer; fixed default 86400 seconds)
+- Endpoint is stateless and does not perform any DB writes.
+
+## Verification
+
+- `make check`
+- `make test`
+- Contract coverage added for `/clientconfig.json`:
+  - `uv run pytest -q tests/contract/test_client_config.py`

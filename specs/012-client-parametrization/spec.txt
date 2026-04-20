@@ -1,0 +1,90 @@
+FEATURE SPECIFICATION: CLIENT PARAMETRIZATION
+=============================================
+Feature Branch: 012-client-parametrization
+Created: 2026-04-19
+Status: Draft
+
+
+CONTEXTO
+--------
+O endpoint GET /clientconfig.json permite que clientes gpodder-compatíveis
+descubram automaticamente a URL base do servidor sem configuração manual.
+Endpoint público, stateless, sem autenticação. Disponível desde v1.0.
+
+
+USER STORIES
+------------
+
+[P1] Auto-configurar cliente a partir do servidor
+  Cenários de aceitação:
+  1. GET /clientconfig.json sem autenticação retorna 200 OK com mygpo.baseurl
+     igual ao base_url configurado no servidor.
+  2. Se base_url não tiver trailing slash, o servidor normaliza ao retornar baseurl.
+
+[P2] Indicar validade da configuração ao cliente
+  Cenários de aceitação:
+  1. Campo update_timeout presente na resposta com valor inteiro positivo (segundos).
+
+
+EDGE CASES
+----------
+- Requisição sem Accept header retorna JSON com Content-Type: application/json.
+- Sem autenticação obrigatória; qualquer requisição é respondida.
+- base_url sem trailing slash deve ser normalizado.
+
+
+REQUISITOS FUNCIONAIS
+---------------------
+FR-001  Expor GET /clientconfig.json sem autenticação.
+FR-002  Resposta JSON com objeto mygpo contendo campo baseurl (URL base do servidor).
+FR-003  mygpo.baseurl igual ao base_url configurado no servidor.
+FR-004  Campo update_timeout com valor inteiro em segundos.
+FR-005  Content-Type da resposta: application/json.
+FR-006  (SHOULD) Incluir objeto mygpo-feedservice com baseurl para compatibilidade.
+
+
+REQUISITOS NÃO-FUNCIONAIS
+--------------------------
+NFR-001  Testes automatizados obrigatórios:
+         - resposta 200 sem autenticação
+         - presença e formato de mygpo.baseurl e update_timeout
+         - valor de baseurl refletindo base_url configurado
+NFR-002  Endpoint stateless; nenhuma escrita no banco.
+NFR-003  Reutilizar base_url do Settings existente; nenhuma config nova.
+
+
+ENTIDADES
+---------
+Settings: base_url (já existente no servidor).
+
+
+CRITÉRIOS DE SUCESSO
+---------------------
+SC-001  Clientes auto-configuram URL base via /clientconfig.json em 100% das tentativas.
+SC-002  Endpoint responde sem autenticação em 100% das chamadas.
+SC-003  Campo mygpo.baseurl presente e válido em 100% das respostas.
+
+
+PREMISSAS
+---------
+- base_url já existe como configuração do servidor.
+- update_timeout pode ser valor fixo (ex.: 86400 s = 24h).
+- mygpo-feedservice.baseurl pode apontar para o mesmo base_url.
+
+
+CONTRATO DE RESPOSTA (exemplo)
+-------------------------------
+GET /clientconfig.json
+
+200 OK
+Content-Type: application/json
+
+{
+  "mygpo": {
+    "baseurl": "https://meu.servidor.com/"
+  },
+  "mygpo-feedservice": {
+    "baseurl": "https://meu.servidor.com/"
+  },
+  "update_timeout": 86400
+}
