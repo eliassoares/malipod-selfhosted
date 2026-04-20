@@ -22,6 +22,26 @@ def test_favorites_api_route_is_registered(client: TestClient) -> None:
     assert response.status_code == 401
 
 
+def test_cors_headers_present_on_responses(client: TestClient) -> None:
+    response = client.get(
+        "/api/v1/health/live",
+        headers={"Origin": "https://example.com"},
+    )
+    assert response.headers.get("access-control-allow-origin") == "*"
+
+
+def test_cors_preflight_returns_allow_headers(client: TestClient) -> None:
+    response = client.options(
+        "/api/v1/health/live",
+        headers={
+            "Origin": "https://example.com",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "*"
+
+
 def test_invalid_configuration_raises_on_startup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

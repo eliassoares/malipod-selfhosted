@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import json as json_module
 from typing import TYPE_CHECKING, Annotated, NoReturn
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
 
 from app.api.deps import get_directory_service, get_required_current_user
-from app.core.security import validate_count_parameter, validate_subscription_format
+from app.core.security import (
+    validate_count_parameter,
+    validate_jsonp_callback,
+    validate_subscription_format,
+)
 from app.schemas.subscription import SubscriptionItem, SubscriptionRenderPayload
 from app.services.directory import DirectoryService
 from app.services.subscription_formats import SubscriptionFormatService
@@ -38,6 +43,13 @@ def _validate_number(value: int) -> int:
         raise_bad_request(str(exc))
 
 
+def _validate_jsonp(value: str | None) -> str | None:
+    try:
+        return validate_jsonp_callback(value)
+    except ValueError as exc:
+        raise_bad_request(str(exc))
+
+
 def _render_subscriptions(
     *, format_name: str, items: list[SubscriptionItem]
 ) -> Response:
@@ -54,15 +66,19 @@ async def suggestions(
     format_name: str,
     directory: DirectoryServiceDep,
     current_user: CurrentUserDep,
+    jsonp: str | None = None,
 ) -> Response:
     normalized_format = _validate_format(format_name)
     number = _validate_number(number)
+    callback = _validate_jsonp(jsonp)
 
     podcasts = await directory.suggestions_for_user(current_user.id, number)
     if normalized_format == "json":
-        return JSONResponse(
-            content=[item.model_dump(exclude_none=True) for item in podcasts]
-        )
+        content = [item.model_dump(exclude_none=True) for item in podcasts]
+        if callback:
+            body = f"{callback}({json_module.dumps(content)});"
+            return Response(content=body, media_type="application/javascript")
+        return JSONResponse(content=content)
 
     items = [
         SubscriptionItem(

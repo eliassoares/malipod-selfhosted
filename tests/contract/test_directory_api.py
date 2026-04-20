@@ -350,3 +350,85 @@ def test_podcast_and_episode_data_contracts_return_200_or_404(
     assert episode_payload["mygpo_link"].startswith("https://directory.example/")
 
     assert unknown_episode.status_code == 404
+
+
+def test_toplist_contract_json_includes_gpodder_compat_fields(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://directory.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        seed_directory_state(settings)
+
+        response = client.get("/toplist/10.json")
+
+    assert response.status_code == 200
+    item = response.json()[0]
+    assert "subscribers_last_week" in item
+    assert "position_last_week" in item
+    assert item["subscribers_last_week"] == 0
+    assert item["position_last_week"] == 0
+
+
+def test_toplist_contract_jsonp_wrapping(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://directory.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        seed_directory_state(settings)
+
+        response = client.get("/toplist/10.json?jsonp=myCallback")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/javascript")
+    assert response.text.startswith("myCallback(")
+    assert response.text.endswith(");")
+    payload = json.loads(response.text[len("myCallback(") : -len(");")])
+    assert isinstance(payload, list)
+    assert len(payload) > 0
+
+
+def test_search_contract_jsonp_wrapping(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://directory.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        seed_directory_state(settings)
+
+        response = client.get("/search.json?q=linux&jsonp=cb")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/javascript")
+    assert response.text.startswith("cb(")
+    assert response.text.endswith(");")
+
+
+def test_toplist_contract_scale_logo_accepted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://directory.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        seed_directory_state(settings)
+
+        response = client.get("/toplist/10.json?scale_logo=64")
+
+    assert response.status_code == 200

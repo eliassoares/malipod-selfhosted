@@ -12,7 +12,10 @@ class PodcastDirectoryItem(BaseModel):
     description: str | None = None
     website: str | None = None
     logo_url: str | None = None
+    scaled_logo_url: str | None = None
     subscribers: int = Field(ge=0)
+    subscribers_last_week: int = Field(default=0, ge=0)
+    position_last_week: int = Field(default=0, ge=0)
     mygpo_link: str
 
 
