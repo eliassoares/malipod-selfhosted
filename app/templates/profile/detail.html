@@ -105,6 +105,101 @@
         <h2 class="font-headline font-bold text-on-surface text-lg">Conta</h2>
       </div>
       <div class="space-y-3">
+        <form action="/user/profile/{{ profile.nickname }}/export" method="post">
+          <button
+            class="w-full flex items-center justify-between px-5 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface font-medium font-headline transition-all group border-0 cursor-pointer"
+            type="submit"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors" style="font-size:1.1rem;">download</span>
+              Exportar dados
+            </span>
+            <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+
+        <form
+          class="space-y-3"
+          action="/user/profile/{{ profile.nickname }}/import"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="bg-surface-container rounded-xl p-4">
+            <label class="block text-sm font-medium text-on-surface mb-2 font-headline">
+              Importar dados (JSON)
+            </label>
+            <input
+              class="w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-semibold file:cursor-pointer"
+              type="file"
+              name="snapshot_file"
+              accept="application/json"
+              required
+            />
+          </div>
+          <button
+            class="w-full flex items-center justify-between px-5 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface font-medium font-headline transition-all group border-0 cursor-pointer"
+            type="submit"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors" style="font-size:1.1rem;">upload</span>
+              Importar dados
+            </span>
+            <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+
+        <div class="pt-2 border-t border-outline-variant/20"></div>
+
+        <form class="space-y-3" action="/user/profile/{{ profile.nickname }}/delete-data" method="post">
+          <div class="bg-error/5 rounded-xl p-4">
+            <p class="text-sm text-on-surface-variant">
+              Isso remove seus dados (exceto sua conta). Para confirmar, digite <span class="font-mono">DELETE</span>.
+            </p>
+            <input
+              class="mt-3 w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-error/30 transition-all text-on-surface font-body"
+              type="text"
+              name="confirm"
+              placeholder="DELETE"
+              required
+            />
+          </div>
+          <button
+            class="w-full flex items-center justify-between px-5 py-3.5 bg-error/10 hover:bg-error/15 rounded-xl text-error font-semibold font-headline transition-all group border-0 cursor-pointer"
+            type="submit"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-error" style="font-size:1.1rem;">delete_sweep</span>
+              Deletar dados
+            </span>
+            <span class="material-symbols-outlined text-error/80 group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+
+        <form class="space-y-3" action="/user/profile/{{ profile.nickname }}/delete-user" method="post">
+          <div class="bg-error/5 rounded-xl p-4">
+            <p class="text-sm text-on-surface-variant">
+              Isso remove permanentemente sua conta e todos os seus dados. Para confirmar, digite <span class="font-mono">DELETE</span>.
+            </p>
+            <input
+              class="mt-3 w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-error/30 transition-all text-on-surface font-body"
+              type="text"
+              name="confirm"
+              placeholder="DELETE"
+              required
+            />
+          </div>
+          <button
+            class="w-full flex items-center justify-between px-5 py-3.5 bg-error hover:opacity-90 rounded-xl text-on-error font-bold font-headline transition-all group border-0 cursor-pointer"
+            type="submit"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-on-error" style="font-size:1.1rem;">person_remove</span>
+              Deletar usuário
+            </span>
+            <span class="material-symbols-outlined text-on-error/90 group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+
         <form action="/logout" method="post">
           <button
             class="w-full flex items-center justify-between px-5 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface font-medium font-headline transition-all group border-0 cursor-pointer"

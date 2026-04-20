@@ -16,8 +16,8 @@
 
 **Purpose**: Preparar a feature e mapear tabelas cobertas.
 
-- [ ] T001 Confirmar branch `016-user-data-tools` está atualizado com `main` (git)
-- [ ] T002 [P] Listar tabelas alvo e regras (chave natural + recência) em `specs/016-user-data-tools/research.md` e validar contra modelos SQLAlchemy
+- [X] T001 Confirmar branch `016-user-data-tools` está atualizado com `main` (git)
+- [X] T002 [P] Listar tabelas alvo e regras (chave natural + recência) em `specs/016-user-data-tools/research.md` e validar contra modelos SQLAlchemy
 
 ---
 
@@ -25,14 +25,14 @@
 
 **Purpose**: Criar service e utilitários de snapshot/merge e plumbing no site.
 
-- [ ] T003 Criar service `app/services/user_data_tools.py` com APIs: `export_snapshot(user)`, `import_snapshot(user, payload)`, `delete_user_data(user)`, `delete_user_account(user)`
-- [ ] T004 [P] Criar schema(s) Pydantic para validar o JSON exportado/importado em `app/schemas/user_data_tools.py` (formato por tabela; validar tipos básicos e timestamps)
-- [ ] T005 Adicionar endpoints (site) em `app/api/routes/profile_site.py`:
+- [X] T003 Criar service `app/services/user_data_tools.py` com APIs: `export_snapshot(user)`, `import_snapshot(user, payload)`, `delete_user_data(user)`, `delete_user_account(user)`
+- [X] T004 [P] Criar schema(s) Pydantic para validar o JSON exportado/importado em `app/schemas/user_data_tools.py` (formato por tabela; validar tipos básicos e timestamps)
+- [X] T005 Adicionar endpoints (site) em `app/api/routes/profile_site.py`:
   - `POST /user/profile/{nickname}/export`
   - `POST /user/profile/{nickname}/import`
   - `POST /user/profile/{nickname}/delete-data`
   - `POST /user/profile/{nickname}/delete-user`
-- [ ] T006 Atualizar UI em `app/templates/profile/detail.html` com 4 botões/forms e confirmação explícita para ações destrutivas
+- [X] T006 Atualizar UI em `app/templates/profile/detail.html` com 4 botões/forms e confirmação explícita para ações destrutivas
 
 **Checkpoint**: Profile page renderiza os botões e endpoints existem (ainda sem lógica completa).
 
@@ -46,12 +46,12 @@
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T007 [P] [US1] Criar `tests/contract/test_user_data_tools_site.py` com cenário export (status 200, header `Content-Disposition`, JSON por tabela, sem hashes)
-- [ ] T008 [P] [US1] Criar `tests/unit/test_user_data_tools.py` para validar que export remove `password_hash`/`password_salt` e ignora sessões
+- [X] T007 [P] [US1] Criar `tests/contract/test_user_data_tools_site.py` com cenário export (status 200, header `Content-Disposition`, JSON por tabela, sem hashes)
+- [X] T008 [P] [US1] Criar `tests/unit/test_user_data_tools.py` para validar que export remove `password_hash`/`password_salt` e ignora sessões
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implementar export em `app/services/user_data_tools.py` e plugar em `app/api/routes/profile_site.py` (download `malipod_data_YYYY-MM-DD.json`)
+- [X] T009 [US1] Implementar export em `app/services/user_data_tools.py` e plugar em `app/api/routes/profile_site.py` (download `malipod_data_YYYY-MM-DD.json`)
 
 ---
 
@@ -63,13 +63,13 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T010 [P] [US2] Em `tests/unit/test_user_data_tools.py`, adicionar casos de merge: ignorar quando arquivo é mais antigo; atualizar quando mais novo (por tabela crítica como `devices`, `podcast_feeds`)
-- [ ] T011 [P] [US2] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário import (upload JSON) e validar efeito (ex.: idioma ou setting atualizado conforme recência)
-- [ ] T012 [P] [US2] Em `tests/unit/test_user_data_tools.py`, adicionar casos append-only: inserir se não existe e não atualizar eventos existentes
+- [X] T010 [P] [US2] Em `tests/unit/test_user_data_tools.py`, adicionar casos de merge: ignorar quando arquivo é mais antigo; atualizar quando mais novo (por tabela crítica como `devices`, `podcast_feeds`)
+- [X] T011 [P] [US2] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário import (upload JSON) e validar efeito (ex.: idioma ou setting atualizado conforme recência)
+- [X] T012 [P] [US2] Em `tests/unit/test_user_data_tools.py`, adicionar casos append-only: inserir se não existe e não atualizar eventos existentes
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Implementar import + merge em `app/services/user_data_tools.py` seguindo `specs/016-user-data-tools/research.md` (chaves/recência) e garantir isolamento por usuário logado
+- [X] T013 [US2] Implementar import + merge em `app/services/user_data_tools.py` seguindo `specs/016-user-data-tools/research.md` (chaves/recência) e garantir isolamento por usuário logado
 
 ---
 
@@ -81,11 +81,11 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T014 [P] [US3] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário delete-data (com confirmação), verificando que `users` permanece e alguns dados associados foram removidos
+- [X] T014 [P] [US3] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário delete-data (com confirmação), verificando que `users` permanece e alguns dados associados foram removidos
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Implementar `delete_user_data` em `app/services/user_data_tools.py` e endpoint `POST /user/profile/{nickname}/delete-data` com confirmação explícita
+- [X] T015 [US3] Implementar `delete_user_data` em `app/services/user_data_tools.py` e endpoint `POST /user/profile/{nickname}/delete-data` com confirmação explícita
 
 ---
 
@@ -97,11 +97,11 @@
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T016 [P] [US4] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário delete-user (confirmação), verificando redirect para `/` e que sessão foi encerrada
+- [X] T016 [P] [US4] Em `tests/contract/test_user_data_tools_site.py`, adicionar cenário delete-user (confirmação), verificando redirect para `/` e que sessão foi encerrada
 
 ### Implementation for User Story 4
 
-- [ ] T017 [US4] Implementar `delete_user_account` em `app/services/user_data_tools.py` e endpoint `POST /user/profile/{nickname}/delete-user` (revogar sessão + apagar cookie + redirect `/`)
+- [X] T017 [US4] Implementar `delete_user_account` em `app/services/user_data_tools.py` e endpoint `POST /user/profile/{nickname}/delete-user` (revogar sessão + apagar cookie + redirect `/`)
 
 ---
 
@@ -109,9 +109,9 @@
 
 **Purpose**: Qualidade, validações e evidência de verificação.
 
-- [ ] T018 [P] Rodar `uv run pytest` e registrar evidência no PR
-- [ ] T019 [P] Rodar `uv run ruff check .` e corrigir issues sem `# noqa`
-- [ ] T020 [P] Validar manualmente `specs/016-user-data-tools/quickstart.md`
+- [X] T018 [P] Rodar `uv run pytest` e registrar evidência no PR
+- [X] T019 [P] Rodar `uv run ruff check .` e corrigir issues sem `# noqa`
+- [X] T020 [P] Validar manualmente `specs/016-user-data-tools/quickstart.md`
 - [ ] T021 Preparar descrição do PR com: tabelas cobertas, regras de merge/recência e salvaguardas (segredos, isolamento, confirmação)
 
 ---
