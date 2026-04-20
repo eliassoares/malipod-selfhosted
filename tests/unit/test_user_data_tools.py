@@ -7,7 +7,13 @@ import pytest
 from sqlalchemy import select
 
 from app.db.models.device import DeviceModel
-from app.db.models.podcast import PodcastFeedModel, SubscriptionChangeEventModel
+from app.db.models.podcast import (
+    EpisodeActionEventModel,
+    EpisodeActionModel,
+    EpisodeModel,
+    PodcastFeedModel,
+    SubscriptionChangeEventModel,
+)
 from app.db.models.session import AuthenticatedSessionModel
 from app.schemas.auth import RegistrationInput
 from app.schemas.user_data_tools import UserDataSnapshot
@@ -19,6 +25,19 @@ if TYPE_CHECKING:
 
     from app.core.config import Settings
     from app.db.models.user import UserModel
+
+
+def _user_row(user: UserModel) -> dict[str, object]:
+    return {
+        "nickname": user.nickname,
+        "email": user.email,
+        "picture_url": user.picture_url,
+        "language_preference": user.language_preference,
+        "created_at": user.created_at.isoformat(),
+        "updated_at": user.updated_at.isoformat(),
+        "accessed_at": user.accessed_at.isoformat(),
+        "deactivated_at": None,
+    }
 
 
 def build_registration(
@@ -230,3 +249,235 @@ async def test_import_append_only_subscription_change_events_inserts_if_missing(
         .all()
     )
     assert len(rows) == 2
+
+
+@pytest.mark.asyncio
+async def test_import_devices_skips_older_and_applies_newer(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+    device = DeviceModel(
+        user_id=user.id,
+        device_id="phone-01",
+        caption="Original",
+        device_type="mobile",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(device)
+    await db_session.commit()
+
+    def make_snapshot(caption: str, updated_at: datetime) -> UserDataSnapshot:
+        return UserDataSnapshot.model_validate(
+            {
+                "users": [_user_row(user)],
+                "devices": [
+                    {
+                        "device_id": "phone-01",
+                        "caption": caption,
+                        "device_type": "mobile",
+                        "sync_group": None,
+                        "created_at": now.isoformat(),
+                        "updated_at": updated_at.isoformat(),
+                    }
+                ],
+            }
+        )
+
+    service = UserDataToolsService(db_session)
+
+    await service.import_snapshot(
+        user, make_snapshot("Old caption", now - timedelta(seconds=1))
+    )
+    await db_session.refresh(device)
+    assert device.caption == "Original"
+
+    await service.import_snapshot(
+        user, make_snapshot("New caption", now + timedelta(seconds=1))
+    )
+    await db_session.refresh(device)
+    assert device.caption == "New caption"
+
+
+@pytest.mark.asyncio
+async def test_import_episode_actions_uses_occurred_at_as_tiebreaker(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+
+    feed = PodcastFeedModel(
+        feed_url="https://example.com/feed.xml",
+        title="Test Feed",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(feed)
+    await db_session.flush()
+
+    episode = EpisodeModel(
+        feed_id=feed.id,
+        episode_url="https://example.com/ep1.mp3",
+        title="Episode 1",
+        released_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(episode)
+    await db_session.flush()
+
+    action = EpisodeActionModel(
+        user_id=user.id,
+        episode_id=episode.id,
+        status="play",
+        action=None,
+        occurred_at=now,
+        updated_at=now,
+    )
+    db_session.add(action)
+    await db_session.commit()
+
+    def make_snapshot(status: str, occurred_at: datetime) -> UserDataSnapshot:
+        return UserDataSnapshot.model_validate(
+            {
+                "users": [_user_row(user)],
+                "podcast_feeds": [
+                    {
+                        "feed_url": "https://example.com/feed.xml",
+                        "title": "Test Feed",
+                        "created_at": now.isoformat(),
+                        "updated_at": now.isoformat(),
+                    }
+                ],
+                "episodes": [
+                    {
+                        "feed_url": "https://example.com/feed.xml",
+                        "episode_url": "https://example.com/ep1.mp3",
+                        "title": "Episode 1",
+                        "released_at": now.isoformat(),
+                        "created_at": now.isoformat(),
+                        "updated_at": now.isoformat(),
+                    }
+                ],
+                "episode_actions": [
+                    {
+                        "episode_url": "https://example.com/ep1.mp3",
+                        "status": status,
+                        "action": None,
+                        "device_id": None,
+                        "occurred_at": occurred_at.isoformat(),
+                        "updated_at": occurred_at.isoformat(),
+                    }
+                ],
+            }
+        )
+
+    service = UserDataToolsService(db_session)
+
+    await service.import_snapshot(
+        user, make_snapshot("delete", now - timedelta(seconds=1))
+    )
+    await db_session.refresh(action)
+    assert action.status == "play"
+
+    await service.import_snapshot(
+        user, make_snapshot("delete", now + timedelta(seconds=1))
+    )
+    await db_session.refresh(action)
+    assert action.status == "delete"
+
+
+@pytest.mark.asyncio
+async def test_import_episode_action_events_is_append_only(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+
+    feed = PodcastFeedModel(
+        feed_url="https://example.com/feed.xml",
+        title="Test Feed",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(feed)
+    await db_session.flush()
+
+    episode = EpisodeModel(
+        feed_id=feed.id,
+        episode_url="https://example.com/ep1.mp3",
+        title="Episode 1",
+        released_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(episode)
+    await db_session.flush()
+
+    existing_event = EpisodeActionEventModel(
+        user_id=user.id,
+        episode_id=episode.id,
+        podcast_url="https://example.com/feed.xml",
+        episode_url="https://example.com/ep1.mp3",
+        device_id=None,
+        action="play",
+        occurred_at=now,
+        created_at=now,
+    )
+    db_session.add(existing_event)
+    await db_session.commit()
+
+    snapshot = UserDataSnapshot.model_validate(
+        {
+            "users": [_user_row(user)],
+            "podcast_feeds": [
+                {
+                    "feed_url": "https://example.com/feed.xml",
+                    "title": "Test Feed",
+                    "created_at": now.isoformat(),
+                    "updated_at": now.isoformat(),
+                }
+            ],
+            "episodes": [
+                {
+                    "feed_url": "https://example.com/feed.xml",
+                    "episode_url": "https://example.com/ep1.mp3",
+                    "title": "Episode 1",
+                    "released_at": now.isoformat(),
+                    "created_at": now.isoformat(),
+                    "updated_at": now.isoformat(),
+                }
+            ],
+            "episode_action_events": [
+                {
+                    "episode_url": "https://example.com/ep1.mp3",
+                    "podcast_url": "https://example.com/feed.xml",
+                    "action": "play",
+                    "occurred_at": now.isoformat(),
+                    "created_at": now.isoformat(),
+                },
+                {
+                    "episode_url": "https://example.com/ep1.mp3",
+                    "podcast_url": "https://example.com/feed.xml",
+                    "action": "play",
+                    "occurred_at": (now + timedelta(seconds=10)).isoformat(),
+                    "created_at": (now + timedelta(seconds=10)).isoformat(),
+                },
+            ],
+        }
+    )
+
+    service = UserDataToolsService(db_session)
+    await service.import_snapshot(user, snapshot)
+
+    result = await db_session.execute(
+        select(EpisodeActionEventModel).where(
+            EpisodeActionEventModel.user_id == user.id
+        )
+    )
+    events = result.scalars().all()
+    assert len(events) == 2

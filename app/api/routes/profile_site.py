@@ -17,6 +17,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError
 
 from app.api.deps import (
     get_auth_service,
@@ -201,8 +202,14 @@ async def import_user_data(
     if current_user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     _require_profile_owner(nickname, current_user, settings, localization_service)
+    max_import_bytes = 10 * 1024 * 1024
     try:
-        raw = await snapshot_file.read()
+        raw = await snapshot_file.read(max_import_bytes + 1)
+        if len(raw) > max_import_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail="file too large",
+            )
         data = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise HTTPException(
@@ -210,6 +217,12 @@ async def import_user_data(
         ) from exc
     try:
         snapshot = UserDataSnapshot.model_validate(data)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="invalid snapshot",
+        ) from exc
+    try:
         await user_data_tools.import_snapshot(current_user, snapshot)
     except UserDataToolsError as exc:
         raise HTTPException(

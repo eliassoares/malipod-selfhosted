@@ -245,4 +245,302 @@ def test_delete_user_removes_user_and_redirects_home(
     )
     assert response.status_code == 303
     assert response.headers["location"] == "/"
+    assert "set-cookie" in response.headers
     assert count_rows(settings, "users") == 0
+
+
+# ---------------------------------------------------------------------------
+# Input validation
+# ---------------------------------------------------------------------------
+
+
+def test_import_rejects_file_too_large(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    big_data = b"x" * (10 * 1024 * 1024 + 2)
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={"snapshot_file": ("big.json", big_data, "application/json")},
+        follow_redirects=False,
+    )
+    assert response.status_code == 413
+
+
+def test_import_rejects_invalid_json(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={"snapshot_file": ("bad.json", b"not json {{{", "application/json")},
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+
+
+def test_import_rejects_snapshot_user_mismatch(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    export = client.post("/user/profile/listener_1/export").json()
+    export["users"][0]["email"] = "someone_else@example.com"
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={
+            "snapshot_file": (
+                "snapshot.json",
+                json.dumps(export).encode(),
+                "application/json",
+            )
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+
+
+def test_import_rejects_invalid_feed_url(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    export = client.post("/user/profile/listener_1/export").json()
+    export["podcast_feeds"] = [
+        {
+            "feed_url": "not-a-valid-url",
+            "title": "Bad Feed",
+            "created_at": "2024-01-01T00:00:00+00:00",
+            "updated_at": "2024-01-01T00:00:00+00:00",
+        }
+    ]
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={
+            "snapshot_file": (
+                "snapshot.json",
+                json.dumps(export).encode(),
+                "application/json",
+            )
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 422
+
+
+def test_delete_data_requires_confirm(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    response = client.post(
+        "/user/profile/listener_1/delete-data",
+        data={"confirm": ""},
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+
+
+def test_delete_user_requires_confirm(client: TestClient) -> None:
+    register_user(client)
+    api_login(client)
+    response = client.post(
+        "/user/profile/listener_1/delete-user",
+        data={"confirm": ""},
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# Access control
+# ---------------------------------------------------------------------------
+
+
+def test_export_forbidden_for_other_user(client: TestClient) -> None:
+    register_user(client, "listener_1")
+    register_user(client, "listener_2")
+    api_login(client, "listener_2")
+    response = client.post("/user/profile/listener_1/export", follow_redirects=False)
+    assert response.status_code == 404
+
+
+def test_import_forbidden_for_other_user(client: TestClient) -> None:
+    register_user(client, "listener_1")
+    register_user(client, "listener_2")
+    api_login(client, "listener_2")
+    export: dict[str, list[object]] = {"users": [], "devices": []}
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={
+            "snapshot_file": (
+                "snapshot.json",
+                json.dumps(export).encode(),
+                "application/json",
+            )
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 404
+
+
+def test_delete_data_forbidden_for_other_user(client: TestClient) -> None:
+    register_user(client, "listener_1")
+    register_user(client, "listener_2")
+    api_login(client, "listener_2")
+    response = client.post(
+        "/user/profile/listener_1/delete-data",
+        data={"confirm": "DELETE"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 404
+
+
+def test_delete_user_forbidden_for_other_user(client: TestClient) -> None:
+    register_user(client, "listener_1")
+    register_user(client, "listener_2")
+    api_login(client, "listener_2")
+    response = client.post(
+        "/user/profile/listener_1/delete-user",
+        data={"confirm": "DELETE"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Merge logic
+# ---------------------------------------------------------------------------
+
+
+def test_import_ignores_older_account_settings(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    api_login(client)
+
+    recent_updated_at = datetime.now(UTC)
+    upsert_account_settings(
+        settings,
+        "listener_1",
+        data={"theme": "dark"},
+        updated_at=recent_updated_at,
+    )
+
+    export = client.post("/user/profile/listener_1/export").json()
+    export["account_settings"] = [
+        {
+            "settings": {"theme": "light"},
+            "created_at": (recent_updated_at - timedelta(days=2)).isoformat(),
+            "updated_at": (recent_updated_at - timedelta(days=1)).isoformat(),
+        }
+    ]
+
+    response = client.post(
+        "/user/profile/listener_1/import",
+        files={
+            "snapshot_file": (
+                "snapshot.json",
+                json.dumps(export).encode(),
+                "application/json",
+            )
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert read_account_settings(settings, "listener_1")["theme"] == "dark"
+
+
+# ---------------------------------------------------------------------------
+# Delete-data broader table coverage
+# ---------------------------------------------------------------------------
+
+
+def test_delete_data_clears_device_subscriptions_and_events(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    api_login(client)
+
+    now = datetime.now(UTC)
+    snapshot: dict[str, Any] = {
+        "users": [
+            {
+                "nickname": "listener_1",
+                "email": "listener_1@example.com",
+                "language_preference": "en",
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+                "accessed_at": now.isoformat(),
+            }
+        ],
+        "devices": [
+            {
+                "device_id": "phone-01",
+                "caption": "Phone",
+                "device_type": "mobile",
+                "sync_group": None,
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "podcast_feeds": [
+            {
+                "feed_url": "https://example.com/feed.xml",
+                "title": "Test Feed",
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "device_subscriptions": [
+            {
+                "device_id": "phone-01",
+                "feed_url": "https://example.com/feed.xml",
+                "subscribed_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "subscription_change_events": [
+            {
+                "device_id": "phone-01",
+                "feed_url": "https://example.com/feed.xml",
+                "operation": "subscribe",
+                "created_at": now.isoformat(),
+            }
+        ],
+    }
+    import_response = client.post(
+        "/user/profile/listener_1/import",
+        files={
+            "snapshot_file": (
+                "snapshot.json",
+                json.dumps(snapshot).encode(),
+                "application/json",
+            )
+        },
+        follow_redirects=False,
+    )
+    assert import_response.status_code == 303
+
+    db_path = sqlite_path(settings)
+    with sqlite3.connect(db_path) as conn:
+        assert (
+            conn.execute("SELECT COUNT(*) FROM device_subscriptions").fetchone()[0] == 1
+        )
+        assert (
+            conn.execute("SELECT COUNT(*) FROM subscription_change_events").fetchone()[
+                0
+            ]
+            == 1
+        )
+
+    client.post(
+        "/user/profile/listener_1/delete-data",
+        data={"confirm": "DELETE"},
+        follow_redirects=False,
+    )
+
+    with sqlite3.connect(db_path) as conn:
+        assert (
+            conn.execute("SELECT COUNT(*) FROM device_subscriptions").fetchone()[0] == 0
+        )
+        assert (
+            conn.execute("SELECT COUNT(*) FROM subscription_change_events").fetchone()[
+                0
+            ]
+            == 0
+        )

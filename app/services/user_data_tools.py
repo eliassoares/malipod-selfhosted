@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import delete, select
-from sqlalchemy.orm import selectinload
 
 from app.db.models.device import DeviceModel
 from app.db.models.device_sync_group import DeviceSyncGroupModel
@@ -139,25 +138,63 @@ class UserDataToolsService:
                 raise UserDataToolsError("snapshot_user_mismatch")
 
         async with self._transaction():
+            # Phase 1: global catalog (podcast_feeds → episodes)
             await self._import_podcast_feeds(snapshot)
-            await self._import_episodes(snapshot)
+            await self.session.flush()
+
+            feed_urls: set[str] = (
+                {r.feed_url for r in snapshot.podcast_feeds}
+                | {r.feed_url for r in snapshot.episodes}
+                | {r.feed_url for r in snapshot.device_subscriptions}
+                | {r.feed_url for r in snapshot.podcast_settings}
+                | {r.feed_url for r in snapshot.podcast_list_items}
+            )
+            feed_id_map = await self._feed_id_map(feed_urls)
+
+            await self._import_episodes(snapshot, feed_id_map)
+            await self.session.flush()
+
+            episode_urls: set[str] = (
+                {r.episode_url for r in snapshot.episodes}
+                | {r.episode_url for r in snapshot.episode_settings}
+                | {r.episode_url for r in snapshot.episode_actions}
+                | {r.episode_url for r in snapshot.favorite_episodes}
+                | {r.episode_url for r in snapshot.episode_action_events}
+            )
+            episode_id_map = await self._episode_id_map(episode_urls)
+
+            # Phase 2: user devices
             await self._import_devices(user, snapshot)
+            await self.session.flush()
+
+            device_pk_map = await self._device_pk_map(user.id)
             await self._rebuild_device_sync_groups(user, snapshot)
 
+            # Phase 3: settings
             await self._import_account_settings(user, snapshot)
-            await self._import_device_settings(user, snapshot)
-            await self._import_podcast_settings(user, snapshot)
-            await self._import_episode_settings(user, snapshot)
+            await self._import_device_settings(user, snapshot, device_pk_map)
+            await self._import_podcast_settings(user, snapshot, feed_id_map)
+            await self._import_episode_settings(user, snapshot, episode_id_map)
 
+            # Phase 4: podcast lists
             await self._import_podcast_lists(user, snapshot)
-            await self._import_podcast_list_items(user, snapshot)
+            await self.session.flush()
 
-            await self._import_device_subscriptions(user, snapshot)
-            await self._import_episode_actions(user, snapshot)
-            await self._import_favorite_episodes(user, snapshot)
+            list_id_map = await self._list_id_map(user.id)
+            await self._import_podcast_list_items(
+                user, snapshot, feed_id_map, list_id_map
+            )
 
-            await self._import_subscription_change_events(user, snapshot)
-            await self._import_episode_action_events(user, snapshot)
+            # Phase 5: activity data
+            await self._import_device_subscriptions(
+                user, snapshot, device_pk_map, feed_id_map
+            )
+            await self._import_episode_actions(
+                user, snapshot, device_pk_map, episode_id_map
+            )
+            await self._import_favorite_episodes(user, snapshot, episode_id_map)
+            await self._import_subscription_change_events(user, snapshot, device_pk_map)
+            await self._import_episode_action_events(user, snapshot, episode_id_map)
 
     async def delete_user_data(self, user: UserModel) -> None:
         async with self._transaction():
@@ -226,9 +263,7 @@ class UserDataToolsService:
 
     async def _export_devices(self, user: UserModel) -> list[dict[str, Any]]:
         result = await self.session.execute(
-            select(DeviceModel)
-            .options(selectinload(DeviceModel.sync_group))
-            .where(DeviceModel.user_id == user.id)
+            select(DeviceModel).where(DeviceModel.user_id == user.id)
         )
         rows = result.scalars().all()
         return [
@@ -537,27 +572,30 @@ class UserDataToolsService:
         return feeds, episodes
 
     async def _import_podcast_feeds(self, snapshot: UserDataSnapshot) -> None:
+        if not snapshot.podcast_feeds:
+            return
+        urls = [row.feed_url for row in snapshot.podcast_feeds]
+        result = await self.session.execute(
+            select(PodcastFeedModel).where(PodcastFeedModel.feed_url.in_(urls))
+        )
+        existing_map = {row.feed_url: row for row in result.scalars().all()}
         for row in snapshot.podcast_feeds:
-            result = await self.session.execute(
-                select(PodcastFeedModel).where(
-                    PodcastFeedModel.feed_url == row.feed_url
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(row.feed_url)
             if existing is None:
-                model = PodcastFeedModel(
-                    feed_url=row.feed_url,
-                    title=row.title,
-                    author=row.author,
-                    description=row.description,
-                    website=row.website,
-                    logo_url=row.logo_url,
-                    mygpo_link=row.mygpo_link,
-                    categories=row.categories,
-                    created_at=row.created_at,
-                    updated_at=row.updated_at,
+                self.session.add(
+                    PodcastFeedModel(
+                        feed_url=row.feed_url,
+                        title=row.title,
+                        author=row.author,
+                        description=row.description,
+                        website=row.website,
+                        logo_url=row.logo_url,
+                        mygpo_link=row.mygpo_link,
+                        categories=row.categories,
+                        created_at=row.created_at,
+                        updated_at=row.updated_at,
+                    )
                 )
-                self.session.add(model)
                 continue
             if _as_utc(existing.updated_at) >= row.updated_at:
                 continue
@@ -570,29 +608,35 @@ class UserDataToolsService:
             existing.categories = row.categories
             existing.updated_at = row.updated_at
 
-    async def _import_episodes(self, snapshot: UserDataSnapshot) -> None:
-        feed_id_by_url = await self._feed_id_map()
+    async def _import_episodes(
+        self, snapshot: UserDataSnapshot, feed_id_map: dict[str, int]
+    ) -> None:
+        if not snapshot.episodes:
+            return
+        urls = [row.episode_url for row in snapshot.episodes]
+        result = await self.session.execute(
+            select(EpisodeModel).where(EpisodeModel.episode_url.in_(urls))
+        )
+        existing_map = {row.episode_url: row for row in result.scalars().all()}
         for row in snapshot.episodes:
-            feed_id = feed_id_by_url.get(row.feed_url)
+            feed_id = feed_id_map.get(row.feed_url)
             if feed_id is None:
                 continue
-            result = await self.session.execute(
-                select(EpisodeModel).where(EpisodeModel.episode_url == row.episode_url)
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(row.episode_url)
             if existing is None:
-                model = EpisodeModel(
-                    feed_id=feed_id,
-                    episode_url=row.episode_url,
-                    title=row.title,
-                    description=row.description,
-                    website=row.website,
-                    mygpo_link=row.mygpo_link,
-                    released_at=row.released_at,
-                    created_at=row.created_at,
-                    updated_at=row.updated_at,
+                self.session.add(
+                    EpisodeModel(
+                        feed_id=feed_id,
+                        episode_url=row.episode_url,
+                        title=row.title,
+                        description=row.description,
+                        website=row.website,
+                        mygpo_link=row.mygpo_link,
+                        released_at=row.released_at,
+                        created_at=row.created_at,
+                        updated_at=row.updated_at,
+                    )
                 )
-                self.session.add(model)
                 continue
             if _as_utc(existing.updated_at) >= row.updated_at:
                 continue
@@ -697,22 +741,28 @@ class UserDataToolsService:
         existing.updated_at = row.updated_at
 
     async def _import_device_settings(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        device_pk_map: dict[str, int],
     ) -> None:
         if not snapshot.device_settings:
             return
-        device_pk_by_id = await self._device_pk_map(user.id)
+        device_pks = list(device_pk_map.values())
+        if not device_pks:
+            return
+        result = await self.session.execute(
+            select(DeviceSettingModel).where(
+                DeviceSettingModel.user_id == user.id,
+                DeviceSettingModel.device_pk.in_(device_pks),
+            )
+        )
+        existing_map = {row.device_pk: row for row in result.scalars().all()}
         for row in snapshot.device_settings:
-            device_pk = device_pk_by_id.get(row.device_id)
+            device_pk = device_pk_map.get(row.device_id)
             if device_pk is None:
                 continue
-            result = await self.session.execute(
-                select(DeviceSettingModel).where(
-                    DeviceSettingModel.user_id == user.id,
-                    DeviceSettingModel.device_pk == device_pk,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(device_pk)
             if existing is None:
                 self.session.add(
                     DeviceSettingModel(
@@ -730,22 +780,28 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_podcast_settings(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        feed_id_map: dict[str, int],
     ) -> None:
         if not snapshot.podcast_settings:
             return
-        feed_id_by_url = await self._feed_id_map()
+        feed_ids = list(feed_id_map.values())
+        if not feed_ids:
+            return
+        result = await self.session.execute(
+            select(PodcastSettingModel).where(
+                PodcastSettingModel.user_id == user.id,
+                PodcastSettingModel.feed_id.in_(feed_ids),
+            )
+        )
+        existing_map = {row.feed_id: row for row in result.scalars().all()}
         for row in snapshot.podcast_settings:
-            feed_id = feed_id_by_url.get(row.feed_url)
+            feed_id = feed_id_map.get(row.feed_url)
             if feed_id is None:
                 continue
-            result = await self.session.execute(
-                select(PodcastSettingModel).where(
-                    PodcastSettingModel.user_id == user.id,
-                    PodcastSettingModel.feed_id == feed_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(feed_id)
             if existing is None:
                 self.session.add(
                     PodcastSettingModel(
@@ -763,22 +819,28 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_episode_settings(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        episode_id_map: dict[str, int],
     ) -> None:
         if not snapshot.episode_settings:
             return
-        episode_id_by_url = await self._episode_id_map()
+        episode_ids = list(episode_id_map.values())
+        if not episode_ids:
+            return
+        result = await self.session.execute(
+            select(EpisodeSettingModel).where(
+                EpisodeSettingModel.user_id == user.id,
+                EpisodeSettingModel.episode_id.in_(episode_ids),
+            )
+        )
+        existing_map = {row.episode_id: row for row in result.scalars().all()}
         for row in snapshot.episode_settings:
-            episode_id = episode_id_by_url.get(row.episode_url)
+            episode_id = episode_id_map.get(row.episode_url)
             if episode_id is None:
                 continue
-            result = await self.session.execute(
-                select(EpisodeSettingModel).where(
-                    EpisodeSettingModel.user_id == user.id,
-                    EpisodeSettingModel.episode_id == episode_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(episode_id)
             if existing is None:
                 self.session.add(
                     EpisodeSettingModel(
@@ -821,24 +883,31 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_podcast_list_items(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        feed_id_map: dict[str, int],
+        list_id_map: dict[str, int],
     ) -> None:
         if not snapshot.podcast_list_items:
             return
-        feed_id_by_url = await self._feed_id_map()
-        list_id_by_name = await self._list_id_map(user.id)
+        list_ids = list(list_id_map.values())
+        if not list_ids:
+            return
+        result = await self.session.execute(
+            select(PodcastListItemModel).where(
+                PodcastListItemModel.list_id.in_(list_ids),
+            )
+        )
+        existing_map = {
+            (row.list_id, row.feed_id): row for row in result.scalars().all()
+        }
         for row in snapshot.podcast_list_items:
-            list_id = list_id_by_name.get(row.list_name)
-            feed_id = feed_id_by_url.get(row.feed_url)
+            list_id = list_id_map.get(row.list_name)
+            feed_id = feed_id_map.get(row.feed_url)
             if list_id is None or feed_id is None:
                 continue
-            result = await self.session.execute(
-                select(PodcastListItemModel).where(
-                    PodcastListItemModel.list_id == list_id,
-                    PodcastListItemModel.feed_id == feed_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get((list_id, feed_id))
             if existing is None:
                 self.session.add(
                     PodcastListItemModel(
@@ -856,24 +925,31 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_device_subscriptions(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        device_pk_map: dict[str, int],
+        feed_id_map: dict[str, int],
     ) -> None:
         if not snapshot.device_subscriptions:
             return
-        device_pk_by_id = await self._device_pk_map(user.id)
-        feed_id_by_url = await self._feed_id_map()
+        device_pks = list(device_pk_map.values())
+        if not device_pks:
+            return
+        result = await self.session.execute(
+            select(DeviceSubscriptionModel).where(
+                DeviceSubscriptionModel.device_pk.in_(device_pks),
+            )
+        )
+        existing_map = {
+            (row.device_pk, row.feed_id): row for row in result.scalars().all()
+        }
         for row in snapshot.device_subscriptions:
-            device_pk = device_pk_by_id.get(row.device_id)
-            feed_id = feed_id_by_url.get(row.feed_url)
+            device_pk = device_pk_map.get(row.device_id)
+            feed_id = feed_id_map.get(row.feed_url)
             if device_pk is None or feed_id is None:
                 continue
-            result = await self.session.execute(
-                select(DeviceSubscriptionModel).where(
-                    DeviceSubscriptionModel.device_pk == device_pk,
-                    DeviceSubscriptionModel.feed_id == feed_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get((device_pk, feed_id))
             if existing is None:
                 self.session.add(
                     DeviceSubscriptionModel(
@@ -892,24 +968,30 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_episode_actions(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        device_pk_map: dict[str, int],
+        episode_id_map: dict[str, int],
     ) -> None:
         if not snapshot.episode_actions:
             return
-        device_pk_by_id = await self._device_pk_map(user.id)
-        episode_id_by_url = await self._episode_id_map()
+        episode_ids = list(episode_id_map.values())
+        if not episode_ids:
+            return
+        result = await self.session.execute(
+            select(EpisodeActionModel).where(
+                EpisodeActionModel.user_id == user.id,
+                EpisodeActionModel.episode_id.in_(episode_ids),
+            )
+        )
+        existing_map = {row.episode_id: row for row in result.scalars().all()}
         for row in snapshot.episode_actions:
-            episode_id = episode_id_by_url.get(row.episode_url)
+            episode_id = episode_id_map.get(row.episode_url)
             if episode_id is None:
                 continue
-            device_pk = device_pk_by_id.get(row.device_id) if row.device_id else None
-            result = await self.session.execute(
-                select(EpisodeActionModel).where(
-                    EpisodeActionModel.user_id == user.id,
-                    EpisodeActionModel.episode_id == episode_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            device_pk = device_pk_map.get(row.device_id) if row.device_id else None
+            existing = existing_map.get(episode_id)
             if existing is None:
                 self.session.add(
                     EpisodeActionModel(
@@ -932,22 +1014,28 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_favorite_episodes(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        episode_id_map: dict[str, int],
     ) -> None:
         if not snapshot.favorite_episodes:
             return
-        episode_id_by_url = await self._episode_id_map()
+        episode_ids = list(episode_id_map.values())
+        if not episode_ids:
+            return
+        result = await self.session.execute(
+            select(FavoriteEpisodeModel).where(
+                FavoriteEpisodeModel.user_id == user.id,
+                FavoriteEpisodeModel.episode_id.in_(episode_ids),
+            )
+        )
+        existing_map = {row.episode_id: row for row in result.scalars().all()}
         for row in snapshot.favorite_episodes:
-            episode_id = episode_id_by_url.get(row.episode_url)
+            episode_id = episode_id_map.get(row.episode_url)
             if episode_id is None:
                 continue
-            result = await self.session.execute(
-                select(FavoriteEpisodeModel).where(
-                    FavoriteEpisodeModel.user_id == user.id,
-                    FavoriteEpisodeModel.episode_id == episode_id,
-                )
-            )
-            existing = result.scalar_one_or_none()
+            existing = existing_map.get(episode_id)
             if existing is None:
                 self.session.add(
                     FavoriteEpisodeModel(
@@ -965,24 +1053,34 @@ class UserDataToolsService:
             existing.updated_at = row.updated_at
 
     async def _import_subscription_change_events(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        device_pk_map: dict[str, int],
     ) -> None:
         if not snapshot.subscription_change_events:
             return
-        device_pk_by_id = await self._device_pk_map(user.id)
+        device_pks = list(device_pk_map.values())
+        if not device_pks:
+            return
+        result = await self.session.execute(
+            select(
+                SubscriptionChangeEventModel.device_pk,
+                SubscriptionChangeEventModel.feed_url,
+                SubscriptionChangeEventModel.operation,
+                SubscriptionChangeEventModel.created_at,
+            ).where(SubscriptionChangeEventModel.device_pk.in_(device_pks))
+        )
+        existing_keys = {
+            (device_pk, feed_url, operation, _as_utc(created_at))
+            for device_pk, feed_url, operation, created_at in result.all()
+        }
         for row in snapshot.subscription_change_events:
-            device_pk = device_pk_by_id.get(row.device_id)
+            device_pk = device_pk_map.get(row.device_id)
             if device_pk is None:
                 continue
-            result = await self.session.execute(
-                select(SubscriptionChangeEventModel).where(
-                    SubscriptionChangeEventModel.device_pk == device_pk,
-                    SubscriptionChangeEventModel.feed_url == row.feed_url,
-                    SubscriptionChangeEventModel.operation == row.operation,
-                    SubscriptionChangeEventModel.created_at == row.created_at,
-                )
-            )
-            if result.scalar_one_or_none() is not None:
+            key = (device_pk, row.feed_url, row.operation, row.created_at)
+            if key in existing_keys:
                 continue
             self.session.add(
                 SubscriptionChangeEventModel(
@@ -994,24 +1092,34 @@ class UserDataToolsService:
             )
 
     async def _import_episode_action_events(
-        self, user: UserModel, snapshot: UserDataSnapshot
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        episode_id_map: dict[str, int],
     ) -> None:
         if not snapshot.episode_action_events:
             return
-        episode_id_by_url = await self._episode_id_map()
-        for row in snapshot.episode_action_events:
-            episode_id = episode_id_by_url.get(row.episode_url)
-            if episode_id is None:
-                continue
-            result = await self.session.execute(
-                select(EpisodeActionEventModel).where(
-                    EpisodeActionEventModel.user_id == user.id,
-                    EpisodeActionEventModel.episode_url == row.episode_url,
-                    EpisodeActionEventModel.action == row.action,
-                    EpisodeActionEventModel.occurred_at == row.occurred_at,
-                )
+        episode_urls = {row.episode_url for row in snapshot.episode_action_events}
+        result = await self.session.execute(
+            select(
+                EpisodeActionEventModel.episode_url,
+                EpisodeActionEventModel.action,
+                EpisodeActionEventModel.occurred_at,
+            ).where(
+                EpisodeActionEventModel.user_id == user.id,
+                EpisodeActionEventModel.episode_url.in_(episode_urls),
             )
-            if result.scalar_one_or_none() is not None:
+        )
+        existing_keys = {
+            (ep_url, action, _as_utc(occurred_at))
+            for ep_url, action, occurred_at in result.all()
+        }
+        for row in snapshot.episode_action_events:
+            key = (row.episode_url, row.action, row.occurred_at)
+            if key in existing_keys:
+                continue
+            episode_id = episode_id_map.get(row.episode_url)
+            if episode_id is None:
                 continue
             self.session.add(
                 EpisodeActionEventModel(
@@ -1029,15 +1137,23 @@ class UserDataToolsService:
                 )
             )
 
-    async def _feed_id_map(self) -> dict[str, int]:
+    async def _feed_id_map(self, feed_urls: set[str]) -> dict[str, int]:
+        if not feed_urls:
+            return {}
         result = await self.session.execute(
-            select(PodcastFeedModel.id, PodcastFeedModel.feed_url)
+            select(PodcastFeedModel.id, PodcastFeedModel.feed_url).where(
+                PodcastFeedModel.feed_url.in_(feed_urls)
+            )
         )
         return {feed_url: feed_id for feed_id, feed_url in result.all()}
 
-    async def _episode_id_map(self) -> dict[str, int]:
+    async def _episode_id_map(self, episode_urls: set[str]) -> dict[str, int]:
+        if not episode_urls:
+            return {}
         result = await self.session.execute(
-            select(EpisodeModel.id, EpisodeModel.episode_url)
+            select(EpisodeModel.id, EpisodeModel.episode_url).where(
+                EpisodeModel.episode_url.in_(episode_urls)
+            )
         )
         return {episode_url: episode_id for episode_id, episode_url in result.all()}
 

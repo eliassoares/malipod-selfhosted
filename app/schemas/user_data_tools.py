@@ -3,7 +3,16 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field
+from pydantic import (
+    AfterValidator,
+    AnyHttpUrl,
+    BaseModel,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+)
+
+_http_url_adapter: TypeAdapter[AnyHttpUrl] = TypeAdapter(AnyHttpUrl)
 
 
 def _ensure_timezone(value: datetime) -> datetime:
@@ -12,7 +21,13 @@ def _ensure_timezone(value: datetime) -> datetime:
     return value
 
 
+def _validate_http_url(value: str) -> str:
+    _http_url_adapter.validate_python(value)
+    return value
+
+
 UtcDatetime = Annotated[datetime, AfterValidator(_ensure_timezone)]
+HttpUrlStr = Annotated[str, AfterValidator(_validate_http_url)]
 
 
 class UserSnapshotRow(BaseModel):
@@ -59,7 +74,7 @@ class DeviceSettingsSnapshotRow(BaseModel):
 class PodcastFeedSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    feed_url: str
+    feed_url: HttpUrlStr
     title: str
     author: str | None = None
     description: str | None = None
@@ -74,8 +89,8 @@ class PodcastFeedSnapshotRow(BaseModel):
 class EpisodeSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    feed_url: str
-    episode_url: str
+    feed_url: HttpUrlStr
+    episode_url: HttpUrlStr
     title: str
     description: str | None = None
     website: str | None = None
@@ -89,7 +104,7 @@ class DeviceSubscriptionSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     device_id: str
-    feed_url: str
+    feed_url: HttpUrlStr
     subscribed_at: UtcDatetime
     unsubscribed_at: UtcDatetime | None = None
     updated_at: UtcDatetime
@@ -98,7 +113,7 @@ class DeviceSubscriptionSnapshotRow(BaseModel):
 class EpisodeActionSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    episode_url: str
+    episode_url: HttpUrlStr
     status: str
     action: dict[str, Any] | None = None
     device_id: str | None = None
@@ -109,7 +124,7 @@ class EpisodeActionSnapshotRow(BaseModel):
 class FavoriteEpisodeSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    episode_url: str
+    episode_url: HttpUrlStr
     favorited_at: UtcDatetime
     created_at: UtcDatetime
     updated_at: UtcDatetime
@@ -119,7 +134,7 @@ class SubscriptionChangeEventSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     device_id: str
-    feed_url: str
+    feed_url: HttpUrlStr
     operation: str
     created_at: UtcDatetime
 
@@ -127,8 +142,8 @@ class SubscriptionChangeEventSnapshotRow(BaseModel):
 class EpisodeActionEventSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    episode_url: str
-    podcast_url: str
+    episode_url: HttpUrlStr
+    podcast_url: HttpUrlStr
     device_id: str | None = None
     action: str
     occurred_at: UtcDatetime
@@ -151,7 +166,7 @@ class PodcastListItemSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     list_name: str
-    feed_url: str
+    feed_url: HttpUrlStr
     position: int
     created_at: UtcDatetime
     updated_at: UtcDatetime
@@ -160,7 +175,7 @@ class PodcastListItemSnapshotRow(BaseModel):
 class PodcastSettingsSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    feed_url: str
+    feed_url: HttpUrlStr
     settings: dict[str, Any] = Field(default_factory=dict)
     created_at: UtcDatetime
     updated_at: UtcDatetime
@@ -169,7 +184,7 @@ class PodcastSettingsSnapshotRow(BaseModel):
 class EpisodeSettingsSnapshotRow(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    episode_url: str
+    episode_url: HttpUrlStr
     settings: dict[str, Any] = Field(default_factory=dict)
     created_at: UtcDatetime
     updated_at: UtcDatetime
