@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_runtime_settings
-from app.core.config import Settings  # noqa: TC001
 from app.schemas.client_config import ClientConfigResponse, ClientConfigService
+
+if TYPE_CHECKING:
+    from app.core.config import Settings
 
 router = APIRouter(tags=["Client Config"])
 
