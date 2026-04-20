@@ -1,14 +1,9 @@
 # Malipod
 
-Malipod is the foundation of a podcast synchronization platform inspired by the
-gpodder ecosystem. The current increments deliver a single FastAPI application
-that exposes both a browser-visible site and a compatibility-focused JSON API,
-with secure startup validation, pinned dependencies, isolated verification
-workflows, authenticated device management, and authenticated subscription
-synchronization endpoints. The current branch also adds authenticated
-episode-action synchronization with upload, incremental retrieval, filtering,
-and aggregation support, plus a podcast-lists API for public curated list reads
-and authenticated list management.
+Malipod is a self-hosted [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
+podcast synchronization server. It implements the full gpodder.net v2 API, enabling
+podcast apps like AntennaPod to sync subscriptions, episode actions, and device
+state across multiple clients.
 
 ## Stack
 
@@ -48,18 +43,6 @@ values are missing or insecure.
 docker compose up --build
 ```
 
-Once the stack is ready:
-
-- Site: `http://localhost:8000/`
-- API root: `http://localhost:8000/api/v1`
-- Liveness: `http://localhost:8000/api/v1/health/live`
-- Readiness: `http://localhost:8000/api/v1/health/ready`
-- Device API: `http://localhost:8000/api/2/devices/{username}.json`
-- Subscriptions API: `http://localhost:8000/subscriptions/{username}.json`
-- Subscription delta sync: `http://localhost:8000/api/2/subscriptions/{username}/{deviceid}.json`
-- Episodes API: `http://localhost:8000/api/2/episodes/{username}.json`
-- Podcast Lists API: `http://localhost:8000/api/2/lists/{username}.json`
-
 ### Local process
 
 ```bash
@@ -67,6 +50,151 @@ uv sync
 cp .env.example .env
 make run
 ```
+
+## gpodder.net API Compatibility
+
+Malipod implements the [gpodder.net v2 API](https://gpoddernet.readthedocs.io/en/latest/api/index.html).
+All endpoints send `Access-Control-Allow-Origin: *` for CORS compatibility.
+
+### Authentication API (v2.10)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/2/auth/{username}/login.json` | Basic | Login, returns session cookie |
+| POST | `/api/2/auth/{username}/logout.json` | Session | Logout, invalidates session |
+
+### Device API (v2.0+)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/2/devices/{username}.json` | Basic | List all devices |
+| POST | `/api/2/devices/{username}/{deviceid}.json` | Basic | Create or update device |
+| GET | `/api/2/updates/{username}/{deviceid}.json` | Basic | Get device updates since timestamp |
+
+Query params for updates: `since` (int), `include_actions` (bool).
+
+### Subscriptions API (v1.0+)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/subscriptions/{username}.{format}` | Basic | All subscriptions (v2.11) |
+| GET | `/subscriptions/{username}/{deviceid}.{format}` | Basic | Device subscriptions |
+| PUT | `/subscriptions/{username}/{deviceid}.{format}` | Basic | Replace device subscriptions |
+| POST | `/api/2/subscriptions/{username}/{deviceid}.json` | Basic | Upload subscription changes (delta) |
+| GET | `/api/2/subscriptions/{username}/{deviceid}.json` | Basic | Get subscription changes (delta) |
+
+Formats: `json`, `opml`, `txt`. JSONP supported via `?jsonp=callback` on GET endpoints.
+
+### Episode Actions API (v2.0+)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/2/episodes/{username}.json` | Basic | Upload episode actions |
+| GET | `/api/2/episodes/{username}.json` | Basic | Get episode actions |
+
+Query params for GET: `podcast`, `device`, `since`, `aggregated`.
+Actions: `play`, `new`, `download`, `delete`, `flattr`.
+
+### Directory API (v1.0+)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/search.{format}` | None | Search podcasts |
+| GET | `/toplist/{number}.{format}` | None | Top podcasts by subscribers |
+| GET | `/api/2/tags/{count}.json` | None | Top tags |
+| GET | `/api/2/tag/{tag}/{count}.json` | None | Podcasts by tag |
+| GET | `/api/2/data/podcast.json` | None | Podcast metadata |
+| GET | `/api/2/data/episode.json` | None | Episode metadata |
+
+Query params for search/toplist: `jsonp`, `scale_logo`.
+Formats: `json`, `opml`, `txt`.
+
+### Suggestions API (v1.0+)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/suggestions/{number}.{format}` | Basic | Podcast suggestions |
+
+Returns podcasts the user hasn't subscribed to, ranked by popularity among other users.
+Query params: `jsonp`. Formats: `json`, `opml`, `txt`.
+
+### Settings API (v2.4)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/2/settings/{username}/{scope}.json` | Basic | Get settings |
+| POST | `/api/2/settings/{username}/{scope}.json` | Basic | Update settings |
+
+Scopes: `account`, `device`, `podcast`, `episode`.
+Context query params: `device`, `podcast`, `episode` (as required by scope).
+
+### Favorites API (v2.6)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/2/favorites/{username}.json` | Basic | Get favorite episodes |
+
+### Podcast Lists API (v2.10)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/2/lists/{username}.json` | None | List user's podcast lists |
+| GET | `/api/2/lists/{username}/list/{name}.{format}` | None | Get podcast list |
+| POST | `/api/2/lists/{username}/create.{format}` | Basic | Create podcast list |
+| PUT | `/api/2/lists/{username}/list/{name}.{format}` | Basic | Update podcast list |
+| DELETE | `/api/2/lists/{username}/list/{name}.{format}` | Basic | Delete podcast list |
+
+Formats: `json`, `opml`, `txt`.
+
+### Device Synchronization API (v2.10)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/2/sync-devices/{username}.json` | Basic | Get sync group status |
+| POST | `/api/2/sync-devices/{username}.json` | Basic | Start/stop device sync |
+
+### Client Parametrization
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/clientconfig.json` | None | Client configuration (base URLs, timeout) |
+
+### Additional Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/v1/health/live` | Liveness probe |
+| GET | `/api/v1/health/ready` | Readiness probe |
+| GET | `/` | Web UI home |
+| GET/POST | `/register` | User registration |
+| GET/POST | `/login` | Web login |
+| POST | `/logout` | Web logout |
+| GET | `/user/profile/{nickname}` | User profile |
+
+### Supported Formats
+
+| Format | Description |
+|--------|-------------|
+| `json` | JSON (primary format for all endpoints) |
+| `opml` | OPML (subscriptions, lists, directory, suggestions) |
+| `txt` | Plain text, one URL per line |
+| `jsonp` | Via `?jsonp=callback` query param on GET JSON endpoints |
+
+### Known Limitations vs gpodder.net
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| XML format (v2.9+) | Not supported | OPML covers subscription export use case |
+| `scaled_logo_url` | Always null | No logo scaling service |
+| `position_last_week` | Always 0 | No historical ranking data |
+| `subscribers_last_week` | Always 0 | No historical subscriber tracking |
+| `scale_logo` param | Accepted, ignored | No scaling CDN |
+
+### AntennaPod Compatibility
+
+All 7 endpoints required by AntennaPod are fully implemented:
+login, list devices, configure device, upload/get subscription changes,
+upload/get episode actions. See `specs/antennapod-compat.md` for details.
 
 ## Verification
 
@@ -84,10 +212,7 @@ This executes:
 - `uv run pip-audit`
 - `uv run pytest`
 
-Automated tests use the isolated SQLite context and do not modify the main
-PostgreSQL development database.
-
-Feature-specific shortcuts are also available:
+Feature-specific shortcuts:
 
 - `make verify-auth`
 - `make verify-device`

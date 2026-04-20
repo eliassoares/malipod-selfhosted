@@ -325,3 +325,58 @@ def test_suggestions_contract_opml_and_txt(monkeypatch: pytest.MonkeyPatch) -> N
 
     assert txt.status_code == 200
     assert seeded["feed_linux"] in txt.text.splitlines()
+
+
+def test_suggestions_contract_json_includes_full_podcast_fields(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://suggest.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        register_user(client, "listener_3")
+        seeded = seed_suggestions_state(settings)
+
+        response = client.get(
+            "/suggestions/5.json",
+            auth=("listener_2", "supersecret"),
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    linux_item = next(item for item in payload if item["url"] == seeded["feed_linux"])
+    assert "subscribers" in linux_item
+    assert "subscribers_last_week" in linux_item
+    assert "position_last_week" in linux_item
+    assert linux_item["subscribers"] == 2
+
+
+def test_suggestions_contract_jsonp_wrapping(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BASE_URL", "https://suggest.example/")
+    clear_settings_cache()
+    settings = get_settings()
+
+    with TestClient(create_app()) as client:
+        register_user(client, "listener_1")
+        register_user(client, "listener_2")
+        register_user(client, "listener_3")
+        seeded = seed_suggestions_state(settings)
+
+        response = client.get(
+            "/suggestions/5.json?jsonp=cb",
+            auth=("listener_2", "supersecret"),
+        )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/javascript")
+    assert response.text.startswith("cb(")
+    assert response.text.endswith(");")
+    payload = json.loads(response.text[len("cb(") : -len(");")])
+    assert isinstance(payload, list)
+    urls = [item["url"] for item in payload]
+    assert seeded["feed_linux"] in urls
