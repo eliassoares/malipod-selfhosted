@@ -17,8 +17,8 @@
 
 **Purpose**: Preparar o branch e garantir pré-requisitos do catálogo.
 
-- [ ] T001 Confirmar branch `014-suggestions-api` está atualizado com `main` e que `specs/014-suggestions-api/` não está divergente do PR (git)
-- [ ] T002 Confirmar Directory API (feature 013) está presente no branch base (ver `app/api/routes/directory_api.py`)
+- [x] T001 Confirmar branch `014-suggestions-api` está atualizado com `main` e que `specs/014-suggestions-api/` não está divergente do PR (git)
+- [x] T002 Confirmar Directory API (feature 013) está presente no branch base (ver `app/api/routes/directory_api.py`)
 
 ---
 
@@ -26,9 +26,9 @@
 
 **Purpose**: Infra compartilhada necessária para todos os user stories.
 
-- [ ] T003 Implementar dependency `get_required_current_user` em `app/api/deps.py` (cookie de sessão OU Basic Auth; 401 com `WWW-Authenticate: Basic`)
-- [ ] T004 [P] Adicionar validações utilitárias locais em `app/api/routes/suggestions_api.py` (format/number/erros 400) seguindo padrão de `app/api/routes/directory_api.py`
-- [ ] T005 Estender `app/services/directory.py` com método de query `suggestions_for_user(user_id: int, limit: int)` (excluir feeds já assinados; ordenar por subscribers desc)
+- [x] T003 Implementar dependency `get_required_current_user` em `app/api/deps.py` (cookie de sessão OU Basic Auth; 401 com `WWW-Authenticate: Basic`)
+- [x] T004 [P] Adicionar validações utilitárias locais em `app/api/routes/suggestions_api.py` (format/number/erros 400) seguindo padrão de `app/api/routes/directory_api.py`
+- [x] T005 Estender `app/services/directory.py` com método de query `suggestions_for_user(user_id: int, limit: int)` (excluir feeds já assinados; ordenar por subscribers desc)
 
 **Checkpoint**: Foundation pronta — US1/US2/US3 podem ser implementadas com consistência.
 
@@ -42,15 +42,15 @@
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T006 [P] [US1] Criar `tests/contract/test_suggestions_api.py` cobrindo: sugestão aparece para usuário não assinante; exclusão de feeds já assinados; limite `number`
-- [ ] T007 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “usuário sem assinaturas” retorna `200` com `[]`
-- [ ] T008 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “servidor com único usuário” retorna `200` com `[]`
-- [ ] T009 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “`number` fora de 1..100” retorna `400`
+- [x] T006 [P] [US1] Criar `tests/contract/test_suggestions_api.py` cobrindo: sugestão aparece para usuário não assinante; exclusão de feeds já assinados; limite `number`
+- [x] T007 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “usuário sem assinaturas” retorna `200` com `[]`
+- [x] T008 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “servidor com único usuário” retorna `200` com `[]`
+- [x] T009 [P] [US1] Em `tests/contract/test_suggestions_api.py`, adicionar caso “`number` fora de 1..100” retorna `400`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Criar router `app/api/routes/suggestions_api.py` com `GET /suggestions/{number}.json` autenticado e retornando lista de `PodcastDirectoryItem`
-- [ ] T011 [US1] Incluir router em `app/main.py` (`app.include_router(suggestions_api_router)`)
+- [x] T010 [US1] Criar router `app/api/routes/suggestions_api.py` com `GET /suggestions/{number}.json` autenticado e retornando lista de `PodcastDirectoryItem`
+- [x] T011 [US1] Incluir router em `app/main.py` (`app.include_router(suggestions_api_router)`)
 
 **Checkpoint**: `/suggestions/{n}.json` funcionando e com testes de contrato passando.
 
@@ -64,13 +64,13 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T012 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso OPML: status 200, contém `<opml` e URLs sugeridas
-- [ ] T013 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso TXT: status 200, uma URL por linha
-- [ ] T014 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso format inválido retorna `400`
+- [x] T012 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso OPML: status 200, contém `<opml` e URLs sugeridas
+- [x] T013 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso TXT: status 200, uma URL por linha
+- [x] T014 [P] [US2] Em `tests/contract/test_suggestions_api.py`, adicionar caso format inválido retorna `400`
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Em `app/api/routes/suggestions_api.py`, adicionar suporte a `GET /suggestions/{number}.{opml|txt}` renderizando via `app/services/subscription_formats.py::SubscriptionFormatService`
+- [x] T015 [US2] Em `app/api/routes/suggestions_api.py`, adicionar suporte a `GET /suggestions/{number}.{opml|txt}` renderizando via `app/services/subscription_formats.py::SubscriptionFormatService`
 
 **Checkpoint**: OPML/TXT funcionam e testes passam.
 
@@ -84,12 +84,12 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T016 [P] [US3] Em `tests/contract/test_suggestions_api.py`, adicionar caso sem auth retorna `401` e header `WWW-Authenticate` presente
-- [ ] T017 [P] [US3] Em `tests/contract/test_suggestions_api.py`, adicionar caso com Basic Auth válido retorna `200`
+- [x] T016 [P] [US3] Em `tests/contract/test_suggestions_api.py`, adicionar caso sem auth retorna `401` e header `WWW-Authenticate` presente
+- [x] T017 [P] [US3] Em `tests/contract/test_suggestions_api.py`, adicionar caso com Basic Auth válido retorna `200`
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Garantir que `app/api/deps.py#get_required_current_user` retorna `401` com `WWW-Authenticate: Basic` quando não autenticado
+- [x] T018 [US3] Garantir que `app/api/deps.py#get_required_current_user` retorna `401` com `WWW-Authenticate: Basic` quando não autenticado
 
 **Checkpoint**: comportamento 401 garantido por teste.
 
@@ -99,8 +99,8 @@
 
 **Purpose**: Qualidade, documentação e evidência de verificação.
 
-- [ ] T019 [P] Rodar `uv run pytest` (incluindo `tests/contract/test_suggestions_api.py`) e registrar resultado no PR
-- [ ] T020 [P] Rodar `uv run ruff check .` (config em `pyproject.toml`) e corrigir issues sem usar `# noqa`
+- [x] T019 [P] Rodar `uv run pytest` (incluindo `tests/contract/test_suggestions_api.py`) e registrar resultado no PR
+- [x] T020 [P] Rodar `uv run ruff check .` (config em `pyproject.toml`) e corrigir issues sem usar `# noqa`
 - [ ] T021 [P] (Se aplicável) Rodar `uv run mypy .` e `uv run bandit -r . -c pyproject.toml` (config em `pyproject.toml`)
 - [ ] T022 Validar manualmente comandos de `specs/014-suggestions-api/quickstart.md` (curl Basic Auth)
 - [ ] T023 Preparar descrição do PR com referências a `specs/014-suggestions-api/contracts/suggestions-api.md` e evidências de verificação (testes/edge cases)

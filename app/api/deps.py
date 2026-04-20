@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.core.config import Settings, get_settings
+from app.core.security import verify_password
 from app.db.session import get_db_session
 from app.services.auth import AuthError, AuthService
 from app.services.devices import DeviceService
@@ -19,8 +21,6 @@ from app.services.subscriptions import SubscriptionService
 from app.services.sync_devices import SyncDevicesService
 
 if TYPE_CHECKING:
-    from fastapi.security import HTTPBasicCredentials
-
     from app.db.models.user import UserModel
 
 
@@ -114,6 +114,40 @@ async def get_current_user(
     if session_model is None:
         return None
     return session_model.user
+
+
+basic_security = HTTPBasic(auto_error=False)
+
+
+async def get_required_current_user(
+    request: Request,
+    settings: Annotated[Settings, Depends(get_runtime_settings)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    credentials: Annotated[HTTPBasicCredentials | None, Depends(basic_security)],
+) -> UserModel:
+    session_id = request.cookies.get(settings.session_cookie_name)
+    if session_id:
+        session_model = await auth_service.get_active_session(session_id)
+        if session_model is not None:
+            return session_model.user
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication required",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    user = await auth_service.get_user_by_nickname(credentials.username)
+    if user is None or not verify_password(
+        credentials.password, user.password_hash, user.password_salt
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication required",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return user
 
 
 async def authenticate_api_user(

@@ -130,6 +130,52 @@ class DirectoryService:
         )
         return [self._to_directory_item(row) for row in rows]
 
+    async def suggestions_for_user(
+        self,
+        user_id: int,
+        limit: int,
+    ) -> list[PodcastDirectoryItem]:
+        user_has_subscriptions_stmt = (
+            select(func.count())
+            .select_from(DeviceSubscriptionModel)
+            .join(DeviceModel, DeviceModel.id == DeviceSubscriptionModel.device_pk)
+            .where(
+                DeviceModel.user_id == user_id,
+                DeviceSubscriptionModel.unsubscribed_at.is_(None),
+            )
+        )
+        user_subscription_count = await self.session.scalar(user_has_subscriptions_stmt)
+        if not user_subscription_count:
+            return []
+
+        subscribers_subq = self._active_catalog_subscribers_stmt().subquery()
+        user_subscriptions_subq = (
+            select(DeviceSubscriptionModel.feed_id)
+            .select_from(DeviceSubscriptionModel)
+            .join(DeviceModel, DeviceModel.id == DeviceSubscriptionModel.device_pk)
+            .where(
+                DeviceModel.user_id == user_id,
+                DeviceSubscriptionModel.unsubscribed_at.is_(None),
+            )
+            .distinct()
+        )
+        stmt = (
+            select(PodcastFeedModel, subscribers_subq.c.subscribers)
+            .join(subscribers_subq, subscribers_subq.c.feed_id == PodcastFeedModel.id)
+            .where(~PodcastFeedModel.id.in_(user_subscriptions_subq))
+            .order_by(
+                subscribers_subq.c.subscribers.desc(),
+                PodcastFeedModel.feed_url.asc(),
+            )
+            .limit(limit)
+        )
+        result = await self.session.execute(stmt)
+        rows = [
+            _FeedWithSubscribers(feed=feed, subscribers=int(subscribers or 0))
+            for feed, subscribers in result.all()
+        ]
+        return [self._to_directory_item(row) for row in rows]
+
     async def get_podcast_data(self, feed_url: str) -> PodcastDataResponse | None:
         rows = await self._fetch_catalog_feeds_with_subscribers(
             feed_url_filter=feed_url,
