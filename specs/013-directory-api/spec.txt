@@ -1,0 +1,118 @@
+FEATURE SPECIFICATION: DIRECTORY API
+=====================================
+Feature Branch: 013-directory-api
+Created: 2026-04-19
+Status: Draft
+
+
+CONTEXTO
+--------
+A Directory API expõe o catálogo local de podcasts: busca, toplist, tags e
+metadados de podcast/episódio. O catálogo é derivado exclusivamente dos podcasts
+que usuários cadastrados já assinam — nenhuma fonte externa.
+Todos os endpoints são PÚBLICOS (sem autenticação). Disponível desde v2.0/v2.2.
+
+
+USER STORIES
+------------
+
+[P1] Buscar podcasts por nome ou URL
+  Cenários de aceitação:
+  1. GET /search.json?q=linux retorna 200 OK com podcasts cujo título contém "linux".
+  2. Query sem resultados retorna 200 OK com array vazio [].
+  3. GET /search.opml?q=linux retorna OPML válido.
+  4. GET /search.txt?q=linux retorna uma URL de feed por linha.
+
+[P2] Consultar toplist de podcasts
+  Cenários de aceitação:
+  1. GET /toplist/10.json lista até 10 podcasts ordenados por assinantes (desc).
+  2. GET /toplist/5.json com mais de 5 podcasts retorna apenas os 5 mais populares.
+  3. Toplist vazia retorna 200 OK com array vazio.
+
+[P3] Consultar tags e podcasts por tag
+  Cenários de aceitação:
+  1. GET /api/2/tags/10.json lista até 10 tags com campos title, tag e usage.
+  2. GET /api/2/tag/technology/5.json lista até 5 podcasts dessa tag.
+  3. Tag sem podcasts retorna 200 OK com array vazio.
+
+[P3] Consultar metadados de podcast ou episódio por URL
+  Cenários de aceitação:
+  1. GET /api/2/data/podcast.json?url=<feed_url> retorna 200 com campos:
+     url, title, author, description, subscribers, logo_url, website, mygpo_link.
+  2. URL não presente no catálogo retorna 404.
+  3. GET /api/2/data/episode.json?podcast=<feed>&url=<media> retorna 200 com campos:
+     title, url, podcast_title, podcast_url, description, website, released, mygpo_link.
+  4. Episódio não presente retorna 404.
+
+
+EDGE CASES
+----------
+- Todos os endpoints são públicos; requisições sem auth respondidas normalmente.
+- Parâmetro count/number: intervalo 1–100; fora do intervalo retorna 400.
+- Catálogo inclui apenas podcasts com ao menos 1 assinatura ativa.
+- Campo subscribers = número de usuários distintos que assinam o feed.
+- Campo mygpo_link usa base_url do servidor (não hardcoded gpodder.net).
+- Formatos opml e txt suportados em /toplist e /search.
+- Tags derivadas das categorias do feed RSS; feeds sem categoria não contribuem.
+
+
+REQUISITOS FUNCIONAIS
+---------------------
+FR-001  GET /api/2/tags/{count}.json — tags mais usadas, sem autenticação.
+FR-002  GET /api/2/tag/{tag}/{count}.json — podcasts por tag, sem autenticação.
+FR-003  GET /api/2/data/podcast.json?url={feed_url} — metadados ou 404.
+FR-004  GET /api/2/data/episode.json?podcast={feed}&url={media} — metadados ou 404.
+FR-005  GET /toplist/{number}.{format} (json|opml|txt) — ordenado por assinantes desc.
+FR-006  GET /search.{format}?q={query} (json|opml|txt) — busca case-insensitive substring.
+FR-007  Catálogo inclui apenas podcasts com ao menos 1 assinatura ativa.
+FR-008  Campo subscribers = usuários distintos por feed no servidor.
+FR-009  Campo mygpo_link construído com base_url do servidor.
+FR-010  Parâmetros count e number validados em 1–100; inválidos retornam 400.
+FR-011  Tags derivadas das categorias RSS já armazenadas.
+
+
+REQUISITOS NÃO-FUNCIONAIS
+--------------------------
+NFR-001  Testes automatizados obrigatórios:
+         - busca com e sem resultados
+         - toplist ordenada e limitada por number
+         - metadados de podcast existente e inexistente
+         - metadados de episódio existente e inexistente
+         - resposta sem autenticação para todos os endpoints
+         - validação de count/number fora do intervalo
+NFR-002  Recurso read-only; nenhum endpoint escreve no banco.
+NFR-003  Reutilizar modelos e dados de assinatura existentes; sem duplicar storage.
+
+
+ENTIDADES
+---------
+Podcast    : feed URL, título, autor, descrição, logo, site, categorias (já existente).
+Episode    : URL mídia, título, descrição, data lançamento (já existente via EpisodeModel).
+Tag        : derivada do campo categoria do feed RSS; sem tabela nova.
+Subscribers: contagem de usuários distintos por feed URL nas assinaturas.
+
+
+CRITÉRIOS DE SUCESSO
+---------------------
+SC-001  GET /search.json?q=<termo> retorna podcasts corretos em 100% dos testes.
+SC-002  GET /toplist/10.json retorna podcasts ordenados corretamente em 100% dos testes.
+SC-003  GET /api/2/data/podcast.json retorna 200/404 correto em 100% dos testes.
+SC-004  Todos os endpoints respondem sem autenticação em 100% das chamadas.
+
+
+PREMISSAS
+---------
+- Metadados de podcast já armazenados ou deriváveis das tabelas de assinatura.
+- Busca por substring (LIKE) suficiente para escopo self-hosted.
+- position_last_week pode ser omitido ou null (histórico não rastreado).
+- Formatos opml/txt compatíveis com os já implementados na Podcast Lists API.
+
+
+ENDPOINTS RESUMIDOS
+--------------------
+GET /search.{json|opml|txt}?q={query}
+GET /toplist/{number}.{json|opml|txt}
+GET /api/2/tags/{count}.json
+GET /api/2/tag/{tag}/{count}.json
+GET /api/2/data/podcast.json?url={feed_url}
+GET /api/2/data/episode.json?podcast={feed_url}&url={media_url}

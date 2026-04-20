@@ -109,3 +109,30 @@
 - `make test`
 - Contract coverage added for `/clientconfig.json`:
   - `uv run pytest -q tests/contract/test_client_config.py`
+
+---
+
+# Directory API PR Summary
+
+## Implemented Scope
+
+- Added public Directory API endpoints backed only by local subscription catalog:
+  - `GET /search.{json|opml|txt}?q=...`
+  - `GET /toplist/{number}.{json|opml|txt}`
+  - `GET /api/2/tags/{count}.json`
+  - `GET /api/2/tag/{tag}/{count}.json`
+  - `GET /api/2/data/podcast.json?url=...`
+  - `GET /api/2/data/episode.json?podcast=...&url=...`
+- Enforced `count`/`number` bounds (1–100) with `400 Bad Request` on out-of-range.
+- Computed `subscribers` as distinct users with active subscriptions per feed.
+- Built `mygpo_link` using the server `base_url` (no gpodder.net hardcoding).
+- Added optional feed metadata fields to support tags and richer podcast data:
+  - `podcast_feeds.author`
+  - `podcast_feeds.categories` (JSON list)
+
+## Verification
+
+- `make check`
+- `make test`
+- Contract coverage added for Directory API:
+  - `uv run pytest -q tests/contract/test_directory_api.py`
