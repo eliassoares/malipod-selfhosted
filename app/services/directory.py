@@ -7,7 +7,6 @@ from urllib.parse import quote
 
 from sqlalchemy import Select, and_, func, or_, select
 
-from app.core.config import Settings  # noqa: TC001
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
@@ -24,6 +23,8 @@ from app.schemas.directory import (
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+    from app.core.config import Settings
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,6 +215,7 @@ class DirectoryService:
         return PodcastDirectoryItem(
             url=row.feed.feed_url,
             title=row.feed.title,
+            author=row.feed.author,
             description=row.feed.description,
             website=row.feed.website,
             logo_url=row.feed.logo_url,

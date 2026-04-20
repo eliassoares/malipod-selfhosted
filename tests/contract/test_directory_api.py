@@ -249,6 +249,7 @@ def test_toplist_contract_orders_limits_and_validates_number(
     payload = toplist.json()
     assert payload[0]["url"] == seeded["feed_linux"]
     assert payload[0]["subscribers"] == 2
+    assert payload[0]["author"] == "Host A"
     assert any(item["url"] == seeded["feed_tech"] for item in payload)
 
     assert limited.status_code == 200
