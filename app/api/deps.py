@@ -8,6 +8,7 @@ from app.core.config import Settings, get_settings
 from app.db.session import get_db_session
 from app.services.auth import AuthError, AuthService
 from app.services.devices import DeviceService
+from app.services.directory import DirectoryService
 from app.services.episodes import EpisodeService
 from app.services.favorites import FavoritesService
 from app.services.localization import LocalizationService
@@ -63,6 +64,13 @@ def get_episode_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> EpisodeService:
     return EpisodeService(session=session)
+
+
+def get_directory_service(
+    session: Annotated[Any, Depends(get_request_session)],
+    settings: Annotated[Settings, Depends(get_runtime_settings)],
+) -> DirectoryService:
+    return DirectoryService(session=session, settings=settings)
 
 
 def get_favorites_service(

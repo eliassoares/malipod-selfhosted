@@ -28,10 +28,12 @@ class PodcastFeedModel(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     feed_url: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    author: Mapped[str | None] = mapped_column(String(255), nullable=True)
     description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     website: Mapped[str | None] = mapped_column(String(512), nullable=True)
     logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     mygpo_link: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    categories: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

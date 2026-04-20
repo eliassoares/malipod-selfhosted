@@ -197,6 +197,12 @@ def validate_episode_progress(
     return values
 
 
+def validate_count_parameter(value: int, *, name: str = "count") -> int:
+    if value < 1 or value > 100:
+        raise ValueError(f"{name} must be between 1 and 100")
+    return value
+
+
 def derive_password_hash(password: str) -> tuple[str, str]:
     salt = secrets.token_bytes(PBKDF2_SALT_BYTES)
     derived = hashlib.pbkdf2_hmac(
