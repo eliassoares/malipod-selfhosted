@@ -1,6 +1,6 @@
 # malipod Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-19
+Auto-generated from all feature plans. Last updated: 2026-04-20
 
 ## Active Technologies
 - Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, (004-user-auth)
@@ -11,6 +11,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-19
 - N/A (endpoint must not read/write DB) (012-client-parametrization)
 - Python 3.13 + FastAPI + Starlette, Pydantic Settings, SQLAlchemy 2.x (existing stack) (013-directory-api)
 - PostgreSQL (runtime/dev), SQLite (tests); feature is read-only but performs DB reads (013-directory-api)
+- Python 3.13 + FastAPI, Starlette, Pydantic, SQLAlchemy 2.x (014-suggestions-api)
 
 - Python 3.13 + FastAPI, Uvicorn, Pydantic Settings, SQLAlchemy 2.x, (003-podcast-sync-platform)
 
@@ -30,9 +31,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 014-suggestions-api: Added Python 3.13 + FastAPI, Starlette, Pydantic, SQLAlchemy 2.x
 - 013-directory-api: Added Python 3.13 + FastAPI + Starlette, Pydantic Settings, SQLAlchemy 2.x (existing stack)
 - 012-client-parametrization: Added Python 3.13 + FastAPI + Starlette, Pydantic Settings (existing project stack)
-- 011-device-sync-api: Added Python 3.13 + FastAPI, Starlette, Pydantic Settings, SQLAlchemy 2.x, Alembic, asyncpg, aiosqlite, httpx, pytest, pytest-asyncio
 
 
 <!-- MANUAL ADDITIONS START -->
