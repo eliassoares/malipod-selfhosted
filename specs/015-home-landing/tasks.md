@@ -92,8 +92,8 @@
 
 - [x] T013 [P] Rodar `uv run pytest` e registrar evidência no PR
 - [x] T014 [P] Rodar `uv run ruff check .` e corrigir issues sem `# noqa`
-- [ ] T015 Validar manualmente `specs/015-home-landing/quickstart.md` (home deslogado/logado + viewport mobile)
-- [ ] T016 Preparar descrição do PR com: mudanças de copy/layout, comportamento logado vs deslogado, e checklist de verificação
+- [x] T015 Validar manualmente `specs/015-home-landing/quickstart.md` (home deslogado/logado + viewport mobile)
+- [x] T016 Preparar descrição do PR com: mudanças de copy/layout, comportamento logado vs deslogado, e checklist de verificação
 
 ---
 
