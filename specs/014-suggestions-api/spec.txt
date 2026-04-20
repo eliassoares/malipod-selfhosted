@@ -1,0 +1,117 @@
+FEATURE SPECIFICATION: SUGGESTIONS API
+=======================================
+Feature Branch: 014-suggestions-api
+Created: 2026-04-19
+Status: Draft
+Dependência: spec 013 (Directory API) deve estar implementada.
+
+
+CONTEXTO
+--------
+Retorna lista personalizada de podcasts que o usuário ainda não assina,
+ranqueados por popularidade global no servidor (mais assinantes = maior prioridade).
+Requer autenticação. Formatos: json, opml, txt. Disponível desde v1.0.
+
+Lógica: popularidade global simples (não filtro colaborativo complexo).
+Nunca expõe lista de usuários; apenas contagens agregadas.
+
+
+USER STORIES
+------------
+
+[P1] Receber sugestões de podcasts não assinados
+  Cenários de aceitação:
+  1. Usuário A assina podcast-x; usuário B não assina.
+     GET /suggestions/5.json como B → podcast-x aparece na resposta.
+  2. Usuário B assina podcast-y → podcast-y NÃO aparece nas sugestões de B.
+  3. Usuário sem nenhuma assinatura → 200 OK com array vazio [].
+  4. GET /suggestions/5.json com 20 elegíveis → resposta contém no máximo 5 itens.
+
+[P2] Receber sugestões em múltiplos formatos
+  Cenários de aceitação:
+  1. GET /suggestions/5.opml → resposta OPML válida com podcasts sugeridos.
+  2. GET /suggestions/5.txt → resposta com uma URL de feed por linha.
+
+[P3] Acesso negado sem autenticação
+  Cenários de aceitação:
+  1. GET /suggestions/5.json sem credenciais → 401 Unauthorized.
+
+
+EDGE CASES
+----------
+- Parâmetro number: intervalo 1–100; fora do intervalo retorna 400.
+- Podcasts já assinados nunca aparecem, mesmo sendo os mais populares.
+- Servidor com único usuário → 200 OK com array vazio (sem outros perfis).
+- Assinaturas deletadas ou de devices removidos não contam.
+- Campo mygpo_link usa base_url do servidor.
+
+
+REQUISITOS FUNCIONAIS
+---------------------
+FR-001  Expor GET /suggestions/{number}.{format} com format em json, opml, txt.
+FR-002  Autenticação obrigatória (Basic Auth ou session cookie).
+FR-003  Resposta contém no máximo number podcasts não assinados pelo usuário.
+FR-004  Excluir da resposta todos os podcasts que o usuário já assina.
+FR-005  Ranking por popularidade global (maior número de assinantes distintos).
+FR-006  Retornar 200 OK com array vazio quando não há sugestões disponíveis.
+FR-007  Parâmetro number validado em 1–100; inválido retorna 400.
+FR-008  Campo mygpo_link construído com base_url do servidor.
+FR-009  Cada item JSON contém: url, title, author, description, subscribers,
+        logo_url, website, mygpo_link.
+
+
+REQUISITOS NÃO-FUNCIONAIS
+--------------------------
+NFR-001  Testes automatizados obrigatórios:
+         - 401 sem autenticação
+         - exclusão de podcasts já assinados
+         - limite de number respeitado
+         - resposta vazia quando não há sugestões
+         - validação de number fora do intervalo
+NFR-002  Recurso read-only; nenhuma escrita no banco.
+NFR-003  Reutilizar authenticate_api_user e dados de assinatura existentes.
+NFR-004  Query eficiente: < 500ms para até 100 usuários e 500 podcasts distintos.
+
+
+ENTIDADES
+---------
+User         : usuário autenticado (assinaturas excluídas das sugestões).
+Podcast      : catálogo local (candidatos à sugestão).
+Subscription : determina assinaturas ativas e contagem de popularidade.
+
+
+CRITÉRIOS DE SUCESSO
+---------------------
+SC-001  GET /suggestions/10.json retorna apenas podcasts não assinados em 100% dos testes.
+SC-002  Endpoint retorna 401 em 100% das requisições sem autenticação.
+SC-003  Limite number respeitado em 100% dos casos.
+SC-004  Array vazio retornado corretamente quando não há sugestões.
+
+
+PREMISSAS
+---------
+- Catálogo deriva das assinaturas existentes (spec 013 deve estar ativa).
+- Filtro colaborativo complexo está fora do escopo; usar popularidade global simples.
+- logo_url pode ser null; campo válido na resposta.
+- JSONP (disponível desde v2.8) fora do escopo desta implementação.
+- Assinaturas de devices removidos não contam.
+
+
+ENDPOINT RESUMIDO
+------------------
+GET /suggestions/{number}.{json|opml|txt}
+  - Autenticação: obrigatória (Basic Auth ou session cookie)
+  - Path param number: inteiro 1–100
+  - Resposta JSON (exemplo):
+    [
+      {
+        "url": "https://feed.example.com/podcast.rss",
+        "title": "Podcast Exemplo",
+        "author": "Autor",
+        "description": "Descrição",
+        "subscribers": 42,
+        "logo_url": "https://example.com/logo.png",
+        "website": "https://example.com",
+        "mygpo_link": "https://meu.servidor.com/podcast/..."
+      }
+    ]
