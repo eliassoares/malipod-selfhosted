@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.orm import selectinload
 
+from app.core.placeholders import choose_placeholder_url_random
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
@@ -175,7 +176,7 @@ class DeviceService:
                 title=title,
                 description=description,
                 website=website,
-                logo_url=logo_url,
+                logo_url=logo_url or choose_placeholder_url_random(),
                 mygpo_link=mygpo_link,
                 created_at=now,
                 updated_at=now,
@@ -187,7 +188,7 @@ class DeviceService:
         feed.title = title
         feed.description = description
         feed.website = website
-        feed.logo_url = logo_url
+        feed.logo_url = logo_url or feed.logo_url or choose_placeholder_url_random()
         feed.mygpo_link = mygpo_link
         feed.updated_at = now
         await self.session.flush()

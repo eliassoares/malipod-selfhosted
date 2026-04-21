@@ -12,6 +12,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.register": "Register",
         "nav.login": "Login",
         "nav.profile": "Profile",
+        "nav.subscriptions": "Subscriptions",
         "nav.logout": "Logout",
         "language.label": "Language",
         "register.title": "Create your account",
@@ -53,6 +54,32 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Enter a valid picture URL.",
         "errors.language": "Choose a supported language.",
         "errors.profile_forbidden": "Profile not available.",
+        "subscriptions.title": "Your subscriptions",
+        "subscriptions.subtitle": "Browse, search, and manage the podcasts you follow.",
+        "subscriptions.search": "Search",
+        "subscriptions.search_placeholder": "Search podcasts",
+        "subscriptions.sort": "Sort",
+        "subscriptions.sort_recent": "Most recent",
+        "subscriptions.sort_oldest": "Oldest",
+        "subscriptions.view": "View",
+        "subscriptions.view_list": "List",
+        "subscriptions.view_grid": "Grid",
+        "subscriptions.export_opml": "Export OPML",
+        "subscriptions.add_title": "Add podcast",
+        "subscriptions.add_placeholder": "Podcast feed URL (https://...)",
+        "subscriptions.add_submit": "Add",
+        "subscriptions.empty_title": "No subscriptions yet",
+        "subscriptions.empty_description": (
+            "Add a podcast feed URL to start syncing across your devices."
+        ),
+        "subscriptions.episodes_count": "Episodes",
+        "subscriptions.last_episode": "Last episode",
+        "subscriptions.last_episode_unknown": "Unknown",
+        "subscriptions.add_success": (
+            "Podcast submitted. Import will run in background."
+        ),
+        "subscriptions.add_invalid_url": "Enter a valid http or https feed URL.",
+        "subscriptions.add_duplicate": "You already follow this podcast.",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -111,6 +138,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.register": "Registro",
         "nav.login": "Entrar",
         "nav.profile": "Perfil",
+        "nav.subscriptions": "Suscripciones",
         "nav.logout": "Salir",
         "language.label": "Idioma",
         "register.title": "Crea tu cuenta",
@@ -156,6 +184,34 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Ingresa una URL válida para la imagen.",
         "errors.language": "Elige un idioma soportado.",
         "errors.profile_forbidden": "Perfil no disponible.",
+        "subscriptions.title": "Tus suscripciones",
+        "subscriptions.subtitle": (
+            "Explora, busca y administra los podcasts que sigues."
+        ),
+        "subscriptions.search": "Buscar",
+        "subscriptions.search_placeholder": "Buscar podcasts",
+        "subscriptions.sort": "Ordenar",
+        "subscriptions.sort_recent": "Más recientes",
+        "subscriptions.sort_oldest": "Más antiguos",
+        "subscriptions.view": "Vista",
+        "subscriptions.view_list": "Lista",
+        "subscriptions.view_grid": "Cuadrícula",
+        "subscriptions.export_opml": "Exportar OPML",
+        "subscriptions.add_title": "Agregar podcast",
+        "subscriptions.add_placeholder": "URL del feed (https://...)",
+        "subscriptions.add_submit": "Agregar",
+        "subscriptions.empty_title": "Aún no tienes suscripciones",
+        "subscriptions.empty_description": (
+            "Agrega una URL de feed para empezar a sincronizar en tus dispositivos."
+        ),
+        "subscriptions.episodes_count": "Episodios",
+        "subscriptions.last_episode": "Último episodio",
+        "subscriptions.last_episode_unknown": "Desconocido",
+        "subscriptions.add_success": (
+            "Podcast enviado. La importación correrá en segundo plano."
+        ),
+        "subscriptions.add_invalid_url": "Ingresa una URL http o https válida.",
+        "subscriptions.add_duplicate": "Ya sigues este podcast.",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -217,6 +273,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.register": "Cadastro",
         "nav.login": "Entrar",
         "nav.profile": "Perfil",
+        "nav.subscriptions": "Subscrições",
         "nav.logout": "Sair",
         "language.label": "Idioma",
         "register.title": "Crie sua conta",
@@ -261,6 +318,36 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "errors.picture_url": "Informe uma URL válida para a foto.",
         "errors.language": "Escolha um idioma suportado.",
         "errors.profile_forbidden": "Perfil indisponível.",
+        "subscriptions.title": "Minhas subscrições",
+        "subscriptions.subtitle": (
+            "Veja, pesquise e gerencie os podcasts que você segue."
+        ),
+        "subscriptions.search": "Pesquisar",
+        "subscriptions.search_placeholder": "Pesquisar podcasts",
+        "subscriptions.sort": "Ordenar",
+        "subscriptions.sort_recent": "Mais recentes",
+        "subscriptions.sort_oldest": "Mais antigos",
+        "subscriptions.view": "Visualização",
+        "subscriptions.view_list": "Lista",
+        "subscriptions.view_grid": "Grid",
+        "subscriptions.export_opml": "Exportar OPML",
+        "subscriptions.add_title": "Adicionar podcast",
+        "subscriptions.add_placeholder": "URL do feed (https://...)",
+        "subscriptions.add_submit": "Adicionar",
+        "subscriptions.empty_title": "Você ainda não segue nenhum podcast",
+        "subscriptions.empty_description": (
+            "Adicione uma URL de feed para começar a sincronizar nos seus devices."
+        ),
+        "subscriptions.episodes_count": "Episódios",
+        "subscriptions.last_episode": "Último episódio",
+        "subscriptions.last_episode_unknown": "Desconhecido",
+        "subscriptions.add_success": (
+            "Podcast enviado. A importação vai rodar em background."
+        ),
+        "subscriptions.add_invalid_url": (
+            "Informe uma URL de feed http ou https válida."
+        ),
+        "subscriptions.add_duplicate": "Você já segue esse podcast.",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (

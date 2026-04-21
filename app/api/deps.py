@@ -18,6 +18,7 @@ from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
 from app.services.settings import SettingsService
 from app.services.subscriptions import SubscriptionService
+from app.services.subscriptions_page import SubscriptionsPageService
 from app.services.sync_devices import SyncDevicesService
 
 if TYPE_CHECKING:
@@ -102,6 +103,12 @@ def get_localization_service(
     settings: Annotated[Settings, Depends(get_runtime_settings)],
 ) -> LocalizationService:
     return LocalizationService(settings=settings)
+
+
+def get_subscriptions_page_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> SubscriptionsPageService:
+    return SubscriptionsPageService(session=session)
 
 
 async def get_current_user(

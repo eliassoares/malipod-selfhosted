@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+  <header class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <h1 class="font-headline font-black text-2xl sm:text-3xl tracking-tight text-on-surface">
+          {{ copy["subscriptions.title"] }}
+        </h1>
+        <p class="text-on-surface-variant text-sm mt-1 max-w-2xl">
+          {{ copy["subscriptions.subtitle"] }}
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface"
+          href="/user/subscriptions/{{ current_user.nickname }}/export.opml"
+        >
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">download</span>
+          {{ copy["subscriptions.export_opml"] }}
+        </a>
+      </div>
+    </div>
+
+    {% if success == "added" %}
+    <div class="mt-5 rounded-2xl bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-on-surface">
+      {{ copy["subscriptions.add_success"] }}
+    </div>
+    {% endif %}
+
+    {% if error == "invalid_url" %}
+    <div class="mt-5 rounded-2xl bg-error/10 border border-error/20 px-4 py-3 text-sm text-on-surface">
+      {{ copy["subscriptions.add_invalid_url"] }}
+    </div>
+    {% endif %}
+
+    {% if error == "duplicate" %}
+    <div class="mt-5 rounded-2xl bg-error/10 border border-error/20 px-4 py-3 text-sm text-on-surface">
+      {{ copy["subscriptions.add_duplicate"] }}
+    </div>
+    {% endif %}
+
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <form class="lg:col-span-2" action="/user/subscriptions/{{ current_user.nickname }}" method="get">
+        <label class="sr-only" for="q">{{ copy["subscriptions.search"] }}</label>
+        <div class="flex items-center gap-2 bg-surface-container rounded-2xl px-4 py-3 border border-outline-variant/15">
+          <span class="material-symbols-outlined text-outline" style="font-size:1.2rem;">search</span>
+          <input
+            class="w-full bg-transparent border-0 focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant"
+            id="q"
+            name="q"
+            placeholder="{{ copy['subscriptions.search_placeholder'] }}"
+            type="text"
+            value="{{ q }}"
+          />
+          <input type="hidden" name="sort" value="{{ sort }}" />
+          <input type="hidden" name="view" value="{{ view }}" />
+        </div>
+      </form>
+
+      <div class="flex items-center gap-2 justify-between lg:justify-end">
+        <form action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
+          <input type="hidden" name="view_mode" value="{{ view }}" />
+          <label class="sr-only" for="sort">{{ copy["subscriptions.sort"] }}</label>
+          <select
+            class="px-4 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30"
+            id="sort"
+            name="sort"
+            onchange="this.form.submit()"
+          >
+            <option value="recent" {% if sort == "recent" %}selected{% endif %}>{{ copy["subscriptions.sort_recent"] }}</option>
+            <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>{{ copy["subscriptions.sort_oldest"] }}</option>
+          </select>
+        </form>
+
+        <form class="flex items-center gap-1 bg-surface-container rounded-2xl p-1 border border-outline-variant/15" action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
+          <input type="hidden" name="sort" value="{{ sort }}" />
+          <button
+            class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'list' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
+            name="view_mode"
+            type="submit"
+            value="list"
+          >
+            {{ copy["subscriptions.view_list"] }}
+          </button>
+          <button
+            class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'grid' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
+            name="view_mode"
+            type="submit"
+            value="grid"
+          >
+            {{ copy["subscriptions.view_grid"] }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["subscriptions.add_title"] }}</h2>
+      <form class="mt-3 flex flex-col sm:flex-row gap-3" action="/user/subscriptions/{{ current_user.nickname }}/add" method="post">
+        <input
+          class="flex-1 px-4 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary/30"
+          name="feed_url"
+          placeholder="{{ copy['subscriptions.add_placeholder'] }}"
+          type="url"
+          required
+        />
+        <button
+          class="px-6 py-3 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer"
+          type="submit"
+        >
+          {{ copy["subscriptions.add_submit"] }}
+        </button>
+      </form>
+    </div>
+  </header>
+
+  {% if items | length == 0 %}
+  <section class="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center">
+    <div class="mx-auto w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">rss_feed</span>
+    </div>
+    <h2 class="font-headline font-black text-xl mt-4 text-on-surface">{{ copy["subscriptions.empty_title"] }}</h2>
+    <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["subscriptions.empty_description"] }}</p>
+  </section>
+  {% else %}
+
+  {% if view == "grid" %}
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in items %}
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow overflow-hidden">
+      <div class="p-6 space-y-4">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
+            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" />
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-headline font-bold text-on-surface leading-tight truncate">
+              {{ item.title }}
+            </h3>
+            <p class="text-xs text-on-surface-variant truncate mt-1">{{ item.feed_url }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-surface-container rounded-2xl p-3 border border-outline-variant/10">
+            <p class="text-[11px] uppercase tracking-widest font-label text-on-surface-variant">{{ copy["subscriptions.episodes_count"] }}</p>
+            <p class="font-headline font-black text-on-surface text-lg">{{ item.episode_count }}</p>
+          </div>
+          <div class="bg-surface-container rounded-2xl p-3 border border-outline-variant/10">
+            <p class="text-[11px] uppercase tracking-widest font-label text-on-surface-variant">{{ copy["subscriptions.last_episode"] }}</p>
+            <p class="font-headline font-black text-on-surface text-lg">
+              {% if item.last_episode_at %}
+              {{ item.last_episode_at.strftime("%Y-%m-%d") }}
+              {% else %}
+              {{ copy["subscriptions.last_episode_unknown"] }}
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}
+  <section class="space-y-3">
+    {% for item in items %}
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4 min-w-0">
+          <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
+            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" />
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-headline font-bold text-on-surface leading-tight truncate">{{ item.title }}</h3>
+            <p class="text-xs text-on-surface-variant truncate mt-1">{{ item.feed_url }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <p class="text-[11px] uppercase tracking-widest font-label text-on-surface-variant">{{ copy["subscriptions.episodes_count"] }}</p>
+            <p class="font-headline font-black text-on-surface text-lg">{{ item.episode_count }}</p>
+          </div>
+          <div class="h-10 w-px bg-outline-variant/20"></div>
+          <div class="text-right">
+            <p class="text-[11px] uppercase tracking-widest font-label text-on-surface-variant">{{ copy["subscriptions.last_episode"] }}</p>
+            <p class="font-headline font-black text-on-surface text-lg">
+              {% if item.last_episode_at %}
+              {{ item.last_episode_at.strftime("%Y-%m-%d") }}
+              {% else %}
+              {{ copy["subscriptions.last_episode_unknown"] }}
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

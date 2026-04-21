@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Subscriptions | MaliPod</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#ff5482",
+                        "inverse-primary": "#ff4d7f",
+                        "on-tertiary": "#fff0ea",
+                        "surface-variant": "#e3dbdb",
+                        "on-background": "#312e2e",
+                        "surface-container": "#eee6e6",
+                        "primary-dim": "#a10041",
+                        "primary-container": "#ff7293",
+                        "error": "#b31b25",
+                        "tertiary-dim": "#86380c",
+                        "primary-fixed": "#ff7293",
+                        "surface-dim": "#dbd2d2",
+                        "secondary-fixed-dim": "#ffafb1",
+                        "tertiary-fixed-dim": "#ef8857",
+                        "surface": "#fcf5f4",
+                        "on-primary-fixed": "#000000",
+                        "inverse-on-surface": "#a19c9b",
+                        "secondary": "#b11e37",
+                        "surface-container-low": "#f7efef",
+                        "outline": "#7a7676",
+                        "on-primary": "#ffeff0",
+                        "surface-container-highest": "#e3dbdb",
+                        "outline-variant": "#b2acab",
+                        "on-surface-variant": "#5f5a5a",
+                        "on-secondary-fixed-variant": "#a10f2d",
+                        "surface-tint": "#b7004c",
+                        "tertiary": "#954318",
+                        "inverse-surface": "#100e0e",
+                        "tertiary-container": "#ff9563",
+                        "on-tertiary-fixed-variant": "#662500",
+                        "on-secondary-fixed": "#6f001a",
+                        "on-primary-fixed-variant": "#5e0023",
+                        "on-secondary-container": "#930025",
+                        "secondary-dim": "#a00d2c",
+                        "surface-bright": "#fcf5f4",
+                        "on-primary-container": "#4d001b",
+                        "on-error": "#ffefee",
+                        "error-dim": "#9f0519",
+                        "error-container": "#fb5151",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#ffc3c3",
+                        "on-tertiary-fixed": "#2f0d00",
+                        "on-error-container": "#570008",
+                        "tertiary-fixed": "#ff9563",
+                        "on-secondary": "#ffefee",
+                        "on-surface": "#312e2e",
+                        "background": "#fcf5f4",
+                        "on-tertiary-container": "#581f00",
+                        "surface-container-high": "#e9e1e0",
+                        "secondary-container": "#ffc3c3",
+                        "primary": "#b7004c"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .premium-shadow {
+            box-shadow: 0 20px 40px -10px rgba(183, 0, 76, 0.08);
+        }
+        .glass-player {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Side Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#dbd2d2] dark:bg-stone-900 font-['Plus_Jakarta_Sans'] text-sm font-semibold flex flex-col p-6 gap-4 z-40">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center text-white premium-shadow">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rss_feed</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-stone-900 dark:text-stone-100">The Curator</h1>
+<p class="text-[10px] uppercase tracking-widest text-primary-dim">Premium Sync</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#eee6e6] dark:hover:bg-stone-800 rounded-full cursor-pointer transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#b7004c] to-[#ff7293] text-white rounded-full shadow-lg cursor-pointer transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rss_feed</span>
+<span>Subscriptions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#eee6e6] dark:hover:bg-stone-800 rounded-full cursor-pointer transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">download</span>
+<span>Downloads</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#eee6e6] dark:hover:bg-stone-800 rounded-full cursor-pointer transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#eee6e6] dark:hover:bg-stone-800 rounded-full cursor-pointer transition-all hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<button class="mt-4 bg-primary text-white py-3 rounded-full font-bold premium-shadow hover:scale-105 transition-transform active:scale-95">
+            Sync Now
+        </button>
+<div class="mt-auto space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-stone-500 text-xs hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-stone-500 text-xs hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="w-full sticky top-0 z-30 bg-[#fcf5f4] dark:bg-stone-950 font-['Plus_Jakarta_Sans'] antialiased tracking-tight shadow-[0_20px_40px_-10px_rgba(183,0,76,0.08)]">
+<div class="flex items-center justify-between px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tighter text-[#ff2b73]">MaliPod</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#ff2b73] transition-colors duration-200" href="#">Explore</a>
+<a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#ff2b73] transition-colors duration-200" href="#">Trending</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" placeholder="Search subscriptions..." type="text"/>
+</div>
+<button class="p-2 text-stone-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-stone-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-container/20" data-alt="Close up portrait of a professional man with friendly expression in a clean studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwOulV2Ilnr8pYPELIclg2tW7zVGJL629Nr6TRKQMyFZ1Xw30f331IoJpd2puZfeTranZe9RbUGjRm9DQ36aYTBhm4L3eFs0X_4k7AVeGs4qFIIam8ENehs-kAkcrsWSLMH5n3SFj4HN-ZETXKm9SQ_YiT68tKBA_YVxkd5WDyKv1aPzNJLEl90JDb2Oxpntvlwlp3br_mJlDaUOgNJ1ZOcH4lP5GXlNRfIysMjZKfetEZCx8J-97oDUccOfpfFhUbM901SvyeJIKI"/>
+</div>
+</div>
+</header>
+<section class="p-12 max-w-[1400px] w-full mx-auto">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h2 class="text-5xl font-extrabold font-headline tracking-tighter text-on-surface mb-2">My Subscriptions</h2>
+<p class="text-on-surface-variant font-body text-lg">Managing 24 active podcast feeds across your devices.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-highest text-on-surface rounded-full font-semibold hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined">file_upload</span>
+<span>Export OPML</span>
+</button>
+<button class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-full font-bold premium-shadow hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span>Add Podcast</span>
+</button>
+</div>
+</div>
+<!-- Filters & View Toggles -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-8 bg-surface-container-low p-4 rounded-xl">
+<div class="flex items-center gap-4">
+<div class="flex bg-surface-container-high rounded-full p-1">
+<button class="px-4 py-1.5 rounded-full bg-white shadow-sm text-primary font-bold flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+                            Grid
+                        </button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant font-medium flex items-center gap-2 text-sm hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-sm">view_list</span>
+                            List
+                        </button>
+</div>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<select class="bg-transparent border-none text-sm font-semibold focus:ring-0 text-on-surface-variant cursor-pointer">
+<option>Sort by: Latest Update</option>
+<option>Sort by: A-Z</option>
+<option>Sort by: Most Played</option>
+<option>Sort by: Unplayed</option>
+</select>
+</div>
+<div class="flex items-center gap-2 text-xs font-label uppercase tracking-widest text-outline">
+<span>Showing 24 of 24 Podcasts</span>
+</div>
+</div>
+<!-- Subscription Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Podcast Card 1 -->
+<div class="group relative bg-surface-container rounded-lg p-6 transition-all duration-300 hover:scale-[1.02] hover:bg-surface-container-lowest premium-shadow">
+<div class="relative mb-6">
+<img alt="Podcast Art" class="w-full aspect-square object-cover rounded-lg shadow-md" data-alt="Artistic podcast cover art featuring abstract geometric shapes in vibrant teal and neon pink on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6C-XDeACpp0xAIS61pBlAjd-xAIQEqVajgDsLXLCGziuccY1LA6k5ftyKCv5F_hprbVBB1b-RnWhxUbrq2V3v1WJZlE_AUr-4E_wzxC8zXOQKCtqfTnmelM4CRypIsErVR1A17fiTmIvNNWlI-JRA8AyfLFCy9Z34ylyjV735KLFul2V5lYIsQqbaU5FDfKobt2pY1-2Ip4XysxaylzX0pK5L8TFM4FWFm-Aq6OU1M_9mg-xN1ipi64Ux9Jn6GoYoH01exr6WF_v5"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+<button class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-primary shadow-xl scale-90 group-hover:scale-100 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-error hover:bg-error hover:text-white transition-all shadow-lg" title="Unsubscribe">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+</div>
+<div class="space-y-1">
+<span class="inline-block px-2 py-0.5 bg-tertiary-container/20 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded">New Episode</span>
+<h3 class="text-xl font-bold font-headline leading-tight line-clamp-1 group-hover:text-primary transition-colors">The Daily Tech Beat</h3>
+<p class="text-on-surface-variant text-sm font-medium">Global Media Networks</p>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between text-[11px] font-label uppercase tracking-wider text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>142 Eps</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>2h ago</span>
+</div>
+</div>
+</div>
+<!-- Podcast Card 2 -->
+<div class="group relative bg-surface-container rounded-lg p-6 transition-all duration-300 hover:scale-[1.02] hover:bg-surface-container-lowest premium-shadow">
+<div class="relative mb-6">
+<img alt="Podcast Art" class="w-full aspect-square object-cover rounded-lg shadow-md" data-alt="Minimalist podcast cover art with a vintage microphone silhouette against a warm orange sunset gradient background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPIWusR0JM1JqktEAgY4KWlhvp6qcT3a47ncxSPSc5kB33pSI68Vk47LkHRPCfbQpZAKFVw6GpU1oXClmSI67tD49Z3jgamtVlOTPcHZpmOnnctREuN9HJ20zrIFWQo4lxBikHSyt7uSIt9N9Z8Nu6x7Hczc2oIUfpqjFOy2ZEJ46bMWXxHNK_ACagGKtMGAUH5TtWqy6LD0zbw1IoJQTB9K9ixWvc-H_rnWQ31YxwemofjFzPEf_kPcO7CBs3Q0mpnYICb697f22L"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+<button class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-primary shadow-xl scale-90 group-hover:scale-100 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-error hover:bg-error hover:text-white transition-all shadow-lg">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-xl font-bold font-headline leading-tight line-clamp-1 group-hover:text-primary transition-colors">Philosophy Now</h3>
+<p class="text-on-surface-variant text-sm font-medium">Sophia Institute</p>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between text-[11px] font-label uppercase tracking-wider text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>89 Eps</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Yesterday</span>
+</div>
+</div>
+</div>
+<!-- Podcast Card 3 -->
+<div class="group relative bg-surface-container rounded-lg p-6 transition-all duration-300 hover:scale-[1.02] hover:bg-surface-container-lowest premium-shadow">
+<div class="relative mb-6">
+<img alt="Podcast Art" class="w-full aspect-square object-cover rounded-lg shadow-md" data-alt="Vibrant modern podcast art with thick 3D typography spelling 'FLOW' in purple and yellow on a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtvW_E2BMjwilxXJK5WIKKhf3CVbiAcFIXmTL5gWTstFv0BE4bO-m69grxuh_ynvO1h3PzHNX85xaQ7VeNs7J7ujcJFEDvbZRg3OCg3gzOIa8Btly5zrLDREL3c-3JG9NKOsBERT764KGgAw5AtmfJmVZftoSte4vD2bLgAhFtaqbOYg7KjBP2SGMvWLqkYZ-txAXPR2QmiE4oC_3s5ZTiPiOWinS_-17iIgQSO3nDyLeeg7n8cmC9oo41YGAVTGu25w002NS8iqYq"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+<button class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-primary shadow-xl scale-90 group-hover:scale-100 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-error hover:bg-error hover:text-white transition-all shadow-lg">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-xl font-bold font-headline leading-tight line-clamp-1 group-hover:text-primary transition-colors">Design Matters</h3>
+<p class="text-on-surface-variant text-sm font-medium">Creative Collective</p>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between text-[11px] font-label uppercase tracking-wider text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>312 Eps</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>3 days ago</span>
+</div>
+</div>
+</div>
+<!-- Podcast Card 4 -->
+<div class="group relative bg-surface-container rounded-lg p-6 transition-all duration-300 hover:scale-[1.02] hover:bg-surface-container-lowest premium-shadow">
+<div class="relative mb-6">
+<img alt="Podcast Art" class="w-full aspect-square object-cover rounded-lg shadow-md" data-alt="High contrast black and white photograph of a recording studio with soundproofing foam and a high-end condenser microphone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG_yfUOLT2X_s8uRIbh3D1WlIgn1mCYUs61PUmo3N5PFyhhulaXueL4qkfeV7stM19-nQy5ttkO9ogKeq7MboZhDz8k7XlQsEb01B5uclafZKu3Y3gBqsnaiZt-ucOfP45zPMwxxwqCry-ipmJZJbSmI3-5L2Zs4tYQlG4FdGvCKATo8KqpebeE4wR7NWQaS85aIpwWQM6TnYP8clyc-hVOpfvLQEU72KuLEoKz94BRtXO12z12fpO_Tdz42xkDU1xphNX5UPQsWVT"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+<button class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-primary shadow-xl scale-90 group-hover:scale-100 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-error hover:bg-error hover:text-white transition-all shadow-lg">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+</div>
+<div class="space-y-1">
+<span class="inline-block px-2 py-0.5 bg-tertiary-container/20 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded">New Episode</span>
+<h3 class="text-xl font-bold font-headline leading-tight line-clamp-1 group-hover:text-primary transition-colors">The Audio Lab</h3>
+<p class="text-on-surface-variant text-sm font-medium">Sound Engineering Soc.</p>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between text-[11px] font-label uppercase tracking-wider text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">database</span>
+<span>45 Eps</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>5h ago</span>
+</div>
+</div>
+</div>
+<!-- Card 5 (Example of confirmation state) -->
+<div class="group relative bg-surface-container rounded-lg p-6 transition-all duration-300 overflow-hidden ring-2 ring-error/30">
+<div class="absolute inset-0 bg-error-container/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 text-center">
+<p class="font-bold text-on-error-container mb-4">Unsubscribe from 'The Science Hour'?</p>
+<div class="flex gap-3">
+<button class="bg-error text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">Yes, remove</button>
+<button class="bg-white text-on-surface px-4 py-2 rounded-full text-sm font-bold shadow-sm">Cancel</button>
+</div>
+</div>
+<div class="relative mb-6 blur-[2px]">
+<img alt="Podcast Art" class="w-full aspect-square object-cover rounded-lg shadow-md" data-alt="Macro photo of a glass prism reflecting rainbow light onto a clean laboratory surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtAmmmAqsTvjRsdlkrJ6XJj5A4Lc_Jai-ufn2VmstA1orgPAUpncdrTLwm8QbR_2AO2a9SPYs8rt6MKJPDpRPNT2IMSLHch9EVxvkV25Ue9SAQahQ6z_PntMNSCYVrJdx9yMuwNqkKMQqYZOfaS7bxkGCvC8O1GFvcbkZkkn1eck6RXtW4gx9lLkca8vDEaz7ZA9ZJla_1FIWufC1vAxg57TUsx1vmlh67Ff6BbOJO00duAbpt2hL1s2fc4XB0NYXXT1N85uEU-OP2"/>
+</div>
+<div class="space-y-1 blur-[2px]">
+<h3 class="text-xl font-bold font-headline leading-tight line-clamp-1">The Science Hour</h3>
+<p class="text-on-surface-variant text-sm font-medium">Lab Notes Weekly</p>
+</div>
+</div>
+<!-- Empty State / Add Placeholder -->
+<button class="group border-2 border-dashed border-outline-variant rounded-lg p-6 flex flex-col items-center justify-center gap-4 text-outline-variant hover:border-primary hover:text-primary transition-all hover:bg-surface-container-low">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-container/20 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">add_circle</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-lg">Add New Feed</p>
+<p class="text-xs font-medium opacity-70">Paste URL or search</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Footer Shell -->
+<footer class="w-full py-8 mt-auto bg-[#fcf5f4] dark:bg-stone-950 font-['Inter'] text-xs uppercase tracking-widest border-t border-[#dbd2d2] dark:border-stone-800">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 max-w-[1920px] mx-auto gap-6">
+<div class="flex items-center gap-8">
+<p class="text-stone-500">© 2024 MaliPod. All Rights Reserved.</p>
+<div class="flex items-center gap-4">
+<a class="text-stone-500 hover:text-[#ff2b73] hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="text-stone-500 hover:text-[#ff2b73] hover:underline transition-all" href="#">Terms of Service</a>
+<a class="text-stone-500 hover:text-[#ff2b73] hover:underline transition-all" href="#">API Docs</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded-full cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">language</span>
+<span class="font-bold text-[10px]">English (US)</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-primary">share</span>
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-primary">rss_feed</span>
+</div>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating "Now Playing" Bar -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[1000px] glass-player p-4 rounded-xl premium-shadow z-50 flex items-center gap-6 border border-white/20">
+<div class="flex items-center gap-4 flex-1">
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Small thumbnail of the abstract teal and pink geometric podcast art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcrk7yF8pvC-paNrbSdFh9qHWOp9_cLnTt4VShjUubv6jQdeOwaZbTOMT0stjXVvNn-CPLXMn1OE84lbqt1TtdONBUpc8fNLlsWNIxNeWMWV75wFVQGB72V4G_f4NyWA1awa5E4rgNzCBtKqGmO7J-3DyESfojGk50p7iWxS3au3tqUCesEJu4z8H9om5cICI0bwtrX7rg034c28307AUek3bYF26FlJj1o-YwH4AJik7GIW1Et_eKk_bwMryvhlwdN0FdDTVoQTBQ"/>
+<div class="overflow-hidden">
+<h4 class="font-bold text-sm truncate">The Daily Tech Beat - Ep. 452</h4>
+<p class="text-[10px] uppercase font-label tracking-widest text-primary font-bold">Now Playing</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">skip_previous</span>
+</button>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+</div>
+<div class="hidden md:flex flex-[2] items-center gap-3">
+<span class="text-[10px] font-mono text-outline">12:45</span>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%]"></div>
+</div>
+<span class="text-[10px] font-mono text-outline">28:30</span>
+</div>
+<div class="flex items-center gap-4 pr-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">queue_music</span>
+</button>
+</div>
+</div>
+</body></html>

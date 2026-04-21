@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Literal
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import selectinload
 
+from app.core.placeholders import choose_placeholder_url_random
 from app.core.security import sanitize_subscription_url
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
@@ -103,7 +104,7 @@ class SubscriptionService:
                 title=title or url,
                 description=None,
                 website=None,
-                logo_url=None,
+                logo_url=choose_placeholder_url_random(),
                 mygpo_link=None,
                 created_at=now,
                 updated_at=now,
