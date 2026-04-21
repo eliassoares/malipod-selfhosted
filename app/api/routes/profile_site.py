@@ -132,6 +132,7 @@ async def profile_page(
     locale = localization_service.resolve_locale(
         request.cookies.get("malipod_locale"),
         user=current_user,
+        explicit_locale=request.query_params.get("lang"),
     ).effective_locale
     response = templates.TemplateResponse(
         request=request,

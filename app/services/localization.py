@@ -25,9 +25,15 @@ class LocalizationService:
         user: UserModel | None = None,
         explicit_locale: str | None = None,
     ) -> LocaleResolution:
-        requested_locale = normalize_locale(explicit_locale) or normalize_locale(
-            cookie_locale
-        )
+        normalized_explicit = normalize_locale(explicit_locale)
+        requested_locale = normalized_explicit or normalize_locale(cookie_locale)
+        if normalized_explicit is not None:
+            return LocaleResolution(
+                requested_locale=normalized_explicit,
+                effective_locale=normalized_explicit,
+                source="explicit",
+                is_supported=True,
+            )
         if user is not None:
             effective_locale = normalize_locale(user.language_preference) or (
                 self.settings.default_locale
