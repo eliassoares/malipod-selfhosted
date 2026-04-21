@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from tests.contract.test_home_page import api_login, register_user
+from tests.contract.test_sync_devices_api import create_device
 
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
@@ -36,6 +37,7 @@ def test_add_subscription_creates_subscription_and_rejects_duplicate(
 ) -> None:
     register_user(client, nickname="listener_1")
     api_login(client, nickname="listener_1")
+    create_device(client, username="listener_1", device_id="phone")
 
     response = client.post(
         "/user/subscriptions/listener_1/add",
