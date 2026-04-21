@@ -17,6 +17,15 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
+def test_export_opml_logged_out_redirects_to_login(client: TestClient) -> None:
+    response = client.get(
+        "/user/subscriptions/listener_1/export.opml",
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
 @pytest.mark.asyncio
 async def test_export_opml_downloads_all_feeds(
     client: TestClient,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 from sqlalchemy import func, or_, select
@@ -83,13 +84,20 @@ class SubscriptionsPageService:
             logo_url = (feed.logo_url or "").strip() or choose_placeholder_url_stable(
                 feed.feed_url
             )
+            last_ep: datetime | None = None
+            if raw_last is not None:
+                last_ep = (
+                    raw_last
+                    if raw_last.tzinfo is not None
+                    else raw_last.replace(tzinfo=UTC)
+                )
             items.append(
                 SubscriptionFeedCard(
                     title=feed.title,
                     feed_url=feed.feed_url,
                     logo_url=logo_url,
                     episode_count=int(raw_count or 0),
-                    last_episode_at=raw_last,
+                    last_episode_at=last_ep,
                 )
             )
         return items

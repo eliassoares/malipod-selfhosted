@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import http.client
 import ipaddress
+import logging
 import socket
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -23,6 +24,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from app.core.config import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class Element(Protocol):
@@ -58,7 +61,8 @@ def _is_public_address(hostname: str) -> bool:
     return True
 
 
-def _fetch_feed_bytes(url: str) -> bytes:
+def _fetch_one(url: str) -> tuple[int, str | None, bytes]:
+    """Fetch url, return (status, location_header, body_bytes)."""
     parsed = urlsplit(url)
     if not parsed.hostname or not _is_public_address(parsed.hostname):
         raise FeedImportError("invalid host")
@@ -92,8 +96,7 @@ def _fetch_feed_bytes(url: str) -> bytes:
             },
         )
         response = connection.getresponse()
-        if 300 <= response.status < 400:
-            raise FeedImportError("redirects are not allowed")
+        location = response.getheader("Location")
         if response.status >= 400:
             raise FeedImportError("feed fetch failed")
 
@@ -108,11 +111,26 @@ def _fetch_feed_bytes(url: str) -> bytes:
             read += len(chunk)
             if read > max_bytes:
                 raise FeedImportError("feed too large")
-        return b"".join(chunks)
+        return response.status, location, b"".join(chunks)
     except (OSError, http.client.HTTPException) as exc:
         raise FeedImportError("feed fetch failed") from exc
     finally:
         connection.close()
+
+
+def _fetch_feed_bytes(url: str) -> bytes:
+    status, location, body = _fetch_one(url)
+    if 300 <= status < 400:
+        if not location:
+            raise FeedImportError("redirect with no Location header")
+        parsed_redirect = urlsplit(location)
+        if parsed_redirect.scheme.lower() not in {"http", "https"}:
+            raise FeedImportError("redirect to non-http scheme")
+        status2, _location2, body2 = _fetch_one(location)
+        if 300 <= status2 < 400:
+            raise FeedImportError("too many redirects")
+        return body2
+    return body
 
 
 def _strip_ns(tag: str) -> str:
@@ -347,4 +365,4 @@ async def import_feed_in_background(settings: Settings, feed_url: str) -> None:
         async with session_factory() as session:
             await FeedImportService(session=session).import_feed(feed_url)
     except Exception:
-        return
+        logger.exception("background feed import failed for %s", feed_url)

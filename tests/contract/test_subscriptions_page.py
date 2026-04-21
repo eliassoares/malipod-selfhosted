@@ -25,6 +25,18 @@ def test_subscriptions_page_logged_out_redirects_to_login(client: TestClient) ->
     assert response.headers["location"] == "/login"
 
 
+def test_subscriptions_preferences_logged_out_redirects_to_login(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/user/subscriptions/listener_1/preferences",
+        data={"view_mode": "grid", "sort": "recent"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
 def test_subscriptions_page_username_mismatch_returns_404(client: TestClient) -> None:
     register_user(client, nickname="listener_1")
     api_login(client, nickname="listener_1")
@@ -194,4 +206,4 @@ async def test_subscriptions_preferences_persist_view_mode(
     assert response.status_code == 303
 
     html = client.get("/user/subscriptions/listener_1").text
-    assert '<section class="grid grid-cols-1' in html
+    assert 'data-view="grid"' in html

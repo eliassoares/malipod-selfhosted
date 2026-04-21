@@ -24,6 +24,7 @@ from app.api.deps import (
     get_subscription_service,
     get_subscriptions_page_service,
 )
+from app.api.utils import apply_locale_cookie
 from app.core.config import Settings
 from app.core.localization import SUPPORTED_LOCALE_CODES
 from app.core.security import sanitize_subscription_url
@@ -59,21 +60,6 @@ DeviceServiceDep = Annotated[DeviceService, Depends(get_device_service)]
 
 ViewMode = Literal["list", "grid"]
 SortMode = Literal["recent", "oldest"]
-
-
-def apply_locale_cookie(
-    response: HTMLResponse | RedirectResponse,
-    settings: Settings,
-    locale: str,
-) -> None:
-    response.set_cookie(
-        key="malipod_locale",
-        value=locale,
-        httponly=False,
-        samesite="lax",
-        secure=settings.environment == "production",
-        max_age=settings.session_ttl_seconds,
-    )
 
 
 def _normalize_view(value: str | None) -> ViewMode | None:

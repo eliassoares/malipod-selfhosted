@@ -26,6 +26,7 @@ from app.api.deps import (
     get_runtime_settings,
     get_user_data_tools_service,
 )
+from app.api.utils import apply_locale_cookie
 from app.core.config import Settings
 from app.core.localization import SUPPORTED_LOCALE_CODES
 from app.db.models.user import UserModel
@@ -76,19 +77,6 @@ def build_context(
         ),
         "supported_locales": SUPPORTED_LOCALE_CODES,
     }
-
-
-def apply_locale_cookie(
-    response: HTMLResponse | RedirectResponse, settings: Settings, locale: str
-) -> None:
-    response.set_cookie(
-        key="malipod_locale",
-        value=locale,
-        httponly=False,
-        samesite="lax",
-        secure=settings.environment == "production",
-        max_age=settings.session_ttl_seconds,
-    )
 
 
 def _require_profile_owner(
