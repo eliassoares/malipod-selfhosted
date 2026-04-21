@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -55,15 +54,6 @@ def _as_utc(value: datetime) -> datetime:
 class UserDataToolsService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
-
-    @asynccontextmanager
-    async def _transaction(self) -> Any:
-        if self.session.in_transaction():
-            async with self.session.begin_nested():
-                yield
-            return
-        async with self.session.begin():
-            yield
 
     async def export_snapshot(self, user: UserModel) -> dict[str, Any]:
         devices = await self._export_devices(user)
@@ -137,73 +127,71 @@ class UserDataToolsService:
             if row.email != user.email or row.nickname != user.nickname:
                 raise UserDataToolsError("snapshot_user_mismatch")
 
-        async with self._transaction():
-            # Phase 1: global catalog (podcast_feeds → episodes)
-            await self._import_podcast_feeds(snapshot)
-            await self.session.flush()
+        # Phase 1: global catalog (podcast_feeds → episodes)
+        await self._import_podcast_feeds(snapshot)
+        await self.session.flush()
 
-            feed_urls: set[str] = (
-                {r.feed_url for r in snapshot.podcast_feeds}
-                | {r.feed_url for r in snapshot.episodes}
-                | {r.feed_url for r in snapshot.device_subscriptions}
-                | {r.feed_url for r in snapshot.podcast_settings}
-                | {r.feed_url for r in snapshot.podcast_list_items}
-            )
-            feed_id_map = await self._feed_id_map(feed_urls)
+        feed_urls: set[str] = (
+            {r.feed_url for r in snapshot.podcast_feeds}
+            | {r.feed_url for r in snapshot.episodes}
+            | {r.feed_url for r in snapshot.device_subscriptions}
+            | {r.feed_url for r in snapshot.podcast_settings}
+            | {r.feed_url for r in snapshot.podcast_list_items}
+        )
+        feed_id_map = await self._feed_id_map(feed_urls)
 
-            await self._import_episodes(snapshot, feed_id_map)
-            await self.session.flush()
+        await self._import_episodes(snapshot, feed_id_map)
+        await self.session.flush()
 
-            episode_urls: set[str] = (
-                {r.episode_url for r in snapshot.episodes}
-                | {r.episode_url for r in snapshot.episode_settings}
-                | {r.episode_url for r in snapshot.episode_actions}
-                | {r.episode_url for r in snapshot.favorite_episodes}
-                | {r.episode_url for r in snapshot.episode_action_events}
-            )
-            episode_id_map = await self._episode_id_map(episode_urls)
+        episode_urls: set[str] = (
+            {r.episode_url for r in snapshot.episodes}
+            | {r.episode_url for r in snapshot.episode_settings}
+            | {r.episode_url for r in snapshot.episode_actions}
+            | {r.episode_url for r in snapshot.favorite_episodes}
+            | {r.episode_url for r in snapshot.episode_action_events}
+        )
+        episode_id_map = await self._episode_id_map(episode_urls)
 
-            # Phase 2: user devices
-            await self._import_devices(user, snapshot)
-            await self.session.flush()
+        # Phase 2: user devices
+        await self._import_devices(user, snapshot)
+        await self.session.flush()
 
-            device_pk_map = await self._device_pk_map(user.id)
-            await self._rebuild_device_sync_groups(user, snapshot)
+        device_pk_map = await self._device_pk_map(user.id)
+        await self._rebuild_device_sync_groups(user, snapshot)
 
-            # Phase 3: settings
-            await self._import_account_settings(user, snapshot)
-            await self._import_device_settings(user, snapshot, device_pk_map)
-            await self._import_podcast_settings(user, snapshot, feed_id_map)
-            await self._import_episode_settings(user, snapshot, episode_id_map)
+        # Phase 3: settings
+        await self._import_account_settings(user, snapshot)
+        await self._import_device_settings(user, snapshot, device_pk_map)
+        await self._import_podcast_settings(user, snapshot, feed_id_map)
+        await self._import_episode_settings(user, snapshot, episode_id_map)
 
-            # Phase 4: podcast lists
-            await self._import_podcast_lists(user, snapshot)
-            await self.session.flush()
+        # Phase 4: podcast lists
+        await self._import_podcast_lists(user, snapshot)
+        await self.session.flush()
 
-            list_id_map = await self._list_id_map(user.id)
-            await self._import_podcast_list_items(
-                user, snapshot, feed_id_map, list_id_map
-            )
+        list_id_map = await self._list_id_map(user.id)
+        await self._import_podcast_list_items(user, snapshot, feed_id_map, list_id_map)
 
-            # Phase 5: activity data
-            await self._import_device_subscriptions(
-                user, snapshot, device_pk_map, feed_id_map
-            )
-            await self._import_episode_actions(
-                user, snapshot, device_pk_map, episode_id_map
-            )
-            await self._import_favorite_episodes(user, snapshot, episode_id_map)
-            await self._import_subscription_change_events(user, snapshot, device_pk_map)
-            await self._import_episode_action_events(user, snapshot, episode_id_map)
+        # Phase 5: activity data
+        await self._import_device_subscriptions(
+            user, snapshot, device_pk_map, feed_id_map
+        )
+        await self._import_episode_actions(
+            user, snapshot, device_pk_map, episode_id_map
+        )
+        await self._import_favorite_episodes(user, snapshot, episode_id_map)
+        await self._import_subscription_change_events(user, snapshot, device_pk_map)
+        await self._import_episode_action_events(user, snapshot, episode_id_map)
+        await self.session.commit()
 
     async def delete_user_data(self, user: UserModel) -> None:
-        async with self._transaction():
-            await self._delete_user_data_in_tx(user)
+        await self._delete_user_data_in_tx(user)
+        await self.session.commit()
 
     async def delete_user_account(self, user: UserModel) -> None:
-        async with self._transaction():
-            await self._delete_user_data_in_tx(user)
-            await self.session.delete(user)
+        await self._delete_user_data_in_tx(user)
+        await self.session.delete(user)
+        await self.session.commit()
 
     async def _delete_user_data_in_tx(self, user: UserModel) -> None:
         device_ids_result = await self.session.execute(
