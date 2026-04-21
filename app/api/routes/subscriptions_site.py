@@ -32,6 +32,7 @@ from app.core.settings_keys import SUBSCRIPTIONS_SORT, SUBSCRIPTIONS_VIEW_MODE
 from app.db.models.user import UserModel
 from app.schemas.setting import SettingsMutationRequest, SettingsScopeQuery
 from app.schemas.subscription import SubscriptionRenderPayload
+from app.services.apple_podcasts import resolve_apple_podcasts_url
 from app.services.devices import DeviceService
 from app.services.feed_import import import_feed_in_background
 from app.services.localization import LocalizationService
@@ -241,7 +242,8 @@ async def add_subscription_by_url(
             ],
         )
 
-    sanitized = sanitize_subscription_url(feed_url)
+    resolved_url = resolve_apple_podcasts_url(feed_url) or feed_url
+    sanitized = sanitize_subscription_url(resolved_url)
     if not sanitized:
         return RedirectResponse(
             url=f"/user/subscriptions/{nickname}?error=invalid_url",
