@@ -67,20 +67,20 @@
     </div>
   </article>
 
-  <!-- Settings Cards (bento) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  <!-- Settings Cards — stacked full-width -->
+  <div class="space-y-6">
 
     <!-- Language Card -->
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
-      <div class="flex items-center gap-3 mb-6">
+      <div class="flex items-center gap-3 mb-5">
         <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
           <span class="material-symbols-outlined text-primary" style="font-size:1.2rem;">language</span>
         </div>
         <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["profile.language"] }}</h2>
       </div>
-      <form class="space-y-4" action="/user/profile/{{ profile.nickname }}/language" method="post">
+      <form class="flex flex-col sm:flex-row gap-3" action="/user/profile/{{ profile.nickname }}/language" method="post">
         <select
-          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+          class="flex-1 px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
           name="language_preference"
         >
           {% for code in supported_locales %}
@@ -88,7 +88,7 @@
           {% endfor %}
         </select>
         <button
-          class="w-full gradient-primary text-on-primary font-bold font-headline py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer"
+          class="sm:w-auto gradient-primary text-on-primary font-bold font-headline px-8 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer whitespace-nowrap"
           type="submit"
         >
           {{ copy["profile.save_language"] }}
@@ -98,13 +98,122 @@
 
     <!-- Account Actions Card -->
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 rounded-xl bg-error/10 flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-error" style="font-size:1.2rem;">manage_accounts</span>
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-primary" style="font-size:1.2rem;">manage_accounts</span>
         </div>
-        <h2 class="font-headline font-bold text-on-surface text-lg">Conta</h2>
+        <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["profile.account_title"] }}</h2>
       </div>
-      <div class="space-y-3">
+
+      <!-- Data tools: Export + Import as action rows -->
+      <div class="flex flex-col gap-2 mb-6">
+
+        <!-- Export -->
+        <form action="/user/profile/{{ profile.nickname }}/export" method="post">
+          <button
+            type="submit"
+            class="w-full flex items-center gap-4 px-4 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface transition-all group border-0 cursor-pointer text-left"
+          >
+            <span class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors flex-shrink-0">
+              <span class="material-symbols-outlined text-primary" style="font-size:1.1rem;">download</span>
+            </span>
+            <span class="flex-1 font-headline font-medium text-sm">{{ copy["profile.export_data"] }}</span>
+            <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </button>
+        </form>
+
+        <!-- Import — hidden file input, auto-submits on select -->
+        <form action="/user/profile/{{ profile.nickname }}/import" method="post" enctype="multipart/form-data" id="import-form">
+          <label
+            for="snapshot_file"
+            class="w-full flex items-center gap-4 px-4 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface transition-all group cursor-pointer border-0"
+          >
+            <span class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors flex-shrink-0">
+              <span class="material-symbols-outlined text-primary" style="font-size:1.1rem;">upload</span>
+            </span>
+            <span class="flex-1 font-headline font-medium text-sm">{{ copy["profile.import_data"] }}</span>
+            <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform" style="font-size:1rem;">chevron_right</span>
+          </label>
+          <input
+            id="snapshot_file"
+            name="snapshot_file"
+            type="file"
+            accept="application/json"
+            required
+            class="sr-only"
+            onchange="document.getElementById('import-form').submit()"
+          />
+        </form>
+      </div>
+
+      <!-- Danger zone separator -->
+      <div class="relative flex items-center gap-3 mb-4">
+        <div class="flex-1 h-px bg-error/15"></div>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-error/50 font-label">{{ copy["profile.danger_zone"] }}</span>
+        <div class="flex-1 h-px bg-error/15"></div>
+      </div>
+      <p class="text-xs text-on-surface-variant text-center mb-5">{{ copy["profile.danger_zone_description"] }}</p>
+
+      <!-- Delete data -->
+      <form action="/user/profile/{{ profile.nickname }}/delete-data" method="post" class="mb-3">
+        <div class="flex flex-col gap-3 bg-error/5 rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-error mt-0.5 flex-shrink-0" style="font-size:1.1rem;">delete_sweep</span>
+            <div class="flex-1 min-w-0">
+              <span class="font-headline font-semibold text-error text-sm block mb-1">{{ copy["profile.delete_data_title"] }}</span>
+              <p class="text-xs text-on-surface-variant leading-relaxed">{{ copy["profile.delete_data_description"] | safe }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input
+              class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-error/30 transition-all text-on-surface font-body text-sm"
+              type="text"
+              name="confirm"
+              placeholder="{{ copy['profile.confirm_placeholder'] }}"
+              required
+            />
+            <button
+              class="flex items-center gap-1.5 px-4 py-2.5 bg-error/10 hover:bg-error/20 rounded-lg text-error font-semibold font-headline text-sm transition-all border-0 cursor-pointer whitespace-nowrap flex-shrink-0"
+              type="submit"
+            >
+              <span class="material-symbols-outlined" style="font-size:1rem;">delete_sweep</span>
+              {{ copy["profile.confirm_button"] }}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Delete user -->
+      <form action="/user/profile/{{ profile.nickname }}/delete-user" method="post" class="mb-5">
+        <div class="flex flex-col gap-3 bg-error/5 rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-error mt-0.5 flex-shrink-0" style="font-size:1.1rem;">person_remove</span>
+            <div class="flex-1 min-w-0">
+              <span class="font-headline font-semibold text-error text-sm block mb-1">{{ copy["profile.delete_user_title"] }}</span>
+              <p class="text-xs text-on-surface-variant leading-relaxed">{{ copy["profile.delete_user_description"] | safe }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input
+              class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-error/30 transition-all text-on-surface font-body text-sm"
+              type="text"
+              name="confirm"
+              placeholder="{{ copy['profile.confirm_placeholder'] }}"
+              required
+            />
+            <button
+              class="flex items-center gap-1.5 px-4 py-2.5 bg-error hover:opacity-90 rounded-lg text-on-error font-bold font-headline text-sm transition-all border-0 cursor-pointer whitespace-nowrap flex-shrink-0"
+              type="submit"
+            >
+              <span class="material-symbols-outlined" style="font-size:1rem;">person_remove</span>
+              {{ copy["profile.confirm_button"] }}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Logout -->
+      <div class="border-t border-outline-variant/20 pt-3">
         <form action="/logout" method="post">
           <button
             class="w-full flex items-center justify-between px-5 py-3.5 bg-surface-container hover:bg-surface-container-high rounded-xl text-on-surface font-medium font-headline transition-all group border-0 cursor-pointer"

@@ -43,6 +43,27 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Updated",
         "profile.save_language": "Update language",
         "profile.logout": "Log out",
+        "profile.account_title": "Account",
+        "profile.export_data": "Export data",
+        "profile.import_data": "Import data",
+        "profile.danger_zone": "Danger zone",
+        "profile.danger_zone_description": (
+            "Here, your data is yours, and you can do whatever you want with it."
+        ),
+        "profile.delete_data_title": "Delete data",
+        "profile.delete_data_description": (
+            "Removes all data except your account. Type "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> to confirm."
+        ),
+        "profile.delete_user_title": "Delete account",
+        "profile.delete_user_description": (
+            "Permanently removes your account and all data. Type "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> to confirm."
+        ),
+        "profile.confirm_placeholder": "DELETE",
+        "profile.confirm_button": "Confirm",
         "errors.user_exists": "User already exists.",
         "errors.invalid_login": "Invalid login.",
         "errors.nickname": (
@@ -172,6 +193,27 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Actualizado",
         "profile.save_language": "Actualizar idioma",
         "profile.logout": "Cerrar sesión",
+        "profile.account_title": "Cuenta",
+        "profile.export_data": "Exportar datos",
+        "profile.import_data": "Importar datos",
+        "profile.danger_zone": "Zona de peligro",
+        "profile.danger_zone_description": (
+            "Aquí, tus datos son tuyos, y puedes hacer con ellos lo que quieras."
+        ),
+        "profile.delete_data_title": "Eliminar datos",
+        "profile.delete_data_description": (
+            "Elimina todos los datos excepto la cuenta. Escribe "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> para confirmar."
+        ),
+        "profile.delete_user_title": "Eliminar cuenta",
+        "profile.delete_user_description": (
+            "Elimina permanentemente la cuenta y todos los datos. Escribe "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> para confirmar."
+        ),
+        "profile.confirm_placeholder": "DELETE",
+        "profile.confirm_button": "Confirmar",
         "errors.user_exists": "El usuario ya existe.",
         "errors.invalid_login": "Login inválido.",
         "errors.nickname": (
@@ -307,6 +349,27 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.updated_at": "Atualizado em",
         "profile.save_language": "Atualizar idioma",
         "profile.logout": "Sair",
+        "profile.account_title": "Conta",
+        "profile.export_data": "Exportar dados",
+        "profile.import_data": "Importar dados",
+        "profile.danger_zone": "Zona de perigo",
+        "profile.danger_zone_description": (
+            "Aqui, os seus dados são seus, e você pode fazer deles o que quiser."
+        ),
+        "profile.delete_data_title": "Deletar dados",
+        "profile.delete_data_description": (
+            "Remove todos os dados exceto a conta. Digite "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> para confirmar."
+        ),
+        "profile.delete_user_title": "Deletar usuário",
+        "profile.delete_user_description": (
+            "Remove permanentemente a conta e todos os dados. Digite "
+            '<span class="font-mono bg-error/10 px-1 rounded">'
+            "DELETE</span> para confirmar."
+        ),
+        "profile.confirm_placeholder": "DELETE",
+        "profile.confirm_button": "Confirmar",
         "errors.user_exists": "Usuário já existe.",
         "errors.invalid_login": "Login inválido.",
         "errors.nickname": (

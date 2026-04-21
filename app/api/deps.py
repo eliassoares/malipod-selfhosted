@@ -20,6 +20,7 @@ from app.services.settings import SettingsService
 from app.services.subscriptions import SubscriptionService
 from app.services.subscriptions_page import SubscriptionsPageService
 from app.services.sync_devices import SyncDevicesService
+from app.services.user_data_tools import UserDataToolsService
 
 if TYPE_CHECKING:
     from app.db.models.user import UserModel
@@ -109,6 +110,12 @@ def get_subscriptions_page_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> SubscriptionsPageService:
     return SubscriptionsPageService(session=session)
+
+
+def get_user_data_tools_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> UserDataToolsService:
+    return UserDataToolsService(session=session)
 
 
 async def get_current_user(

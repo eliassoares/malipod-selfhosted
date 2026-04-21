@@ -1,32 +1,53 @@
 from __future__ import annotations
 
+import json
+from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError
 
 from app.api.deps import (
     get_auth_service,
     get_current_user,
     get_localization_service,
     get_runtime_settings,
+    get_user_data_tools_service,
 )
 from app.core.config import Settings
 from app.core.localization import SUPPORTED_LOCALE_CODES
 from app.db.models.user import UserModel
 from app.schemas.profile import ProfilePageContext
+from app.schemas.user_data_tools import UserDataSnapshot
 from app.services.auth import AuthService
 from app.services.localization import LocalizationService
+from app.services.user_data_tools import UserDataToolsError, UserDataToolsService
 
 templates = Jinja2Templates(directory="app/templates")
 router = APIRouter(tags=["Profile Site"])
+
+SNAPSHOT_FILE_FIELD = File(...)
 
 SettingsDep = Annotated[Settings, Depends(get_runtime_settings)]
 LocalizationServiceDep = Annotated[
     LocalizationService, Depends(get_localization_service)
 ]
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+UserDataToolsServiceDep = Annotated[
+    UserDataToolsService, Depends(get_user_data_tools_service)
+]
 CurrentUserDep = Annotated[UserModel | None, Depends(get_current_user)]
 
 
@@ -70,6 +91,26 @@ def apply_locale_cookie(
     )
 
 
+def _require_profile_owner(
+    nickname: str,
+    current_user: UserModel | None,
+    settings: Settings,
+    localization_service: LocalizationService,
+) -> UserModel:
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="login required"
+        )
+    if current_user.nickname != nickname or current_user.deactivated_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=localization_service.build_copy(settings.default_locale)[
+                "errors.profile_forbidden"
+            ],
+        )
+    return current_user
+
+
 @router.get("/user/profile/{nickname}", response_class=HTMLResponse)
 async def profile_page(
     nickname: str,
@@ -91,6 +132,7 @@ async def profile_page(
     locale = localization_service.resolve_locale(
         request.cookies.get("malipod_locale"),
         user=current_user,
+        explicit_locale=request.query_params.get("lang"),
     ).effective_locale
     response = templates.TemplateResponse(
         request=request,
@@ -124,4 +166,124 @@ async def update_profile_language(
         status_code=status.HTTP_303_SEE_OTHER,
     )
     apply_locale_cookie(response, settings, user.language_preference)
+    return response
+
+
+@router.post("/user/profile/{nickname}/export")
+async def export_user_data(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    user_data_tools: UserDataToolsServiceDep,
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_profile_owner(nickname, current_user, settings, localization_service)
+    snapshot = await user_data_tools.export_snapshot(current_user)
+    filename = f"malipod_data_{datetime.now(UTC).date().isoformat()}.json"
+    return Response(
+        content=json.dumps(snapshot, ensure_ascii=False).encode("utf-8"),
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/user/profile/{nickname}/import")
+async def import_user_data(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    user_data_tools: UserDataToolsServiceDep,
+    snapshot_file: UploadFile = SNAPSHOT_FILE_FIELD,
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_profile_owner(nickname, current_user, settings, localization_service)
+    max_import_bytes = 10 * 1024 * 1024
+    try:
+        raw = await snapshot_file.read(max_import_bytes + 1)
+        if len(raw) > max_import_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail="file too large",
+            )
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="invalid json"
+        ) from exc
+    try:
+        snapshot = UserDataSnapshot.model_validate(data)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="invalid snapshot",
+        ) from exc
+    try:
+        await user_data_tools.import_snapshot(current_user, snapshot)
+    except UserDataToolsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=exc.code
+        ) from exc
+
+    return RedirectResponse(
+        url=f"/user/profile/{nickname}", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.post("/user/profile/{nickname}/delete-data")
+async def delete_user_data(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    user_data_tools: UserDataToolsServiceDep,
+    confirm: str = Form(default=""),
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_profile_owner(nickname, current_user, settings, localization_service)
+    if confirm.strip().upper() != "DELETE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="missing confirmation",
+        )
+    await user_data_tools.delete_user_data(current_user)
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie(settings.session_cookie_name)
+    return response
+
+
+@router.post("/user/profile/{nickname}/delete-user")
+async def delete_user_account(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    auth_service: AuthServiceDep,
+    current_user: CurrentUserDep,
+    user_data_tools: UserDataToolsServiceDep,
+    confirm: str = Form(default=""),
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_profile_owner(nickname, current_user, settings, localization_service)
+    if confirm.strip().upper() != "DELETE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="missing confirmation",
+        )
+    session_model = await auth_service.get_active_session(
+        request.cookies.get(settings.session_cookie_name)
+    )
+    if session_model is not None:
+        await auth_service.revoke_session(session_model)
+    await user_data_tools.delete_user_account(current_user)
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie(settings.session_cookie_name)
     return response
