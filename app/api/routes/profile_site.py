@@ -6,6 +6,7 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     File,
     Form,
@@ -33,6 +34,7 @@ from app.db.models.user import UserModel
 from app.schemas.profile import ProfilePageContext
 from app.schemas.user_data_tools import UserDataSnapshot
 from app.services.auth import AuthService
+from app.services.feed_import import import_feed_in_background
 from app.services.localization import LocalizationService
 from app.services.user_data_tools import UserDataToolsError, UserDataToolsService
 
@@ -182,6 +184,7 @@ async def export_user_data(
 async def import_user_data(
     nickname: str,
     request: Request,
+    background_tasks: BackgroundTasks,
     settings: SettingsDep,
     localization_service: LocalizationServiceDep,
     current_user: CurrentUserDep,
@@ -217,6 +220,13 @@ async def import_user_data(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=exc.code
         ) from exc
+
+    if settings.environment != "test":
+        feed_urls = {r.feed_url for r in snapshot.podcast_feeds} | {
+            r.feed_url for r in snapshot.device_subscriptions
+        }
+        for feed_url in feed_urls:
+            background_tasks.add_task(import_feed_in_background, settings, feed_url)
 
     return RedirectResponse(
         url=f"/user/profile/{nickname}", status_code=status.HTTP_303_SEE_OTHER
