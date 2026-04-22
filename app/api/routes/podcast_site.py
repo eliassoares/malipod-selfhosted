@@ -104,11 +104,13 @@ async def podcast_detail_page(
         apply_locale_cookie(response, settings, locale)
         return response
 
-    effective_sort = _normalize_episode_sort(sort)
-    episodes = await detail_service.list_episodes(feed_id=feed.id, sort=effective_sort)
-
     logo_url = (feed.logo_url or "").strip() or choose_placeholder_url_stable(
         feed.feed_url
+    )
+
+    effective_sort = _normalize_episode_sort(sort)
+    episodes = await detail_service.list_episodes(
+        feed_id=feed.id, sort=effective_sort, fallback_logo_url=logo_url
     )
 
     response = templates.TemplateResponse(

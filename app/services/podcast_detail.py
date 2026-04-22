@@ -52,6 +52,7 @@ class PodcastDetailService:
         *,
         feed_id: int,
         sort: SortMode,
+        fallback_logo_url: str | None = None,
     ) -> list[EpisodeCard]:
         statement = select(EpisodeModel).where(EpisodeModel.feed_id == feed_id)
         if sort == "oldest":
@@ -69,9 +70,13 @@ class PodcastDetailService:
         episodes = result.scalars().all()
         cards: list[EpisodeCard] = []
         for episode in episodes:
-            logo_url = (
-                episode.logo_url or ""
-            ).strip() or choose_placeholder_url_stable(episode.episode_url)
+            raw = (episode.logo_url or "").strip()
+            if raw and not raw.startswith("/static/"):
+                logo_url = raw
+            else:
+                logo_url = fallback_logo_url or choose_placeholder_url_stable(
+                    episode.episode_url
+                )
             cards.append(
                 EpisodeCard(
                     id=episode.id,
