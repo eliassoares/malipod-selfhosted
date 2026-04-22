@@ -7,13 +7,13 @@ import pytest
 
 from app.services.feed_import import (
     FeedImportError,
+    _check_host,
     _fetch_feed_bytes,
-    _is_public_address,
     _parse_feed,
 )
 
 # ---------------------------------------------------------------------------
-# _is_public_address
+# _check_host
 # ---------------------------------------------------------------------------
 
 
@@ -21,28 +21,51 @@ def _addr(ip: str) -> list[tuple[None, None, None, None, tuple[str, int]]]:
     return [(None, None, None, None, (ip, 0))]
 
 
-def test_is_public_address_rejects_localhost() -> None:
-    assert _is_public_address("localhost") is False
+def test_check_host_rejects_empty() -> None:
+    with pytest.raises(FeedImportError, match="invalid host"):
+        _check_host("")
 
 
-def test_is_public_address_rejects_loopback() -> None:
-    with patch("socket.getaddrinfo", return_value=_addr("127.0.0.1")):
-        assert _is_public_address("127.0.0.1") is False
+def test_check_host_rejects_localhost() -> None:
+    with pytest.raises(FeedImportError, match="invalid host"):
+        _check_host("localhost")
 
 
-def test_is_public_address_rejects_private_rfc1918() -> None:
-    with patch("socket.getaddrinfo", return_value=_addr("192.168.1.1")):
-        assert _is_public_address("192.168.1.1") is False
+def test_check_host_rejects_loopback() -> None:
+    with (
+        patch("socket.getaddrinfo", return_value=_addr("127.0.0.1")),
+        pytest.raises(FeedImportError, match="invalid host"),
+    ):
+        _check_host("127.0.0.1")
 
 
-def test_is_public_address_rejects_link_local() -> None:
-    with patch("socket.getaddrinfo", return_value=_addr("169.254.0.1")):
-        assert _is_public_address("169.254.0.1") is False
+def test_check_host_rejects_private_rfc1918() -> None:
+    with (
+        patch("socket.getaddrinfo", return_value=_addr("192.168.1.1")),
+        pytest.raises(FeedImportError, match="invalid host"),
+    ):
+        _check_host("192.168.1.1")
 
 
-def test_is_public_address_accepts_public_ip() -> None:
+def test_check_host_rejects_link_local() -> None:
+    with (
+        patch("socket.getaddrinfo", return_value=_addr("169.254.0.1")),
+        pytest.raises(FeedImportError, match="invalid host"),
+    ):
+        _check_host("169.254.0.1")
+
+
+def test_check_host_raises_on_dns_failure() -> None:
+    with (
+        patch("socket.getaddrinfo", side_effect=OSError("Name not known")),
+        pytest.raises(FeedImportError, match="dns resolution failed"),
+    ):
+        _check_host("nonexistent.invalid")
+
+
+def test_check_host_accepts_public_ip() -> None:
     with patch("socket.getaddrinfo", return_value=_addr("1.1.1.1")):
-        assert _is_public_address("example.com") is True
+        _check_host("example.com")  # should not raise
 
 
 # ---------------------------------------------------------------------------
@@ -60,7 +83,10 @@ def _mock_response(status: int, body: bytes, location: str | None = None) -> Mag
 
 def test_fetch_feed_bytes_rejects_private_host() -> None:
     with (
-        patch("app.services.feed_import._is_public_address", return_value=False),
+        patch(
+            "app.services.feed_import._check_host",
+            side_effect=FeedImportError("invalid host"),
+        ),
         pytest.raises(FeedImportError, match="invalid host"),
     ):
         _fetch_feed_bytes("http://192.168.1.1/feed.xml")
@@ -73,7 +99,7 @@ def test_fetch_feed_bytes_rejects_non_http_scheme() -> None:
 
 def test_fetch_feed_bytes_raises_on_4xx() -> None:
     with (
-        patch("app.services.feed_import._is_public_address", return_value=True),
+        patch("app.services.feed_import._check_host"),
         patch("http.client.HTTPSConnection") as mock_cls,
     ):
         conn = MagicMock()
@@ -88,7 +114,7 @@ def test_fetch_feed_bytes_follows_one_redirect() -> None:
     final_resp = _mock_response(200, b"<rss/>")
 
     with (
-        patch("app.services.feed_import._is_public_address", return_value=True),
+        patch("app.services.feed_import._check_host"),
         patch("http.client.HTTPSConnection") as mock_cls,
     ):
         conn = MagicMock()
@@ -103,7 +129,7 @@ def test_fetch_feed_bytes_raises_on_double_redirect() -> None:
     redirect2 = _mock_response(302, b"", location="https://example.com/hop2.xml")
 
     with (
-        patch("app.services.feed_import._is_public_address", return_value=True),
+        patch("app.services.feed_import._check_host"),
         patch("http.client.HTTPSConnection") as mock_cls,
     ):
         conn = MagicMock()
@@ -117,7 +143,7 @@ def test_fetch_feed_bytes_redirect_to_non_http_scheme_rejected() -> None:
     redirect_resp = _mock_response(301, b"", location="ftp://evil.com/feed.xml")
 
     with (
-        patch("app.services.feed_import._is_public_address", return_value=True),
+        patch("app.services.feed_import._check_host"),
         patch("http.client.HTTPSConnection") as mock_cls,
     ):
         conn = MagicMock()

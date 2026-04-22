@@ -40,13 +40,14 @@ class FeedImportError(Exception):
     pass
 
 
-def _is_public_address(hostname: str) -> bool:
-    if hostname.lower() in {"localhost"}:
-        return False
+def _check_host(hostname: str) -> None:
+    """Raise FeedImportError if hostname is missing, private, or unresolvable."""
+    if not hostname or hostname.lower() == "localhost":
+        raise FeedImportError("invalid host")
     try:
         infos = socket.getaddrinfo(hostname, None)
-    except OSError:
-        return False
+    except OSError as exc:
+        raise FeedImportError("dns resolution failed") from exc
     for info in infos:
         addr = info[4][0]
         ip = ipaddress.ip_address(addr)
@@ -57,19 +58,17 @@ def _is_public_address(hostname: str) -> bool:
             or ip.is_multicast
             or ip.is_reserved
         ):
-            return False
-    return True
+            raise FeedImportError("invalid host")
 
 
 def _fetch_one(url: str) -> tuple[int, str | None, bytes]:
     """Fetch url, return (status, location_header, body_bytes)."""
     parsed = urlsplit(url)
-    if not parsed.hostname or not _is_public_address(parsed.hostname):
-        raise FeedImportError("invalid host")
+    _check_host(parsed.hostname or "")
     if parsed.scheme.lower() not in {"http", "https"}:
         raise FeedImportError("unsupported scheme")
 
-    host = parsed.hostname
+    host: str = parsed.hostname or ""
     port = parsed.port
     target = parsed.path or "/"
     if parsed.query:
@@ -100,7 +99,7 @@ def _fetch_one(url: str) -> tuple[int, str | None, bytes]:
         if response.status >= 400:
             raise FeedImportError("feed fetch failed")
 
-        max_bytes = 5 * 1024 * 1024
+        max_bytes = 25 * 1024 * 1024
         chunks: list[bytes] = []
         read = 0
         while True:
