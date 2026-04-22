@@ -11,10 +11,10 @@
 
 **Purpose**: Confirm baseline, keep scope tight, and prepare scaffolding for the feature.
 
-- [ ] T001 Confirm branch and feature directory alignment in `specs/018-podcast-detail-page/spec.md`
-- [ ] T002 Confirm route inclusion points and existing site patterns in `app/main.py`
-- [ ] T003 [P] Capture the new Google Stitch reference into repo (already present) and confirm template assets in `google_stitch_templates/malipod_detalhe_do_podcast/code.html`
-- [ ] T004 [P] Create template target directory for new page in `app/templates/podcasts/`
+- [x] T001 Confirm branch and feature directory alignment in `specs/018-podcast-detail-page/spec.md`
+- [x] T002 Confirm route inclusion points and existing site patterns in `app/main.py`
+- [x] T003 [P] Capture the new Google Stitch reference into repo (already present) and confirm template assets in `google_stitch_templates/malipod_detalhe_do_podcast/code.html`
+- [x] T004 [P] Create template target directory for new page in `app/templates/podcasts/`
 
 ---
 
@@ -24,13 +24,13 @@
 
 **⚠️ CRITICAL**: No user story work should merge without these foundations and tests passing.
 
-- [ ] T005 Create DB model for favorite podcasts in `app/db/models/podcast.py`
-- [ ] T006 [P] Add user relationship for favorite podcasts in `app/db/models/user.py`
-- [ ] T007 [P] Add feed relationship for being favorited in `app/db/models/podcast.py`
-- [ ] T008 Create Alembic migration for `favorite_podcasts` table in `alembic/versions/0013_favorite_podcasts.py`
-- [ ] T009 [P] Add minimal service for podcast favorites CRUD/toggle in `app/services/podcast_favorites.py`
-- [ ] T010 [P] Add dependency provider for podcast favorites service in `app/api/deps.py`
-- [ ] T011 [P] Add unit tests for podcast favorites service behavior in `tests/unit/test_podcast_favorites_service.py`
+- [x] T005 Create DB model for favorite podcasts in `app/db/models/podcast.py`
+- [x] T006 [P] Add user relationship for favorite podcasts in `app/db/models/user.py`
+- [x] T007 [P] Add feed relationship for being favorited in `app/db/models/podcast.py`
+- [x] T008 Create Alembic migration for `favorite_podcasts` table in `alembic/versions/0013_favorite_podcasts.py`
+- [x] T009 [P] Add minimal service for podcast favorites CRUD/toggle in `app/services/podcast_favorites.py`
+- [x] T010 [P] Add dependency provider for podcast favorites service in `app/api/deps.py`
+- [x] T011 [P] Add unit tests for podcast favorites service behavior in `tests/unit/test_podcast_favorites_service.py`
 
 **Checkpoint**: DB migration + model + service compile and unit tests pass.
 

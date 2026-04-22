@@ -72,6 +72,10 @@ class PodcastFeedModel(Base):
         back_populates="feed",
         cascade="all, delete-orphan",
     )
+    favorited_by: Mapped[list[FavoritePodcastModel]] = relationship(
+        back_populates="feed",
+        cascade="all, delete-orphan",
+    )
 
 
 class PodcastListModel(Base):
@@ -259,6 +263,47 @@ class EpisodeModel(Base):
         back_populates="episode",
         cascade="all, delete-orphan",
     )
+
+
+class FavoritePodcastModel(Base):
+    __tablename__ = "favorite_podcasts"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "feed_id",
+            name="uq_favorite_podcasts_user_id_feed_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    feed_id: Mapped[int] = mapped_column(
+        ForeignKey("podcast_feeds.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    favorited_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    user: Mapped[UserModel] = relationship(back_populates="favorite_podcasts")
+    feed: Mapped[PodcastFeedModel] = relationship(back_populates="favorited_by")
 
 
 class FavoriteEpisodeModel(Base):

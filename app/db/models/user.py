@@ -14,6 +14,7 @@ if TYPE_CHECKING:
         EpisodeActionEventModel,
         EpisodeActionModel,
         FavoriteEpisodeModel,
+        FavoritePodcastModel,
         PodcastListModel,
     )
     from app.db.models.session import AuthenticatedSessionModel
@@ -67,6 +68,10 @@ class UserModel(Base):
         cascade="all, delete-orphan",
     )
     favorite_episodes: Mapped[list[FavoriteEpisodeModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    favorite_podcasts: Mapped[list[FavoritePodcastModel]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
