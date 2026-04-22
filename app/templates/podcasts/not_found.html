@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center">
+  <div class="mx-auto w-12 h-12 rounded-2xl bg-error/10 flex items-center justify-center">
+    <span class="material-symbols-outlined text-error" style="font-size:1.4rem;">podcasts</span>
+  </div>
+  <h1 class="font-headline font-black text-xl mt-4 text-on-surface">{{ copy["podcast_detail.not_found_title"] }}</h1>
+  <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["podcast_detail.not_found_description"] }}</p>
+  <div class="mt-6">
+    <a class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface" href="/user/subscriptions/{{ current_user.nickname }}">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_back</span>
+      {{ copy["podcast_detail.back_to_subscriptions"] }}
+    </a>
+  </div>
+</section>
+{% endblock %}

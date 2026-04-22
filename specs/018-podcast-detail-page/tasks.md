@@ -44,20 +44,20 @@
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T012 [P] [US1] Add integration test for 404 and basic render in `tests/integration/test_podcast_detail_page.py`
-- [ ] T013 [P] [US1] Add integration test for placeholder rendering in `tests/integration/test_podcast_detail_page.py`
+- [x] T012 [P] [US1] Add integration test for 404 and basic render in `tests/integration/test_podcast_detail_page.py`
+- [x] T013 [P] [US1] Add integration test for placeholder rendering in `tests/integration/test_podcast_detail_page.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Add a podcast detail query/service (feed + episode list) in `app/services/podcast_detail.py`
-- [ ] T015 [P] [US1] Add site router for podcast pages in `app/api/routes/podcast_site.py`
-- [ ] T016 [US1] Include the new router in `app/main.py`
-- [ ] T017 [P] [US1] Create the podcast detail template based on Stitch reference in `app/templates/podcasts/detail.html`
-- [ ] T018 [P] [US1] Add localization keys for the podcast detail page in `app/core/localization.py`
-- [ ] T019 [US1] Wire GET `/podcast/{id}` to render template with locale/copy patterns in `app/api/routes/podcast_site.py`
-- [ ] T020 [US1] Update subscriptions cards to link to `/podcast/{id}` by adding `feed_id` to the view model in `app/schemas/subscriptions_page.py`
-- [ ] T021 [US1] Populate `feed_id` in `app/services/subscriptions_page.py`
-- [ ] T022 [US1] Make subscriptions UI items clickable and keep mobile layout intact in `app/templates/subscriptions/index.html`
+- [x] T014 [P] [US1] Add a podcast detail query/service (feed + episode list) in `app/services/podcast_detail.py`
+- [x] T015 [P] [US1] Add site router for podcast pages in `app/api/routes/podcast_site.py`
+- [x] T016 [US1] Include the new router in `app/main.py`
+- [x] T017 [P] [US1] Create the podcast detail template based on Stitch reference in `app/templates/podcasts/detail.html`
+- [x] T018 [P] [US1] Add localization keys for the podcast detail page in `app/core/localization.py`
+- [x] T019 [US1] Wire GET `/podcast/{id}` to render template with locale/copy patterns in `app/api/routes/podcast_site.py`
+- [x] T020 [US1] Update subscriptions cards to link to `/podcast/{id}` by adding `feed_id` to the view model in `app/schemas/subscriptions_page.py`
+- [x] T021 [US1] Populate `feed_id` in `app/services/subscriptions_page.py`
+- [x] T022 [US1] Make subscriptions UI items clickable and keep mobile layout intact in `app/templates/subscriptions/index.html`
 
 **Checkpoint**: US1 tests pass and `/podcast/{id}` is usable on its own.
 

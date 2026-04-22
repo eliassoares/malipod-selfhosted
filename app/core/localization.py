@@ -101,6 +101,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "subscriptions.add_invalid_url": "Enter a valid http or https feed URL.",
         "subscriptions.add_duplicate": "You already follow this podcast.",
+        "podcast_detail.website": "Website",
+        "podcast_detail.by_author": "by",
+        "podcast_detail.episodes_title": "Episodes",
+        "podcast_detail.empty_episodes_title": "No episodes yet",
+        "podcast_detail.empty_episodes_description": (
+            "Episodes will show up after the feed is imported."
+        ),
+        "podcast_detail.not_found_title": "Podcast not found",
+        "podcast_detail.not_found_description": (
+            "This podcast does not exist or is not available."
+        ),
+        "podcast_detail.back_to_subscriptions": "Back to subscriptions",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -254,6 +266,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "subscriptions.add_invalid_url": "Ingresa una URL http o https válida.",
         "subscriptions.add_duplicate": "Ya sigues este podcast.",
+        "podcast_detail.website": "Sitio web",
+        "podcast_detail.by_author": "por",
+        "podcast_detail.episodes_title": "Episodios",
+        "podcast_detail.empty_episodes_title": "Aún no hay episodios",
+        "podcast_detail.empty_episodes_description": (
+            "Los episodios aparecerán después de importar el feed."
+        ),
+        "podcast_detail.not_found_title": "Podcast no encontrado",
+        "podcast_detail.not_found_description": (
+            "Este podcast no existe o no está disponible."
+        ),
+        "podcast_detail.back_to_subscriptions": "Volver a suscripciones",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -411,6 +435,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Informe uma URL de feed http ou https válida."
         ),
         "subscriptions.add_duplicate": "Você já segue esse podcast.",
+        "podcast_detail.website": "Website",
+        "podcast_detail.by_author": "por",
+        "podcast_detail.episodes_title": "Episódios",
+        "podcast_detail.empty_episodes_title": "Nenhum episódio ainda",
+        "podcast_detail.empty_episodes_description": (
+            "Os episódios vão aparecer depois que o feed for importado."
+        ),
+        "podcast_detail.not_found_title": "Podcast não encontrado",
+        "podcast_detail.not_found_description": (
+            "Esse podcast não existe ou não está disponível."
+        ),
+        "podcast_detail.back_to_subscriptions": "Voltar para subscrições",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (

@@ -14,6 +14,7 @@ from app.services.directory import DirectoryService
 from app.services.episodes import EpisodeService
 from app.services.favorites import FavoritesService
 from app.services.localization import LocalizationService
+from app.services.podcast_detail import PodcastDetailService
 from app.services.podcast_favorites import PodcastFavoritesService
 from app.services.podcast_lists import PodcastListService
 from app.services.readiness import ReadinessService
@@ -99,6 +100,12 @@ def get_podcast_favorites_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> PodcastFavoritesService:
     return PodcastFavoritesService(session=session)
+
+
+def get_podcast_detail_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> PodcastDetailService:
+    return PodcastDetailService(session=session)
 
 
 def get_settings_service(

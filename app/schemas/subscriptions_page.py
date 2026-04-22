@@ -4,6 +4,7 @@ from pydantic import AwareDatetime, BaseModel
 
 
 class SubscriptionFeedCard(BaseModel):
+    feed_id: int
     title: str
     feed_url: str
     logo_url: str

@@ -130,7 +130,7 @@
   <section data-view="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for item in items %}
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow overflow-hidden">
-      <div class="p-6 space-y-4">
+      <a href="/podcast/{{ item.feed_id }}" class="block p-6 space-y-4 hover:bg-surface-container-low transition-colors">
         <div class="flex items-start gap-4">
           <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
             <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/static/placeholders/malte.png'" />
@@ -164,7 +164,7 @@
             </p>
           </div>
         </div>
-      </div>
+      </a>
     </article>
     {% endfor %}
   </section>
@@ -172,6 +172,7 @@
   <section data-view="list" class="space-y-3">
     {% for item in items %}
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 sm:p-6">
+      <a href="/podcast/{{ item.feed_id }}" class="block hover:bg-surface-container-low rounded-2xl -m-5 sm:-m-6 p-5 sm:p-6 transition-colors">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-start gap-4 min-w-0">
           <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
@@ -205,6 +206,7 @@
           </div>
         </div>
       </div>
+      </a>
     </article>
     {% endfor %}
   </section>

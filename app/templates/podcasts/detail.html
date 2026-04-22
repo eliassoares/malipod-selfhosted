@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+  <header class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+      <div class="w-full lg:w-72 flex-shrink-0">
+        <div class="relative">
+          <div class="absolute -inset-4 bg-primary/10 rounded-2xl blur-2xl"></div>
+          <img
+            class="relative w-full aspect-square object-cover rounded-2xl shadow-2xl z-10 bg-surface-container"
+            src="{{ feed_logo_url }}"
+            alt="{{ feed.title }}"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+
+        {% if feed.categories %}
+        <div class="mt-6 flex flex-wrap gap-2">
+          {% for category in feed.categories %}
+          <span class="px-3 py-1 bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase tracking-widest rounded-full">{{ category }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="flex-1 space-y-5 min-w-0">
+        <div class="space-y-2">
+          <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight text-on-surface leading-tight">
+            {{ feed.title }}
+          </h1>
+          {% if feed.author %}
+          <p class="text-sm sm:text-base font-semibold text-primary-dim opacity-80">
+            {{ copy["podcast_detail.by_author"] }} {{ feed.author }}
+          </p>
+          {% endif %}
+        </div>
+
+        {% if feed.description %}
+        {% set feed_desc = feed.description | striptags %}
+        <p class="text-sm text-on-surface-variant leading-relaxed max-w-3xl">
+          {{ feed_desc }}
+        </p>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-3 items-center">
+          {% if feed.website %}
+          <a
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface"
+            href="{{ feed.website }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">language</span>
+            {{ copy["podcast_detail.website"] }}
+          </a>
+          {% endif %}
+
+          {# Subscribe / favorite actions are wired in US3. Keep placeholders hidden until implemented. #}
+          {% if false %}
+          <form action="/podcast/{{ feed.id }}/subscribe" method="post">
+            <button class="inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">add_circle</span>
+              {{ copy["podcast_detail.subscribe"] }}
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="space-y-4">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="font-headline font-black text-xl text-on-surface">{{ copy["podcast_detail.episodes_title"] }}</h2>
+    </div>
+
+    {% if episodes | length == 0 %}
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center">
+      <div class="mx-auto w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">graphic_eq</span>
+      </div>
+      <h3 class="font-headline font-black text-lg mt-4 text-on-surface">{{ copy["podcast_detail.empty_episodes_title"] }}</h3>
+      <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["podcast_detail.empty_episodes_description"] }}</p>
+    </div>
+    {% else %}
+    <div class="space-y-3">
+      {% for episode in episodes %}
+      <article class="bg-surface-container-low hover:bg-surface-container-lowest transition-colors rounded-2xl ambient-shadow p-5 sm:p-6 flex gap-4 sm:gap-6">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
+          <img
+            src="{{ episode.logo_url }}"
+            alt="{{ episode.title }}"
+            class="w-full h-full object-cover"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+        <div class="min-w-0 flex-1 space-y-2">
+          <h3 class="font-headline font-bold text-on-surface leading-tight">
+            {{ episode.title }}
+          </h3>
+          <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant font-medium">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+              {{ episode.released_at.strftime("%Y-%m-%d") }}
+            </span>
+          </div>
+          {% if episode.description %}
+          {% set desc = episode.description | striptags %}
+          <p class="text-xs text-on-surface-variant line-clamp-2">{{ desc[:180] }}{% if desc | length > 180 %}…{% endif %}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -93,6 +93,7 @@ class SubscriptionsPageService:
                 )
             items.append(
                 SubscriptionFeedCard(
+                    feed_id=feed.id,
                     title=feed.title,
                     feed_url=feed.feed_url,
                     logo_url=logo_url,
