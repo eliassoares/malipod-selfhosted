@@ -113,6 +113,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "This podcast does not exist or is not available."
         ),
         "podcast_detail.back_to_subscriptions": "Back to subscriptions",
+        "podcast_detail.sort_label": "Order",
+        "podcast_detail.sort_recent": "Newest first",
+        "podcast_detail.sort_oldest": "Oldest first",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -278,6 +281,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Este podcast no existe o no está disponible."
         ),
         "podcast_detail.back_to_subscriptions": "Volver a suscripciones",
+        "podcast_detail.sort_label": "Orden",
+        "podcast_detail.sort_recent": "Más recientes",
+        "podcast_detail.sort_oldest": "Más antiguos",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -447,6 +453,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Esse podcast não existe ou não está disponível."
         ),
         "podcast_detail.back_to_subscriptions": "Voltar para subscrições",
+        "podcast_detail.sort_label": "Ordenar",
+        "podcast_detail.sort_recent": "Mais recentes",
+        "podcast_detail.sort_oldest": "Mais antigos",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (

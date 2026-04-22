@@ -71,14 +71,14 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T023 [P] [US2] Add integration test asserting `recent` vs `oldest` ordering in `tests/integration/test_podcast_detail_page.py`
+- [x] T023 [P] [US2] Add integration test asserting `recent` vs `oldest` ordering in `tests/integration/test_podcast_detail_page.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Add `sort` query parameter handling to GET `/podcast/{id}` in `app/api/routes/podcast_site.py`
-- [ ] T025 [US2] Implement order-by logic in the query layer in `app/services/podcast_detail.py`
-- [ ] T026 [P] [US2] Add UI control for episode ordering (mobile-friendly) in `app/templates/podcasts/detail.html`
-- [ ] T027 [P] [US2] Add localization keys for episode ordering UI in `app/core/localization.py`
+- [x] T024 [US2] Add `sort` query parameter handling to GET `/podcast/{id}` in `app/api/routes/podcast_site.py`
+- [x] T025 [US2] Implement order-by logic in the query layer in `app/services/podcast_detail.py`
+- [x] T026 [P] [US2] Add UI control for episode ordering (mobile-friendly) in `app/templates/podcasts/detail.html`
+- [x] T027 [P] [US2] Add localization keys for episode ordering UI in `app/core/localization.py`
 
 **Checkpoint**: Sorting works and is covered by tests.
 

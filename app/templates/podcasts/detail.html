@@ -73,6 +73,18 @@
   <section class="space-y-4">
     <div class="flex items-center justify-between gap-4">
       <h2 class="font-headline font-black text-xl text-on-surface">{{ copy["podcast_detail.episodes_title"] }}</h2>
+      <form action="/podcast/{{ feed.id }}" method="get">
+        <label class="sr-only" for="sort">{{ copy["podcast_detail.sort_label"] }}</label>
+        <select
+          class="px-4 py-2 bg-surface-container rounded-full border border-outline-variant/15 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30"
+          id="sort"
+          name="sort"
+          onchange="this.form.submit()"
+        >
+          <option value="recent" {% if sort == "recent" %}selected{% endif %}>{{ copy["podcast_detail.sort_recent"] }}</option>
+          <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>{{ copy["podcast_detail.sort_oldest"] }}</option>
+        </select>
+      </form>
     </div>
 
     {% if episodes | length == 0 %}

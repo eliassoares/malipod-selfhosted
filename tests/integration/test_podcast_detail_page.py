@@ -122,3 +122,20 @@ def test_podcast_detail_page_renders_metadata_and_episodes(
     assert "Example Podcast" in response.text
     assert "Episódios" in response.text
     assert "/static/placeholders/" in response.text
+
+
+def test_podcast_detail_page_supports_episode_sorting(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    feed_id = seed_podcast(settings)
+
+    recent = client.get(f"/podcast/{feed_id}")
+    oldest = client.get(f"/podcast/{feed_id}?sort=oldest")
+
+    assert recent.status_code == 200
+    assert oldest.status_code == 200
+
+    assert recent.text.index("Episode Two") < recent.text.index("Episode One")
+    assert oldest.text.index("Episode One") < oldest.text.index("Episode Two")
