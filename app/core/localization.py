@@ -116,6 +116,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.sort_label": "Order",
         "podcast_detail.sort_recent": "Newest first",
         "podcast_detail.sort_oldest": "Oldest first",
+        "podcast_detail.subscribe": "Subscribe",
+        "podcast_detail.subscribed": "Subscribed",
+        "podcast_detail.favorite": "Favorite",
+        "podcast_detail.unfavorite": "Unfavorite",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -284,6 +288,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.sort_label": "Orden",
         "podcast_detail.sort_recent": "Más recientes",
         "podcast_detail.sort_oldest": "Más antiguos",
+        "podcast_detail.subscribe": "Suscribirse",
+        "podcast_detail.subscribed": "Suscrito",
+        "podcast_detail.favorite": "Favorito",
+        "podcast_detail.unfavorite": "Quitar favorito",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -456,6 +464,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.sort_label": "Ordenar",
         "podcast_detail.sort_recent": "Mais recentes",
         "podcast_detail.sort_oldest": "Mais antigos",
+        "podcast_detail.subscribe": "Inscrever",
+        "podcast_detail.subscribed": "Inscrito",
+        "podcast_detail.favorite": "Favoritar",
+        "podcast_detail.unfavorite": "Remover favorito",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (

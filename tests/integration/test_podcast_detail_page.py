@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from tests.contract.test_sync_devices_api import create_device
 from tests.integration.test_profile_page import register_and_login
 
 if TYPE_CHECKING:
@@ -139,3 +140,53 @@ def test_podcast_detail_page_supports_episode_sorting(
 
     assert recent.text.index("Episode Two") < recent.text.index("Episode One")
     assert oldest.text.index("Episode One") < oldest.text.index("Episode Two")
+
+
+def test_podcast_detail_page_can_subscribe_when_not_subscribed(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    create_device(client, username="listener_1", device_id="web")
+    feed_id = seed_podcast(settings)
+
+    before = client.get(f"/podcast/{feed_id}")
+    assert before.status_code == 200
+    assert "Inscrever" in before.text
+
+    subscribed = client.post(f"/podcast/{feed_id}/subscribe", follow_redirects=False)
+    assert subscribed.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert after.status_code == 200
+    assert "Inscrito" in after.text
+    assert "Inscrever" not in after.text
+
+
+def test_podcast_detail_page_can_toggle_favorite(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    feed_id = seed_podcast(settings)
+
+    before = client.get(f"/podcast/{feed_id}")
+    assert before.status_code == 200
+    assert "Favoritar" in before.text
+
+    toggled = client.post(f"/podcast/{feed_id}/favorite", follow_redirects=False)
+    assert toggled.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert after.status_code == 200
+    assert "Remover favorito" in after.text
+
+    toggled_again = client.post(
+        f"/podcast/{feed_id}/favorite",
+        follow_redirects=False,
+    )
+    assert toggled_again.status_code == 303
+
+    after_again = client.get(f"/podcast/{feed_id}")
+    assert after_again.status_code == 200
+    assert "Favoritar" in after_again.text

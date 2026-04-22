@@ -92,17 +92,17 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T028 [P] [US3] Add integration test for subscribe visibility + action redirect in `tests/integration/test_podcast_detail_page.py`
-- [ ] T029 [P] [US3] Add integration test for favorite toggle persistence in `tests/integration/test_podcast_detail_page.py`
+- [x] T028 [P] [US3] Add integration test for subscribe visibility + action redirect in `tests/integration/test_podcast_detail_page.py`
+- [x] T029 [P] [US3] Add integration test for favorite toggle persistence in `tests/integration/test_podcast_detail_page.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Add helper to detect whether the user is subscribed to a feed in `app/services/subscriptions_page.py`
-- [ ] T031 [US3] Expose “is_subscribed” on podcast detail context in `app/services/podcast_detail.py`
-- [ ] T032 [US3] Implement POST `/podcast/{id}/subscribe` (idempotent) in `app/api/routes/podcast_site.py`
-- [ ] T033 [US3] Implement POST `/podcast/{id}/favorite` (toggle) in `app/api/routes/podcast_site.py`
-- [ ] T034 [P] [US3] Add subscribe + favorite UI controls in `app/templates/podcasts/detail.html`
-- [ ] T035 [P] [US3] Add localization keys for subscribe/favorite actions in `app/core/localization.py`
+- [x] T030 [US3] Add helper to detect whether the user is subscribed to a feed in `app/services/subscriptions_page.py`
+- [x] T031 [US3] Expose “is_subscribed” on podcast detail context in `app/services/podcast_detail.py`
+- [x] T032 [US3] Implement POST `/podcast/{id}/subscribe` (idempotent) in `app/api/routes/podcast_site.py`
+- [x] T033 [US3] Implement POST `/podcast/{id}/favorite` (toggle) in `app/api/routes/podcast_site.py`
+- [x] T034 [P] [US3] Add subscribe + favorite UI controls in `app/templates/podcasts/detail.html`
+- [x] T035 [P] [US3] Add localization keys for subscribe/favorite actions in `app/core/localization.py`
 
 **Checkpoint**: Subscribe and favorite flows work end-to-end.
 

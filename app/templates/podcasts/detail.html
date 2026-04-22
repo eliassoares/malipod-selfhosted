@@ -56,15 +56,30 @@
           </a>
           {% endif %}
 
-          {# Subscribe / favorite actions are wired in US3. Keep placeholders hidden until implemented. #}
-          {% if false %}
+          {% if not is_subscribed %}
           <form action="/podcast/{{ feed.id }}/subscribe" method="post">
             <button class="inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer" type="submit">
               <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">add_circle</span>
               {{ copy["podcast_detail.subscribe"] }}
             </button>
           </form>
+          {% else %}
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
+            {{ copy["podcast_detail.subscribed"] }}
+          </span>
           {% endif %}
+
+          <form action="/podcast/{{ feed.id }}/favorite" method="post">
+            <button class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;{% if is_favorited %}font-variation-settings: 'FILL' 1;{% else %}font-variation-settings: 'FILL' 0;{% endif %}">star</span>
+              {% if is_favorited %}
+              {{ copy["podcast_detail.unfavorite"] }}
+              {% else %}
+              {{ copy["podcast_detail.favorite"] }}
+              {% endif %}
+            </button>
+          </form>
         </div>
       </div>
     </div>
