@@ -9,11 +9,13 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.placeholders import choose_placeholder_url_random
 from app.db.base import Base
 
 if TYPE_CHECKING:
@@ -29,9 +31,14 @@ class PodcastFeedModel(Base):
     feed_url: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     author: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     website: Mapped[str | None] = mapped_column(String(512), nullable=True)
-    logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    logo_url: Mapped[str | None] = mapped_column(
+        String(512),
+        nullable=True,
+        default=choose_placeholder_url_random,
+        server_default="/static/placeholders/lilith.png",
+    )
     mygpo_link: Mapped[str | None] = mapped_column(String(512), nullable=True)
     categories: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -208,9 +215,15 @@ class EpisodeModel(Base):
     )
     episode_url: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     website: Mapped[str | None] = mapped_column(String(512), nullable=True)
     mygpo_link: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    logo_url: Mapped[str | None] = mapped_column(
+        String(512),
+        nullable=True,
+        default=choose_placeholder_url_random,
+        server_default="/static/placeholders/lilith.png",
+    )
     released_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

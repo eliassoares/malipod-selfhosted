@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Path,
+    Request,
+    Response,
+    status,
+)
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
@@ -22,6 +31,7 @@ from app.core.security import (
 from app.schemas.auth import AuthErrorResponse
 from app.schemas.subscription import SubscriptionItem, SubscriptionRenderPayload
 from app.services.auth import AuthService
+from app.services.feed_import import import_feed_in_background
 from app.services.subscription_formats import SubscriptionFormatService
 from app.services.subscriptions import SubscriptionError, SubscriptionService
 
@@ -147,6 +157,7 @@ async def put_device_subscriptions(
     deviceid: str,
     subscription_format: Annotated[str, Path(alias="format")],
     request: Request,
+    background_tasks: BackgroundTasks,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
     settings: SettingsDep,
@@ -167,6 +178,9 @@ async def put_device_subscriptions(
         )
     except ValueError as exc:
         raise_bad_request(str(exc))
+    if settings.environment != "test":
+        for item in imported:
+            background_tasks.add_task(import_feed_in_background, settings, item.url)
     return Response(status_code=status.HTTP_200_OK, content=b"")
 
 
@@ -183,6 +197,7 @@ async def post_subscription_changes(
     username: str,
     deviceid: str,
     request: Request,
+    background_tasks: BackgroundTasks,
     auth_service: AuthServiceDep,
     subscription_service: SubscriptionServiceDep,
     settings: SettingsDep,
@@ -191,6 +206,7 @@ async def post_subscription_changes(
     user = await authenticate_api_user(
         username, request, auth_service, settings, credentials
     )
+    add_urls: list[str] = []
     try:
         validate_device_id(deviceid)
         payload = await request.json()
@@ -200,10 +216,11 @@ async def post_subscription_changes(
         remove = payload.get("remove", [])
         if not isinstance(add, list) or not isinstance(remove, list):
             raise_bad_request("add and remove must be arrays")
+        add_urls = [str(item) for item in add]
         result = await subscription_service.apply_delta(
             user,
             deviceid,
-            [str(item) for item in add],
+            add_urls,
             [str(item) for item in remove],
         )
     except ValueError as exc:
@@ -217,6 +234,9 @@ async def post_subscription_changes(
         if exc.code == "conflicting_delta":
             raise_bad_request(exc.code)
         raise
+    if settings.environment != "test":
+        for url in add_urls:
+            background_tasks.add_task(import_feed_in_background, settings, url)
     return JSONResponse(content=result.model_dump(mode="json"))
 
 
