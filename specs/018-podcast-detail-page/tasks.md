@@ -116,15 +116,15 @@
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T036 [P] [US4] Add integration test for favorites-only filtering in `tests/integration/test_subscriptions_page_favorites.py`
+- [x] T036 [P] [US4] Add integration test for favorites-only filtering in `tests/integration/test_subscriptions_page_favorites.py`
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Extend `SubscriptionsQuery` to include favorites-only flag in `app/services/subscriptions_page.py`
-- [ ] T038 [US4] Join against favorites to filter in `app/services/subscriptions_page.py`
-- [ ] T039 [US4] Thread the `favorites` query param through the route in `app/api/routes/subscriptions_site.py`
-- [ ] T040 [P] [US4] Add filter UI toggle (favorites only) in `app/templates/subscriptions/index.html`
-- [ ] T041 [P] [US4] Add localization keys for favorites-only filter + empty state in `app/core/localization.py`
+- [x] T037 [US4] Extend `SubscriptionsQuery` to include favorites-only flag in `app/services/subscriptions_page.py`
+- [x] T038 [US4] Join against favorites to filter in `app/services/subscriptions_page.py`
+- [x] T039 [US4] Thread the `favorites` query param through the route in `app/api/routes/subscriptions_site.py`
+- [x] T040 [P] [US4] Add filter UI toggle (favorites only) in `app/templates/subscriptions/index.html`
+- [x] T041 [P] [US4] Add localization keys for favorites-only filter + empty state in `app/core/localization.py`
 
 **Checkpoint**: Filter is usable, localized, and tested.
 

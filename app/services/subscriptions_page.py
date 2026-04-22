@@ -4,13 +4,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 
 from app.core.placeholders import choose_placeholder_url_stable
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
     EpisodeModel,
+    FavoritePodcastModel,
     PodcastFeedModel,
 )
 from app.schemas.subscriptions_page import SubscriptionFeedCard
@@ -27,6 +28,7 @@ SortMode = Literal["recent", "oldest"]
 class SubscriptionsQuery:
     q: str | None = None
     sort: SortMode = "recent"
+    favorites_only: bool = False
 
 
 class SubscriptionsPageService:
@@ -75,6 +77,15 @@ class SubscriptionsPageService:
             )
             .group_by(PodcastFeedModel.id)
         )
+
+        if query.favorites_only:
+            statement = statement.join(
+                FavoritePodcastModel,
+                and_(
+                    FavoritePodcastModel.feed_id == PodcastFeedModel.id,
+                    FavoritePodcastModel.user_id == user.id,
+                ),
+            )
 
         if search:
             candidate = f"%{search}%"

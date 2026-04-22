@@ -93,6 +93,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_description": (
             "Add a podcast feed URL to start syncing across your devices."
         ),
+        "subscriptions.filter_favorites": "Favorites",
+        "subscriptions.filter_all": "All",
+        "subscriptions.empty_favorites_title": "No favorites yet",
+        "subscriptions.empty_favorites_description": (
+            "Mark a podcast as favorite to see it here."
+        ),
         "subscriptions.episodes_count": "Episodes",
         "subscriptions.last_episode": "Last episode",
         "subscriptions.last_episode_unknown": "Unknown",
@@ -264,6 +270,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_title": "Aún no tienes suscripciones",
         "subscriptions.empty_description": (
             "Agrega una URL de feed para empezar a sincronizar en tus dispositivos."
+        ),
+        "subscriptions.filter_favorites": "Favoritos",
+        "subscriptions.filter_all": "Todos",
+        "subscriptions.empty_favorites_title": "Aún no hay favoritos",
+        "subscriptions.empty_favorites_description": (
+            "Marca un podcast como favorito para verlo aquí."
         ),
         "subscriptions.episodes_count": "Episodios",
         "subscriptions.last_episode": "Último episodio",
@@ -438,6 +450,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_title": "Você ainda não segue nenhum podcast",
         "subscriptions.empty_description": (
             "Adicione uma URL de feed para começar a sincronizar nos seus devices."
+        ),
+        "subscriptions.filter_favorites": "Favoritos",
+        "subscriptions.filter_all": "Todos",
+        "subscriptions.empty_favorites_title": "Nenhum favorito ainda",
+        "subscriptions.empty_favorites_description": (
+            "Marque um podcast como favorito para vê-lo aqui."
         ),
         "subscriptions.episodes_count": "Episódios",
         "subscriptions.last_episode": "Último episódio",

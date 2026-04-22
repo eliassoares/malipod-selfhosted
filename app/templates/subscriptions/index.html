@@ -56,10 +56,31 @@
           />
           <input type="hidden" name="sort" value="{{ sort }}" />
           <input type="hidden" name="view" value="{{ view }}" />
+          {% if favorites_only %}
+          <input type="hidden" name="favorites" value="1" />
+          {% endif %}
         </div>
       </form>
 
       <div class="flex items-center gap-2 justify-between lg:justify-end">
+        <form action="/user/subscriptions/{{ current_user.nickname }}" method="get">
+          <input type="hidden" name="q" value="{{ q }}" />
+          <input type="hidden" name="sort" value="{{ sort }}" />
+          <input type="hidden" name="view" value="{{ view }}" />
+          <input type="hidden" name="favorites" value="{% if favorites_only %}0{% else %}1{% endif %}" />
+          <button
+            class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border border-outline-variant/15"
+            type="submit"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">star</span>
+            {% if favorites_only %}
+            {{ copy["subscriptions.filter_all"] }}
+            {% else %}
+            {{ copy["subscriptions.filter_favorites"] }}
+            {% endif %}
+          </button>
+        </form>
+
         <form action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
           <input type="hidden" name="view_mode" value="{{ view }}" />
           <label class="sr-only" for="sort">{{ copy["subscriptions.sort"] }}</label>
@@ -121,8 +142,13 @@
     <div class="mx-auto w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
       <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">rss_feed</span>
     </div>
+    {% if favorites_only %}
+    <h2 class="font-headline font-black text-xl mt-4 text-on-surface">{{ copy["subscriptions.empty_favorites_title"] }}</h2>
+    <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["subscriptions.empty_favorites_description"] }}</p>
+    {% else %}
     <h2 class="font-headline font-black text-xl mt-4 text-on-surface">{{ copy["subscriptions.empty_title"] }}</h2>
     <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["subscriptions.empty_description"] }}</p>
+    {% endif %}
   </section>
   {% else %}
 

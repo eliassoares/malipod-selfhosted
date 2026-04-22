@@ -93,6 +93,7 @@ async def subscriptions_page(
     q: str | None = None,
     sort: str | None = None,
     view: str | None = None,
+    favorites: str | None = None,
     error: str | None = None,
     success: str | None = None,
 ) -> Response:
@@ -125,10 +126,15 @@ async def subscriptions_page(
 
     effective_view: ViewMode = _normalize_view(view) or stored_view or "list"
     effective_sort: SortMode = _normalize_sort(sort) or stored_sort or "recent"
+    favorites_only = str(favorites or "").strip().lower() in {"1", "true", "yes", "on"}
 
     items = await page_service.list_user_subscriptions(
         current_user,
-        query=SubscriptionsQuery(q=q, sort=effective_sort),
+        query=SubscriptionsQuery(
+            q=q,
+            sort=effective_sort,
+            favorites_only=favorites_only,
+        ),
     )
 
     response = templates.TemplateResponse(
@@ -145,6 +151,7 @@ async def subscriptions_page(
             "q": q or "",
             "sort": effective_sort,
             "view": effective_view,
+            "favorites_only": favorites_only,
             "error": error,
             "success": success,
         },
