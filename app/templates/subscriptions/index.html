@@ -41,8 +41,8 @@
     </div>
     {% endif %}
 
-    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <form class="lg:col-span-2" action="/user/subscriptions/{{ current_user.nickname }}" method="get">
+    <div class="mt-6 space-y-3">
+      <form action="/user/subscriptions/{{ current_user.nickname }}" method="get">
         <label class="sr-only" for="q">{{ copy["subscriptions.search"] }}</label>
         <div class="flex items-center gap-2 bg-surface-container rounded-2xl px-4 py-3 border border-outline-variant/15">
           <span class="material-symbols-outlined text-outline" style="font-size:1.2rem;">search</span>
@@ -62,14 +62,14 @@
         </div>
       </form>
 
-      <div class="flex items-center gap-2 justify-between lg:justify-end">
+      <div class="flex items-center gap-2">
         <form action="/user/subscriptions/{{ current_user.nickname }}" method="get">
           <input type="hidden" name="q" value="{{ q }}" />
           <input type="hidden" name="sort" value="{{ sort }}" />
           <input type="hidden" name="view" value="{{ view }}" />
           <input type="hidden" name="favorites" value="{% if favorites_only %}0{% else %}1{% endif %}" />
           <button
-            class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl transition-colors text-sm font-bold font-headline border-0 cursor-pointer {% if favorites_only %}gradient-primary text-on-primary{% else %}bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/15{% endif %}"
+            class="inline-flex items-center gap-2 pl-3 pr-4 py-2 rounded-2xl transition-colors text-sm font-bold font-headline border-0 cursor-pointer {% if favorites_only %}gradient-primary text-on-primary{% else %}bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/15{% endif %}"
             type="submit"
           >
             <span class="material-symbols-outlined" style="font-size:1.1rem;{% if favorites_only %}font-variation-settings: 'FILL' 1;{% endif %}">star</span>
@@ -81,39 +81,41 @@
           </button>
         </form>
 
-        <form action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
-          <input type="hidden" name="view_mode" value="{{ view }}" />
-          <label class="sr-only" for="sort">{{ copy["subscriptions.sort"] }}</label>
-          <select
-            class="px-4 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30"
-            id="sort"
-            name="sort"
-            onchange="this.form.submit()"
-          >
-            <option value="recent" {% if sort == "recent" %}selected{% endif %}>{{ copy["subscriptions.sort_recent"] }}</option>
-            <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>{{ copy["subscriptions.sort_oldest"] }}</option>
-          </select>
-        </form>
+        <div class="ml-auto flex items-center gap-2">
+          <form action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
+            <input type="hidden" name="view_mode" value="{{ view }}" />
+            <label class="sr-only" for="sort">{{ copy["subscriptions.sort"] }}</label>
+            <select
+              class="pl-4 pr-10 py-2 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30 cursor-pointer"
+              id="sort"
+              name="sort"
+              onchange="this.form.submit()"
+            >
+              <option value="recent" {% if sort == "recent" %}selected{% endif %}>{{ copy["subscriptions.sort_recent"] }}</option>
+              <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>{{ copy["subscriptions.sort_oldest"] }}</option>
+            </select>
+          </form>
 
-        <form class="flex items-center gap-1 bg-surface-container rounded-2xl p-1 border border-outline-variant/15" action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
-          <input type="hidden" name="sort" value="{{ sort }}" />
-          <button
-            class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'list' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
-            name="view_mode"
-            type="submit"
-            value="list"
-          >
-            {{ copy["subscriptions.view_list"] }}
-          </button>
-          <button
-            class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'grid' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
-            name="view_mode"
-            type="submit"
-            value="grid"
-          >
-            {{ copy["subscriptions.view_grid"] }}
-          </button>
-        </form>
+          <form class="flex items-center gap-1 bg-surface-container rounded-2xl p-1 border border-outline-variant/15" action="/user/subscriptions/{{ current_user.nickname }}/preferences" method="post">
+            <input type="hidden" name="sort" value="{{ sort }}" />
+            <button
+              class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'list' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
+              name="view_mode"
+              type="submit"
+              value="list"
+            >
+              {{ copy["subscriptions.view_list"] }}
+            </button>
+            <button
+              class="px-3 py-2 rounded-xl text-xs font-bold font-label uppercase tracking-wide transition-all {% if view == 'grid' %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %} border-0 bg-transparent cursor-pointer"
+              name="view_mode"
+              type="submit"
+              value="grid"
+            >
+              {{ copy["subscriptions.view_grid"] }}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 

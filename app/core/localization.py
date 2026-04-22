@@ -126,6 +126,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.subscribed": "Subscribed",
         "podcast_detail.favorite": "Favorite",
         "podcast_detail.unfavorite": "Unfavorite",
+        "podcast_detail.stats_episodes_played": "episodes listened",
+        "podcast_detail.stats_time": "listened",
+        "podcast_detail.episode_completed": "Completed",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -304,6 +307,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.subscribed": "Suscrito",
         "podcast_detail.favorite": "Favorito",
         "podcast_detail.unfavorite": "Quitar favorito",
+        "podcast_detail.stats_episodes_played": "episodios escuchados",
+        "podcast_detail.stats_time": "escuchado",
+        "podcast_detail.episode_completed": "Completado",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -486,6 +492,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.subscribed": "Inscrito",
         "podcast_detail.favorite": "Favoritar",
         "podcast_detail.unfavorite": "Remover favorito",
+        "podcast_detail.stats_episodes_played": "episódios ouvidos",
+        "podcast_detail.stats_time": "ouvido",
+        "podcast_detail.episode_completed": "Concluído",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (

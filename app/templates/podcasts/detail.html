@@ -43,6 +43,23 @@
         </p>
         {% endif %}
 
+        {% if listening_stats.episodes_played > 0 %}
+        <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant font-medium">
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 1;">headphones</span>
+            <strong class="text-on-surface">{{ listening_stats.episodes_played }}</strong>
+            {{ copy["podcast_detail.stats_episodes_played"] }}
+          </span>
+          {% if listening_stats.total_seconds > 0 %}
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;">timer</span>
+            <strong class="text-on-surface">{{ listening_stats.format_total_time() }}</strong>
+            {{ copy["podcast_detail.stats_time"] }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+
         <div class="flex flex-wrap gap-3 items-center">
           {% if feed.website %}
           <a
@@ -91,7 +108,7 @@
       <form action="/podcast/{{ feed.id }}" method="get">
         <label class="sr-only" for="sort">{{ copy["podcast_detail.sort_label"] }}</label>
         <select
-          class="px-5 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-bold font-headline text-on-surface focus:ring-2 focus:ring-primary/30 cursor-pointer"
+          class="pl-5 pr-10 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-bold font-headline text-on-surface focus:ring-2 focus:ring-primary/30 cursor-pointer"
           id="sort"
           name="sort"
           onchange="this.form.submit()"
@@ -131,7 +148,23 @@
               <span class="material-symbols-outlined text-[14px]">calendar_today</span>
               {{ episode.released_at.strftime("%Y-%m-%d") }}
             </span>
+            {% if episode.is_completed %}
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+              <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">check_circle</span>
+              {{ copy["podcast_detail.episode_completed"] }}
+            </span>
+            {% elif episode.play_position %}
+            <span class="flex items-center gap-1 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px]">headphones</span>
+              {{ episode.progress_pct }}%
+            </span>
+            {% endif %}
           </div>
+          {% if episode.play_position and not episode.is_completed and episode.play_total %}
+          <div class="w-full max-w-xs h-1 bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full bg-primary rounded-full" style="width:{{ episode.progress_pct }}%"></div>
+          </div>
+          {% endif %}
           {% if episode.description %}
           {% set desc = episode.description | striptags %}
           <p class="text-xs text-on-surface-variant line-clamp-2">{{ desc[:180] }}{% if desc | length > 180 %}…{% endif %}</p>

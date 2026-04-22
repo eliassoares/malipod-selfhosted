@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Annotated
+import asyncio
+from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
@@ -37,6 +38,12 @@ from app.services.subscriptions import SubscriptionService
 from app.services.subscriptions_add import SubscriptionAddService
 
 templates = Jinja2Templates(directory="app/templates")
+
+
+async def _gather(*coros: Any) -> tuple[Any, ...]:
+    return tuple(await asyncio.gather(*coros))
+
+
 router = APIRouter(tags=["Podcast Site"])
 
 SettingsDep = Annotated[Settings, Depends(get_runtime_settings)]
@@ -109,8 +116,16 @@ async def podcast_detail_page(
     )
 
     effective_sort = _normalize_episode_sort(sort)
-    episodes = await detail_service.list_episodes(
-        feed_id=feed.id, sort=effective_sort, fallback_logo_url=logo_url
+    episodes, listening_stats, is_subscribed, is_favorited = await _gather(
+        detail_service.list_episodes(
+            feed_id=feed.id,
+            sort=effective_sort,
+            fallback_logo_url=logo_url,
+            user=current_user,
+        ),
+        detail_service.get_listening_stats(current_user, feed_id=feed.id),
+        detail_service.is_user_subscribed(current_user, feed_id=feed.id),
+        favorites_service.is_favorited(current_user, feed_id=feed.id),
     )
 
     response = templates.TemplateResponse(
@@ -127,12 +142,9 @@ async def podcast_detail_page(
             "feed_logo_url": logo_url,
             "episodes": episodes,
             "sort": effective_sort,
-            "is_subscribed": await detail_service.is_user_subscribed(
-                current_user, feed_id=feed.id
-            ),
-            "is_favorited": await favorites_service.is_favorited(
-                current_user, feed_id=feed.id
-            ),
+            "is_subscribed": is_subscribed,
+            "is_favorited": is_favorited,
+            "listening_stats": listening_stats,
         },
     )
     apply_locale_cookie(response, settings, locale)
