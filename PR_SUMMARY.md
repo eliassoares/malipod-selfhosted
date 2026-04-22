@@ -136,3 +136,44 @@
 - `make test`
 - Contract coverage added for Directory API:
   - `uv run pytest -q tests/contract/test_directory_api.py`
+
+---
+
+# Podcast Detail Page PR Summary
+
+## Implemented Scope
+
+- Added authenticated podcast detail page:
+  - `GET /podcast/{podcast_id}`
+  - Renders podcast metadata (title, description, website, author, categories, image/placeholder)
+  - Renders complete episode list with per-episode placeholder images
+  - Supports sorting episodes by date (`sort=recent|oldest`) with a mobile-friendly selector
+- Added site actions from the podcast detail page:
+  - `POST /podcast/{podcast_id}/subscribe` (idempotent; schedules feed import outside tests)
+  - `POST /podcast/{podcast_id}/favorite` (toggle)
+- Added favorites persistence for podcasts:
+  - New table `favorite_podcasts` (unique per `user_id` + `feed_id`)
+  - New service `PodcastFavoritesService` for querying/toggling favorites
+- Extended subscriptions page with a favorites-only filter:
+  - Toggle UI + query param `favorites=1`
+  - Empty state messaging when no favorites exist
+- Improved feed import metadata ingestion (best-effort):
+  - Captures `author` and `categories` from RSS/Atom when present
+  - Captures per-episode logo URL when present
+
+## Verification
+
+- `uv run pytest` (285 passed)
+- `uv run ruff check .`
+- `uv run mypy .`
+- `uv run bandit -r app -c pyproject.toml`
+
+## Migration Notes
+
+- Added Alembic revision `0013_favorite_podcasts`
+- Introduced new table:
+  - `favorite_podcasts`
+
+## Follow-ups
+
+- If desired, we can persist the subscriptions favorites filter preference per user (currently query-param based).

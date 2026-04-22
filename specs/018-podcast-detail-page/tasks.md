@@ -137,8 +137,8 @@
 - [x] T042 [P] Ensure feed import populates author/categories when present (best-effort) in `app/services/feed_import.py`
 - [x] T043 [P] Add unit tests for feed parsing of author/categories (best-effort) in `tests/unit/test_feed_import_metadata.py`
 - [x] T044 Verify mobile responsiveness and a11y basics (labels, sr-only) in `app/templates/podcasts/detail.html`
-- [ ] T045 Run full quality gates and record evidence in PR summary: `uv run pytest`, `uv run ruff check .`, `uv run mypy .`, `uv run bandit -r app -c pyproject.toml`
-- [ ] T046 Prepare PR summary including scope, verification evidence, and follow-ups in `PR_SUMMARY.md`
+- [x] T045 Run full quality gates and record evidence in PR summary: `uv run pytest`, `uv run ruff check .`, `uv run mypy .`, `uv run bandit -r app -c pyproject.toml`
+- [x] T046 Prepare PR summary including scope, verification evidence, and follow-ups in `PR_SUMMARY.md`
 
 ---
 
