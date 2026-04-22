@@ -62,4 +62,5 @@ class PodcastFavoritesService:
             await self.session.commit()
         except IntegrityError:
             await self.session.rollback()
+            return False
         return True

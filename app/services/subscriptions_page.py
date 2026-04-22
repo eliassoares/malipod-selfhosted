@@ -35,19 +35,6 @@ class SubscriptionsPageService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def is_user_subscribed(self, user: UserModel, *, feed_id: int) -> bool:
-        result = await self.session.execute(
-            select(DeviceSubscriptionModel.id)
-            .join(DeviceModel, DeviceModel.id == DeviceSubscriptionModel.device_pk)
-            .where(
-                DeviceModel.user_id == user.id,
-                DeviceSubscriptionModel.feed_id == feed_id,
-                DeviceSubscriptionModel.unsubscribed_at.is_(None),
-            )
-            .limit(1)
-        )
-        return result.scalar_one_or_none() is not None
-
     async def list_user_subscriptions(
         self,
         user: UserModel,

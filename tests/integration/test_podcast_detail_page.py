@@ -163,6 +163,23 @@ def test_podcast_detail_page_can_subscribe_when_not_subscribed(
     assert "Inscrever" not in after.text
 
 
+def test_subscribe_is_idempotent_when_already_subscribed(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    create_device(client, username="listener_1", device_id="web")
+    feed_id = seed_podcast(settings)
+
+    client.post(f"/podcast/{feed_id}/subscribe", follow_redirects=False)
+    second = client.post(f"/podcast/{feed_id}/subscribe", follow_redirects=False)
+    assert second.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert after.status_code == 200
+    assert "Inscrito" in after.text
+
+
 def test_podcast_detail_page_can_toggle_favorite(
     client: TestClient,
     settings: Settings,
