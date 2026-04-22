@@ -177,12 +177,50 @@ class ParsedFeed:
     logo_url: str | None
     episodes: list[ParsedEpisode]
     description: str | None = None
+    author: str | None = None
+    categories: list[str] | None = None
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for raw in values:
+        cleaned = raw.strip()
+        if not cleaned or cleaned in seen:
+            continue
+        seen.add(cleaned)
+        out.append(cleaned)
+    return out
+
+
+def _collect_itunes_categories(element: Element, out: list[str]) -> None:
+    candidate = (element.attrib.get("text") or "").strip()
+    if candidate:
+        out.append(candidate)
+    for child in element:
+        if _strip_ns(child.tag) == "category":
+            _collect_itunes_categories(child, out)
 
 
 def _parse_rss(channel: Element) -> ParsedFeed:
     title = _find_child_text(channel, "title")
     website = _find_child_text(channel, "link")
     description = _find_child_text(channel, "description")
+    author = (
+        _find_child_text(channel, "author")
+        or _find_child_text(channel, "managingEditor")
+        or _find_child_text(channel, "creator")
+    )
+
+    raw_categories: list[str] = []
+    for child in channel:
+        if _strip_ns(child.tag) != "category":
+            continue
+        if child.attrib.get("text"):
+            _collect_itunes_categories(child, raw_categories)
+        elif child.text:
+            raw_categories.append(child.text)
+    categories = _dedupe_strings(raw_categories) or None
 
     logo_url: str | None = None
     for child in channel:
@@ -206,6 +244,21 @@ def _parse_rss(channel: Element) -> ParsedFeed:
             UTC
         )
         ep_description = _find_child_text(child, "description")
+        episode_logo_url: str | None = None
+        for item_child in child:
+            tag = _strip_ns(item_child.tag)
+            if tag != "image":
+                continue
+            candidate = (
+                _find_child_text(item_child, "url")
+                or item_child.attrib.get("href")
+                or item_child.attrib.get("url")
+                or ""
+            )
+            candidate = candidate.strip()
+            if candidate:
+                episode_logo_url = candidate
+                break
         episodes.append(
             ParsedEpisode(
                 episode_url=episode_url,
@@ -213,6 +266,7 @@ def _parse_rss(channel: Element) -> ParsedFeed:
                 released_at=published,
                 description=ep_description,
                 website=episode_url,
+                logo_url=episode_logo_url,
             )
         )
         if len(episodes) >= 200:
@@ -224,6 +278,8 @@ def _parse_rss(channel: Element) -> ParsedFeed:
         logo_url=logo_url,
         episodes=episodes,
         description=description,
+        author=author,
+        categories=categories,
     )
 
 
@@ -232,6 +288,8 @@ def _parse_atom(feed: Element) -> ParsedFeed:
     description = _find_child_text(feed, "subtitle")
     website = None
     logo_url: str | None = None
+    author: str | None = None
+    raw_categories: list[str] = []
     for child in feed:
         tag = _strip_ns(child.tag)
         if tag == "link" and website is None:
@@ -244,8 +302,18 @@ def _parse_atom(feed: Element) -> ParsedFeed:
             candidate = candidate.strip()
             if candidate:
                 logo_url = candidate
+        elif tag == "author" and author is None:
+            author = (
+                _find_child_text(child, "name") or (child.text or "").strip() or None
+            )
+        elif tag == "category":
+            term = (child.attrib.get("term") or "").strip()
+            if term:
+                raw_categories.append(term)
         if website and logo_url:
             break
+
+    categories = _dedupe_strings(raw_categories) or None
 
     episodes: list[ParsedEpisode] = []
     for child in feed:
@@ -267,6 +335,19 @@ def _parse_atom(feed: Element) -> ParsedFeed:
         published = _parse_datetime(_find_child_text(child, "updated")) or datetime.now(
             UTC
         )
+        entry_logo_url: str | None = None
+        for entry_child in child:
+            tag = _strip_ns(entry_child.tag)
+            if tag in {"image", "logo", "icon"}:
+                candidate = (
+                    _find_child_text(entry_child, "url")
+                    or entry_child.attrib.get("href")
+                    or (entry_child.text or "")
+                ).strip()
+                if candidate:
+                    entry_logo_url = candidate
+                    break
+
         episodes.append(
             ParsedEpisode(
                 episode_url=episode_url,
@@ -274,6 +355,7 @@ def _parse_atom(feed: Element) -> ParsedFeed:
                 released_at=published,
                 description=_find_child_text(child, "summary"),
                 website=episode_url,
+                logo_url=entry_logo_url,
             )
         )
         if len(episodes) >= 200:
@@ -285,6 +367,8 @@ def _parse_atom(feed: Element) -> ParsedFeed:
         logo_url=logo_url,
         episodes=episodes,
         description=description,
+        author=author,
+        categories=categories,
     )
 
 
@@ -324,10 +408,12 @@ class FeedImportService:
             feed_row = PodcastFeedModel(
                 feed_url=sanitized,
                 title=parsed.title or sanitized,
+                author=parsed.author,
                 description=parsed.description,
                 website=parsed.website,
                 logo_url=parsed.logo_url or choose_placeholder_url_random(),
                 mygpo_link=None,
+                categories=parsed.categories,
                 created_at=datetime.now(UTC),
                 updated_at=datetime.now(UTC),
             )
@@ -336,12 +422,16 @@ class FeedImportService:
         else:
             if parsed.title:
                 feed_row.title = parsed.title
+            if parsed.author:
+                feed_row.author = parsed.author
             if parsed.description:
                 feed_row.description = parsed.description
             if parsed.website:
                 feed_row.website = parsed.website
             if parsed.logo_url:
                 feed_row.logo_url = parsed.logo_url
+            if parsed.categories:
+                feed_row.categories = parsed.categories
             feed_row.updated_at = datetime.now(UTC)
             await self.session.flush()
 
