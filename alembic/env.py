@@ -40,6 +40,8 @@ def _do_run_migrations(connection: object) -> None:
 
 async def _run_async_migrations() -> None:
     url = config.get_main_option("sqlalchemy.url")
+    if not url:
+        raise RuntimeError("sqlalchemy.url is not configured for alembic migrations")
     engine = create_async_engine(url, poolclass=NullPool)
     async with engine.connect() as connection:
         await connection.run_sync(_do_run_migrations)
