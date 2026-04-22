@@ -7,5 +7,6 @@ class SubscriptionFeedCard(BaseModel):
     title: str
     feed_url: str
     logo_url: str
+    description: str | None
     episode_count: int
     last_episode_at: AwareDatetime | None

@@ -96,6 +96,7 @@ class SubscriptionsPageService:
                     title=feed.title,
                     feed_url=feed.feed_url,
                     logo_url=logo_url,
+                    description=feed.description,
                     episode_count=int(raw_count or 0),
                     last_episode_at=last_ep,
                 )

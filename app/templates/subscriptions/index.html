@@ -133,13 +133,18 @@
       <div class="p-6 space-y-4">
         <div class="flex items-start gap-4">
           <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
-            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" />
+            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/static/placeholders/malte.png'" />
           </div>
           <div class="min-w-0">
             <h3 class="font-headline font-bold text-on-surface leading-tight truncate">
               {{ item.title }}
             </h3>
+            {% if item.description %}
+            {% set desc = item.description | striptags %}
+            <p class="text-xs text-on-surface-variant mt-1 line-clamp-2">{{ desc[:120] }}{% if desc | length > 120 %}…{% endif %}</p>
+            {% else %}
             <p class="text-xs text-on-surface-variant truncate mt-1">{{ item.feed_url }}</p>
+            {% endif %}
           </div>
         </div>
 
@@ -170,11 +175,16 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-start gap-4 min-w-0">
           <div class="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
-            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" />
+            <img src="{{ item.logo_url }}" alt="{{ item.title }}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/static/placeholders/malte.png'" />
           </div>
           <div class="min-w-0">
             <h3 class="font-headline font-bold text-on-surface leading-tight truncate">{{ item.title }}</h3>
+            {% if item.description %}
+            {% set desc = item.description | striptags %}
+            <p class="text-xs text-on-surface-variant mt-1 line-clamp-2">{{ desc[:120] }}{% if desc | length > 120 %}…{% endif %}</p>
+            {% else %}
             <p class="text-xs text-on-surface-variant truncate mt-1">{{ item.feed_url }}</p>
+            {% endif %}
           </div>
         </div>
         <div class="flex items-center gap-3">

@@ -61,6 +61,7 @@ async def create_feed(
     feed_url: str,
     title: str,
     logo_url: str | None = None,
+    description: str | None = None,
 ) -> PodcastFeedModel:
     result = await db_session.execute(
         select(PodcastFeedModel).where(PodcastFeedModel.feed_url == feed_url)
@@ -73,7 +74,7 @@ async def create_feed(
         feed_url=feed_url,
         title=title,
         author=None,
-        description=None,
+        description=description,
         website=None,
         logo_url=logo_url or "/static/placeholders/lilith.png",
         mygpo_link=None,

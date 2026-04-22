@@ -180,6 +180,33 @@ RSS_FEED = textwrap.dedent("""\
 """).encode()
 
 
+RSS_FEED_WITH_DESCRIPTION = textwrap.dedent("""\
+    <?xml version="1.0"?>
+    <rss version="2.0">
+      <channel>
+        <title>Described Podcast</title>
+        <link>https://example.com</link>
+        <description>A great podcast about things.</description>
+        <item>
+          <title>Episode 1</title>
+          <link>https://example.com/ep1</link>
+          <pubDate>Mon, 01 Jan 2024 00:00:00 +0000</pubDate>
+        </item>
+      </channel>
+    </rss>
+""").encode()
+
+
+def test_parse_feed_rss_description() -> None:
+    result = _parse_feed(RSS_FEED_WITH_DESCRIPTION)
+    assert result.description == "A great podcast about things."
+
+
+def test_parse_feed_rss_description_absent_is_none() -> None:
+    result = _parse_feed(RSS_FEED)
+    assert result.description is None
+
+
 def test_parse_feed_rss_title_and_website() -> None:
     result = _parse_feed(RSS_FEED)
     assert result.title == "Test Podcast"
@@ -219,6 +246,31 @@ ATOM_FEED = textwrap.dedent("""\
 """).encode()
 
 
+ATOM_FEED_WITH_SUBTITLE = textwrap.dedent("""\
+    <?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <title>Subtitled Podcast</title>
+      <subtitle>A great atom podcast.</subtitle>
+      <link rel="alternate" href="https://atom.example.com"/>
+      <entry>
+        <title>Ep 1</title>
+        <link rel="alternate" href="https://atom.example.com/ep1"/>
+        <updated>2024-03-15T10:00:00Z</updated>
+      </entry>
+    </feed>
+""").encode()
+
+
+def test_parse_feed_atom_description_from_subtitle() -> None:
+    result = _parse_feed(ATOM_FEED_WITH_SUBTITLE)
+    assert result.description == "A great atom podcast."
+
+
+def test_parse_feed_atom_description_absent_is_none() -> None:
+    result = _parse_feed(ATOM_FEED)
+    assert result.description is None
+
+
 def test_parse_feed_atom_title_and_website() -> None:
     result = _parse_feed(ATOM_FEED)
     assert result.title == "Atom Podcast"
@@ -231,6 +283,49 @@ def test_parse_feed_atom_episodes() -> None:
     assert result.episodes[0].title == "Atom Ep 1"
     assert result.episodes[0].episode_url == "https://atom.example.com/ep1"
     assert result.episodes[0].description == "Summary here"
+
+
+RSS_ITUNES_IMAGE_FEED = textwrap.dedent("""\
+    <?xml version="1.0"?>
+    <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+      <channel>
+        <title>iTunes Podcast</title>
+        <link>https://example.com</link>
+        <itunes:image href="https://example.com/itunes-art.jpg"/>
+        <item>
+          <title>Episode 1</title>
+          <link>https://example.com/ep1</link>
+          <pubDate>Mon, 01 Jan 2024 00:00:00 +0000</pubDate>
+        </item>
+      </channel>
+    </rss>
+""").encode()
+
+
+def test_parse_feed_rss_itunes_image_href() -> None:
+    result = _parse_feed(RSS_ITUNES_IMAGE_FEED)
+    assert result.logo_url == "https://example.com/itunes-art.jpg"
+
+
+ATOM_WITH_LOGO_FEED = textwrap.dedent("""\
+    <?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom"
+          xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+      <title>Atom Podcast With Logo</title>
+      <link rel="alternate" href="https://atom.example.com"/>
+      <itunes:image href="https://atom.example.com/logo.jpg"/>
+      <entry>
+        <title>Ep 1</title>
+        <link rel="alternate" href="https://atom.example.com/ep1"/>
+        <updated>2024-03-15T10:00:00Z</updated>
+      </entry>
+    </feed>
+""").encode()
+
+
+def test_parse_feed_atom_logo_url() -> None:
+    result = _parse_feed(ATOM_WITH_LOGO_FEED)
+    assert result.logo_url == "https://atom.example.com/logo.jpg"
 
 
 # ---------------------------------------------------------------------------

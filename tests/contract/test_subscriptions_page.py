@@ -207,3 +207,41 @@ async def test_subscriptions_preferences_persist_view_mode(
 
     html = client.get("/user/subscriptions/listener_1").text
     assert 'data-view="grid"' in html
+
+
+@pytest.mark.asyncio
+async def test_subscriptions_page_shows_description_without_html_tags(
+    client: TestClient,
+    db_session: AsyncSession,
+) -> None:
+    register_user(client, nickname="listener_1")
+    api_login(client, nickname="listener_1")
+    user = await get_user(db_session, "listener_1")
+    device = await ensure_device(db_session, user, device_id="device-1")
+    feed = await create_feed(
+        db_session,
+        feed_url="https://example.com/a.xml",
+        title="Alpha Podcast",
+        description="<p>A <strong>great</strong> podcast about things.</p>",
+    )
+    await subscribe(db_session, device=device, feed=feed)
+
+    html = client.get(f"/user/subscriptions/{user.nickname}").text
+    assert "A great podcast about things." in html
+    assert "<p>" not in html
+    assert "<strong>" not in html
+
+
+@pytest.mark.asyncio
+async def test_subscriptions_page_lang_param_changes_locale(
+    client: TestClient,
+    db_session: AsyncSession,
+) -> None:
+    register_user(client, nickname="listener_1")
+    api_login(client, nickname="listener_1")
+    user = await get_user(db_session, "listener_1")
+
+    en_html = client.get(f"/user/subscriptions/{user.nickname}?lang=en").text
+    pt_html = client.get(f"/user/subscriptions/{user.nickname}?lang=pt-br").text
+    assert "Subscriptions" in en_html
+    assert "Subscriptions" not in pt_html

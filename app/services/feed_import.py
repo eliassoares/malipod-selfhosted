@@ -176,17 +176,22 @@ class ParsedFeed:
     website: str | None
     logo_url: str | None
     episodes: list[ParsedEpisode]
+    description: str | None = None
 
 
 def _parse_rss(channel: Element) -> ParsedFeed:
     title = _find_child_text(channel, "title")
     website = _find_child_text(channel, "link")
+    description = _find_child_text(channel, "description")
 
     logo_url: str | None = None
     for child in channel:
         if _strip_ns(child.tag) == "image":
-            logo_url = _find_child_text(child, "url")
-            break
+            candidate = _find_child_text(child, "url") or child.attrib.get("href") or ""
+            candidate = candidate.strip()
+            if candidate:
+                logo_url = candidate
+                break
 
     episodes: list[ParsedEpisode] = []
     for child in channel:
@@ -200,13 +205,13 @@ def _parse_rss(channel: Element) -> ParsedFeed:
         published = _parse_datetime(_find_child_text(child, "pubDate")) or datetime.now(
             UTC
         )
-        description = _find_child_text(child, "description")
+        ep_description = _find_child_text(child, "description")
         episodes.append(
             ParsedEpisode(
                 episode_url=episode_url,
                 title=item_title,
                 released_at=published,
-                description=description,
+                description=ep_description,
                 website=episode_url,
             )
         )
@@ -218,19 +223,28 @@ def _parse_rss(channel: Element) -> ParsedFeed:
         website=website,
         logo_url=logo_url,
         episodes=episodes,
+        description=description,
     )
 
 
 def _parse_atom(feed: Element) -> ParsedFeed:
     title = _find_child_text(feed, "title")
+    description = _find_child_text(feed, "subtitle")
     website = None
+    logo_url: str | None = None
     for child in feed:
-        if _strip_ns(child.tag) != "link":
-            continue
-        href = child.attrib.get("href")
-        rel = (child.attrib.get("rel") or "").lower()
-        if rel in {"alternate", ""} and href:
-            website = href.strip()
+        tag = _strip_ns(child.tag)
+        if tag == "link" and website is None:
+            href = child.attrib.get("href")
+            rel = (child.attrib.get("rel") or "").lower()
+            if rel in {"alternate", ""} and href:
+                website = href.strip()
+        elif tag in {"image", "logo", "icon"} and logo_url is None:
+            candidate = _find_child_text(child, "url") or child.attrib.get("href") or ""
+            candidate = candidate.strip()
+            if candidate:
+                logo_url = candidate
+        if website and logo_url:
             break
 
     episodes: list[ParsedEpisode] = []
@@ -265,7 +279,13 @@ def _parse_atom(feed: Element) -> ParsedFeed:
         if len(episodes) >= 200:
             break
 
-    return ParsedFeed(title=title, website=website, logo_url=None, episodes=episodes)
+    return ParsedFeed(
+        title=title,
+        website=website,
+        logo_url=logo_url,
+        episodes=episodes,
+        description=description,
+    )
 
 
 def _parse_feed(xml_bytes: bytes) -> ParsedFeed:
@@ -304,7 +324,7 @@ class FeedImportService:
             feed_row = PodcastFeedModel(
                 feed_url=sanitized,
                 title=parsed.title or sanitized,
-                description=None,
+                description=parsed.description,
                 website=parsed.website,
                 logo_url=parsed.logo_url or choose_placeholder_url_random(),
                 mygpo_link=None,
@@ -316,6 +336,8 @@ class FeedImportService:
         else:
             if parsed.title:
                 feed_row.title = parsed.title
+            if parsed.description:
+                feed_row.description = parsed.description
             if parsed.website:
                 feed_row.website = parsed.website
             if parsed.logo_url:

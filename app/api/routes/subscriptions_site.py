@@ -109,6 +109,7 @@ async def subscriptions_page(
     locale = localization_service.resolve_locale(
         request.cookies.get("malipod_locale"),
         user=current_user,
+        explicit_locale=request.query_params.get("lang"),
     ).effective_locale
     copy = localization_service.build_copy(locale)
 
