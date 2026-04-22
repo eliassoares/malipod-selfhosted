@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+  <header class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+      <div class="w-full lg:w-72 flex-shrink-0">
+        <div class="relative">
+          <div class="absolute -inset-4 bg-primary/10 rounded-2xl blur-2xl"></div>
+          <img
+            class="relative w-full aspect-square object-cover rounded-2xl shadow-2xl z-10 bg-surface-container"
+            src="{{ feed_logo_url }}"
+            alt="{{ feed.title }}"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+
+        {% if feed.categories %}
+        <div class="mt-6 flex flex-wrap gap-2">
+          {% for category in feed.categories %}
+          <span class="px-3 py-1 bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase tracking-widest rounded-full">{{ category }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="flex-1 space-y-5 min-w-0">
+        <div class="space-y-2">
+          <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight text-on-surface leading-tight">
+            {{ feed.title }}
+          </h1>
+          {% if feed.author %}
+          <p class="text-sm sm:text-base font-semibold text-primary-dim opacity-80">
+            {{ copy["podcast_detail.by_author"] }} {{ feed.author }}
+          </p>
+          {% endif %}
+        </div>
+
+        {% if feed.description %}
+        {% set feed_desc = feed.description | striptags %}
+        <p class="text-sm text-on-surface-variant leading-relaxed max-w-3xl">
+          {{ feed_desc }}
+        </p>
+        {% endif %}
+
+        {% if listening_stats.episodes_played > 0 %}
+        <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant font-medium">
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 1;">headphones</span>
+            <strong class="text-on-surface">{{ listening_stats.episodes_played }}</strong>
+            {{ copy["podcast_detail.stats_episodes_played"] }}
+          </span>
+          {% if listening_stats.total_seconds > 0 %}
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;">timer</span>
+            <strong class="text-on-surface">{{ listening_stats.format_total_time() }}</strong>
+            {{ copy["podcast_detail.stats_time"] }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-3 items-center">
+          {% if feed.website %}
+          <a
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface"
+            href="{{ feed.website }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">language</span>
+            {{ copy["podcast_detail.website"] }}
+          </a>
+          {% endif %}
+
+          {% if not is_subscribed %}
+          <form action="/podcast/{{ feed.id }}/subscribe" method="post">
+            <button class="inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">add_circle</span>
+              {{ copy["podcast_detail.subscribe"] }}
+            </button>
+          </form>
+          {% else %}
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
+            {{ copy["podcast_detail.subscribed"] }}
+          </span>
+          {% endif %}
+
+          <form action="/podcast/{{ feed.id }}/favorite" method="post">
+            <button class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;{% if is_favorited %}font-variation-settings: 'FILL' 1;{% else %}font-variation-settings: 'FILL' 0;{% endif %}">star</span>
+              {% if is_favorited %}
+              {{ copy["podcast_detail.unfavorite"] }}
+              {% else %}
+              {{ copy["podcast_detail.favorite"] }}
+              {% endif %}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="space-y-4">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="font-headline font-black text-xl text-on-surface">{{ copy["podcast_detail.episodes_title"] }}</h2>
+      <form action="/podcast/{{ feed.id }}" method="get">
+        <label class="sr-only" for="sort">{{ copy["podcast_detail.sort_label"] }}</label>
+        <select
+          class="pl-5 pr-10 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-sm font-bold font-headline text-on-surface focus:ring-2 focus:ring-primary/30 cursor-pointer"
+          id="sort"
+          name="sort"
+          onchange="this.form.submit()"
+        >
+          <option value="recent" {% if sort == "recent" %}selected{% endif %}>{{ copy["podcast_detail.sort_recent"] }}</option>
+          <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>{{ copy["podcast_detail.sort_oldest"] }}</option>
+        </select>
+      </form>
+    </div>
+
+    {% if episodes | length == 0 %}
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center">
+      <div class="mx-auto w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">graphic_eq</span>
+      </div>
+      <h3 class="font-headline font-black text-lg mt-4 text-on-surface">{{ copy["podcast_detail.empty_episodes_title"] }}</h3>
+      <p class="text-sm text-on-surface-variant mt-1 max-w-xl mx-auto">{{ copy["podcast_detail.empty_episodes_description"] }}</p>
+    </div>
+    {% else %}
+    <div class="space-y-3">
+      {% for episode in episodes %}
+      <article class="bg-surface-container-low hover:bg-surface-container-lowest transition-colors rounded-2xl ambient-shadow p-5 sm:p-6 flex gap-4 sm:gap-6">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
+          <img
+            src="{{ episode.logo_url }}"
+            alt="{{ episode.title }}"
+            class="w-full h-full object-cover"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+        <div class="min-w-0 flex-1 space-y-2">
+          <h3 class="font-headline font-bold text-on-surface leading-tight">
+            {{ episode.title }}
+          </h3>
+          <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant font-medium">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+              {{ episode.released_at.strftime("%Y-%m-%d") }}
+            </span>
+            {% if episode.is_completed %}
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+              <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">check_circle</span>
+              {{ copy["podcast_detail.episode_completed"] }}
+            </span>
+            {% elif episode.play_position %}
+            <span class="flex items-center gap-1 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px]">headphones</span>
+              {{ episode.progress_pct }}%
+            </span>
+            {% endif %}
+          </div>
+          {% if episode.play_position and not episode.is_completed and episode.play_total %}
+          <div class="w-full max-w-xs h-1 bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full bg-primary rounded-full" style="width:{{ episode.progress_pct }}%"></div>
+          </div>
+          {% endif %}
+          {% if episode.description %}
+          {% set desc = episode.description | striptags %}
+          <p class="text-xs text-on-surface-variant line-clamp-2">{{ desc[:180] }}{% if desc | length > 180 %}…{% endif %}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -93,6 +93,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_description": (
             "Add a podcast feed URL to start syncing across your devices."
         ),
+        "subscriptions.filter_favorites": "Favorites",
+        "subscriptions.filter_all": "All",
+        "subscriptions.empty_favorites_title": "No favorites yet",
+        "subscriptions.empty_favorites_description": (
+            "Mark a podcast as favorite to see it here."
+        ),
         "subscriptions.episodes_count": "Episodes",
         "subscriptions.last_episode": "Last episode",
         "subscriptions.last_episode_unknown": "Unknown",
@@ -101,6 +107,28 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "subscriptions.add_invalid_url": "Enter a valid http or https feed URL.",
         "subscriptions.add_duplicate": "You already follow this podcast.",
+        "podcast_detail.website": "Website",
+        "podcast_detail.by_author": "by",
+        "podcast_detail.episodes_title": "Episodes",
+        "podcast_detail.empty_episodes_title": "No episodes yet",
+        "podcast_detail.empty_episodes_description": (
+            "Episodes will show up after the feed is imported."
+        ),
+        "podcast_detail.not_found_title": "Podcast not found",
+        "podcast_detail.not_found_description": (
+            "This podcast does not exist or is not available."
+        ),
+        "podcast_detail.back_to_subscriptions": "Back to subscriptions",
+        "podcast_detail.sort_label": "Order",
+        "podcast_detail.sort_recent": "Newest first",
+        "podcast_detail.sort_oldest": "Oldest first",
+        "podcast_detail.subscribe": "Subscribe",
+        "podcast_detail.subscribed": "Subscribed",
+        "podcast_detail.favorite": "Favorite",
+        "podcast_detail.unfavorite": "Unfavorite",
+        "podcast_detail.stats_episodes_played": "episodes listened",
+        "podcast_detail.stats_time": "listened",
+        "podcast_detail.episode_completed": "Completed",
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
@@ -246,6 +274,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_description": (
             "Agrega una URL de feed para empezar a sincronizar en tus dispositivos."
         ),
+        "subscriptions.filter_favorites": "Favoritos",
+        "subscriptions.filter_all": "Todos",
+        "subscriptions.empty_favorites_title": "Aún no hay favoritos",
+        "subscriptions.empty_favorites_description": (
+            "Marca un podcast como favorito para verlo aquí."
+        ),
         "subscriptions.episodes_count": "Episodios",
         "subscriptions.last_episode": "Último episodio",
         "subscriptions.last_episode_unknown": "Desconocido",
@@ -254,6 +288,28 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "subscriptions.add_invalid_url": "Ingresa una URL http o https válida.",
         "subscriptions.add_duplicate": "Ya sigues este podcast.",
+        "podcast_detail.website": "Sitio web",
+        "podcast_detail.by_author": "por",
+        "podcast_detail.episodes_title": "Episodios",
+        "podcast_detail.empty_episodes_title": "Aún no hay episodios",
+        "podcast_detail.empty_episodes_description": (
+            "Los episodios aparecerán después de importar el feed."
+        ),
+        "podcast_detail.not_found_title": "Podcast no encontrado",
+        "podcast_detail.not_found_description": (
+            "Este podcast no existe o no está disponible."
+        ),
+        "podcast_detail.back_to_subscriptions": "Volver a suscripciones",
+        "podcast_detail.sort_label": "Orden",
+        "podcast_detail.sort_recent": "Más recientes",
+        "podcast_detail.sort_oldest": "Más antiguos",
+        "podcast_detail.subscribe": "Suscribirse",
+        "podcast_detail.subscribed": "Suscrito",
+        "podcast_detail.favorite": "Favorito",
+        "podcast_detail.unfavorite": "Quitar favorito",
+        "podcast_detail.stats_episodes_played": "episodios escuchados",
+        "podcast_detail.stats_time": "escuchado",
+        "podcast_detail.episode_completed": "Completado",
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
@@ -401,6 +457,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "subscriptions.empty_description": (
             "Adicione uma URL de feed para começar a sincronizar nos seus devices."
         ),
+        "subscriptions.filter_favorites": "Favoritos",
+        "subscriptions.filter_all": "Todos",
+        "subscriptions.empty_favorites_title": "Nenhum favorito ainda",
+        "subscriptions.empty_favorites_description": (
+            "Marque um podcast como favorito para vê-lo aqui."
+        ),
         "subscriptions.episodes_count": "Episódios",
         "subscriptions.last_episode": "Último episódio",
         "subscriptions.last_episode_unknown": "Desconhecido",
@@ -411,6 +473,28 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Informe uma URL de feed http ou https válida."
         ),
         "subscriptions.add_duplicate": "Você já segue esse podcast.",
+        "podcast_detail.website": "Website",
+        "podcast_detail.by_author": "por",
+        "podcast_detail.episodes_title": "Episódios",
+        "podcast_detail.empty_episodes_title": "Nenhum episódio ainda",
+        "podcast_detail.empty_episodes_description": (
+            "Os episódios vão aparecer depois que o feed for importado."
+        ),
+        "podcast_detail.not_found_title": "Podcast não encontrado",
+        "podcast_detail.not_found_description": (
+            "Esse podcast não existe ou não está disponível."
+        ),
+        "podcast_detail.back_to_subscriptions": "Voltar para subscrições",
+        "podcast_detail.sort_label": "Ordenar",
+        "podcast_detail.sort_recent": "Mais recentes",
+        "podcast_detail.sort_oldest": "Mais antigos",
+        "podcast_detail.subscribe": "Inscrever",
+        "podcast_detail.subscribed": "Inscrito",
+        "podcast_detail.favorite": "Favoritar",
+        "podcast_detail.unfavorite": "Remover favorito",
+        "podcast_detail.stats_episodes_played": "episódios ouvidos",
+        "podcast_detail.stats_time": "ouvido",
+        "podcast_detail.episode_completed": "Concluído",
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (
