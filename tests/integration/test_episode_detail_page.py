@@ -5,6 +5,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from tests.integration.test_profile_page import register_and_login
 
@@ -221,9 +222,25 @@ def test_episode_detail_page_download_visibility_and_redirect(
     assert f"/episode/{with_media}/download" in has_link.text
     assert "Baixar" in has_link.text
 
-    download = client.get(f"/episode/{with_media}/download", follow_redirects=False)
-    assert download.status_code == 303
-    assert download.headers["location"] == "https://cdn.example.com/ep-1.mp3"
+    async def _fake_stream(**_: object) -> object:
+        yield b"audio"
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.headers = {"content-type": "audio/mpeg", "content-length": "5"}
+    mock_resp.aiter_bytes = _fake_stream
+    mock_resp.aclose = AsyncMock()
+
+    mock_client = AsyncMock()
+    mock_client.send = AsyncMock(return_value=mock_resp)
+    mock_client.aclose = AsyncMock()
+
+    _target = "app.api.routes.episode_site.httpx.AsyncClient"
+    with patch(_target, return_value=mock_client):
+        download = client.get(f"/episode/{with_media}/download")
+    assert download.status_code == 200
+    assert "attachment" in download.headers.get("content-disposition", "")
+    assert "Episode_One" in download.headers.get("content-disposition", "")
 
 
 def test_episode_detail_page_renders_share_link(

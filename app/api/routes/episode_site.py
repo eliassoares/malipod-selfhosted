@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-from typing import Annotated
+import re
+from typing import TYPE_CHECKING, Annotated
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 from urllib.parse import urlparse
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 from app.api.deps import (
@@ -110,12 +115,22 @@ async def episode_detail_page(
     return response
 
 
+def _safe_filename(title: str, media_url: str) -> str:
+    ext = ""
+    path = urlparse(media_url).path
+    if "." in path.rsplit("/", 1)[-1]:
+        ext = "." + path.rsplit(".", 1)[-1].split("?")[0][:8]
+    slug = re.sub(r"[^\w\s-]", "", title).strip()
+    slug = re.sub(r"[\s]+", "_", slug)[:80]
+    return f"{slug}{ext}" if slug else f"episode{ext}"
+
+
 @router.get("/episode/{episode_id}/download")
 async def download_episode(
     episode_id: int,
     current_user: CurrentUserDep,
     detail_service: EpisodeDetailServiceDep,
-) -> RedirectResponse:
+) -> Response:
     if current_user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -130,7 +145,38 @@ async def download_episode(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    return RedirectResponse(url=media_url, status_code=status.HTTP_303_SEE_OTHER)
+    filename = _safe_filename(episode.title, media_url)
+    client = httpx.AsyncClient(follow_redirects=True, timeout=30)
+    upstream = await client.send(
+        httpx.Request("GET", media_url),
+        stream=True,
+    )
+    if upstream.status_code >= 400:
+        await upstream.aclose()
+        await client.aclose()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Media file unavailable.",
+        )
+
+    content_type = upstream.headers.get("content-type", "application/octet-stream")
+
+    async def _stream() -> AsyncGenerator[bytes]:
+        try:
+            async for chunk in upstream.aiter_bytes(chunk_size=65536):
+                yield chunk
+        finally:
+            await upstream.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        _stream(),
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": upstream.headers.get("content-length", ""),
+        },
+    )
 
 
 @router.post("/episode/{episode_id}/favorite")
