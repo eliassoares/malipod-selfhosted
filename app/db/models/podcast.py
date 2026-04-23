@@ -221,6 +221,7 @@ class EpisodeModel(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     website: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    media_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     mygpo_link: Mapped[str | None] = mapped_column(String(512), nullable=True)
     logo_url: Mapped[str | None] = mapped_column(
         String(512),

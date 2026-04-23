@@ -81,10 +81,17 @@
             </button>
           </form>
           {% else %}
-          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
-            {{ copy["podcast_detail.subscribed"] }}
-          </span>
+          <form action="/podcast/{{ feed.id }}/unsubscribe" method="post">
+            <button
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline hover:bg-error/10 hover:text-error transition-colors border-0 cursor-pointer group"
+              type="submit"
+            >
+              <span class="material-symbols-outlined group-hover:hidden" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
+              <span class="material-symbols-outlined hidden group-hover:inline" style="font-size:1.1rem;">remove_circle</span>
+              <span class="group-hover:hidden">{{ copy["podcast_detail.subscribed"] }}</span>
+              <span class="hidden group-hover:inline">{{ copy["podcast_detail.unsubscribe"] }}</span>
+            </button>
+          </form>
           {% endif %}
 
           <form action="/podcast/{{ feed.id }}/favorite" method="post">
@@ -131,45 +138,47 @@
     <div class="space-y-3">
       {% for episode in episodes %}
       <article class="bg-surface-container-low hover:bg-surface-container-lowest transition-colors rounded-2xl ambient-shadow p-5 sm:p-6 flex gap-4 sm:gap-6">
-        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
-          <img
-            src="{{ episode.logo_url }}"
-            alt="{{ episode.title }}"
-            class="w-full h-full object-cover"
-            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
-          />
-        </div>
-        <div class="min-w-0 flex-1 space-y-2">
-          <h3 class="font-headline font-bold text-on-surface leading-tight">
-            {{ episode.title }}
-          </h3>
-          <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant font-medium">
-            <span class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-[14px]">calendar_today</span>
-              {{ episode.released_at.strftime("%Y-%m-%d") }}
-            </span>
-            {% if episode.is_completed %}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
-              <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">check_circle</span>
-              {{ copy["podcast_detail.episode_completed"] }}
-            </span>
-            {% elif episode.play_position %}
-            <span class="flex items-center gap-1 text-on-surface-variant">
-              <span class="material-symbols-outlined text-[14px]">headphones</span>
-              {{ episode.progress_pct }}%
-            </span>
+        <a href="/episode/{{ episode.id }}" class="flex gap-4 sm:gap-6 w-full">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-surface-container flex items-center justify-center flex-shrink-0">
+            <img
+              src="{{ episode.logo_url }}"
+              alt="{{ episode.title }}"
+              class="w-full h-full object-cover"
+              onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+            />
+          </div>
+          <div class="min-w-0 flex-1 space-y-2">
+            <h3 class="font-headline font-bold text-on-surface leading-tight">
+              {{ episode.title }}
+            </h3>
+            <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant font-medium">
+              <span class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                {{ episode.released_at.strftime("%Y-%m-%d") }}
+              </span>
+              {% if episode.is_completed %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">check_circle</span>
+                {{ copy["podcast_detail.episode_completed"] }}
+              </span>
+              {% elif episode.play_position %}
+              <span class="flex items-center gap-1 text-on-surface-variant">
+                <span class="material-symbols-outlined text-[14px]">headphones</span>
+                {{ episode.progress_pct }}%
+              </span>
+              {% endif %}
+            </div>
+            {% if episode.play_position and not episode.is_completed and episode.play_total %}
+            <div class="w-full max-w-xs h-1 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-primary rounded-full" style="width:{{ episode.progress_pct }}%"></div>
+            </div>
+            {% endif %}
+            {% if episode.description %}
+            {% set desc = episode.description | striptags %}
+            <p class="text-xs text-on-surface-variant line-clamp-2">{{ desc[:180] }}{% if desc | length > 180 %}…{% endif %}</p>
             {% endif %}
           </div>
-          {% if episode.play_position and not episode.is_completed and episode.play_total %}
-          <div class="w-full max-w-xs h-1 bg-surface-container rounded-full overflow-hidden">
-            <div class="h-full bg-primary rounded-full" style="width:{{ episode.progress_pct }}%"></div>
-          </div>
-          {% endif %}
-          {% if episode.description %}
-          {% set desc = episode.description | striptags %}
-          <p class="text-xs text-on-surface-variant line-clamp-2">{{ desc[:180] }}{% if desc | length > 180 %}…{% endif %}</p>
-          {% endif %}
-        </div>
+        </a>
       </article>
       {% endfor %}
     </div>

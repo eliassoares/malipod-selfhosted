@@ -96,12 +96,20 @@ class EpisodeService:
             select(EpisodeModel).where(EpisodeModel.episode_url == episode_url)
         )
         episode = result.scalar_one_or_none()
+        if episode is None:
+            result = await self.session.execute(
+                select(EpisodeModel).where(
+                    EpisodeModel.feed_id == feed.id,
+                    EpisodeModel.media_url == episode_url,
+                )
+            )
+            episode = result.scalar_one_or_none()
         now = datetime.now(UTC)
         if episode is None:
             episode = EpisodeModel(
                 feed_id=feed.id,
                 episode_url=episode_url,
-                title=episode_url,
+                title="Untitled episode",
                 description=None,
                 website=None,
                 mygpo_link=None,
