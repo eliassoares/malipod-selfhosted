@@ -108,16 +108,57 @@
             <span class="material-symbols-outlined" style="font-size:1.1rem;">download</span>
             {{ copy["episode_detail.download"] }}
           </a>
+          {% else %}
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-bold font-headline opacity-40 cursor-not-allowed select-none"
+            title="{{ copy['episode_detail.download_unavailable'] }}"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">download</span>
+            {{ copy["episode_detail.download"] }}
+          </span>
           {% endif %}
 
           <button
+            id="share-btn"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer"
             type="button"
-            onclick="navigator.clipboard.writeText('{{ share_url }}')"
+            data-share-url="{{ share_url }}"
+            data-label-share="{{ copy['episode_detail.share'] }}"
+            data-label-copied="{{ copy['episode_detail.share_copied'] }}"
+            onclick="malipodShare(this)"
           >
             <span class="material-symbols-outlined" style="font-size:1.1rem;">share</span>
-            {{ copy["episode_detail.share"] }}
+            <span class="share-label">{{ copy["episode_detail.share"] }}</span>
           </button>
+          <script>
+            function malipodShare(btn) {
+              var url = btn.dataset.shareUrl;
+              var label = btn.querySelector('.share-label');
+              var copied = btn.dataset.labelCopied;
+              var original = btn.dataset.labelShare;
+              function showFeedback() {
+                label.textContent = copied;
+                btn.disabled = true;
+                setTimeout(function() { label.textContent = original; btn.disabled = false; }, 2000);
+              }
+              if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(showFeedback).catch(function() { fallback(url, showFeedback); });
+              } else {
+                fallback(url, showFeedback);
+              }
+            }
+            function fallback(url, cb) {
+              var ta = document.createElement('textarea');
+              ta.value = url;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.focus();
+              ta.select();
+              try { document.execCommand('copy'); cb(); } catch(e) { window.prompt('Copie o link:', url); }
+              document.body.removeChild(ta);
+            }
+          </script>
         </div>
       </div>
     </div>

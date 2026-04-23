@@ -139,6 +139,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "episode_detail.unfavorite": "Unfavorite",
         "episode_detail.history_title": "Listening history",
         "episode_detail.history_empty": "No listening history yet.",
+        "episode_detail.download_unavailable": (
+            "No downloadable audio available for this episode."
+        ),
+        "episode_detail.share_copied": "Copied!",
         "podcast_detail.stats_episodes_played": "episodes listened",
         "podcast_detail.stats_time": "listened",
         "podcast_detail.episode_completed": "Completed",
@@ -333,6 +337,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "episode_detail.unfavorite": "Quitar favorito",
         "episode_detail.history_title": "Historial de escuchas",
         "episode_detail.history_empty": "Aún no hay historial.",
+        "episode_detail.download_unavailable": (
+            "No hay audio descargable disponible para este episodio."
+        ),
+        "episode_detail.share_copied": "¡Copiado!",
         "podcast_detail.stats_episodes_played": "episodios escuchados",
         "podcast_detail.stats_time": "escuchado",
         "podcast_detail.episode_completed": "Completado",
@@ -531,6 +539,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "episode_detail.unfavorite": "Remover favorito",
         "episode_detail.history_title": "Histórico de ouvidas",
         "episode_detail.history_empty": "Nenhum histórico ainda.",
+        "episode_detail.download_unavailable": (
+            "Nenhum áudio disponível para download neste episódio."
+        ),
+        "episode_detail.share_copied": "Copiado!",
         "podcast_detail.stats_episodes_played": "episódios ouvidos",
         "podcast_detail.stats_time": "ouvido",
         "podcast_detail.episode_completed": "Concluído",

@@ -210,8 +210,8 @@ def test_episode_detail_page_download_visibility_and_redirect(
     without_media, _, _ = seed_episode(settings, media_url=None)
     no_link = client.get(f"/episode/{without_media}")
     assert no_link.status_code == 200
-    assert "/download" not in no_link.text
-    assert "Baixar" not in no_link.text
+    assert f"/episode/{without_media}/download" not in no_link.text
+    assert "cursor-not-allowed" in no_link.text
 
     with_media, _, _ = seed_episode(
         settings, media_url="https://cdn.example.com/ep-1.mp3"
