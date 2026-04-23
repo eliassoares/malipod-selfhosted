@@ -82,6 +82,9 @@ async def episode_detail_page(
         return response
 
     progress = await detail_service.get_progress(current_user, episode_id=episode.id)
+    play_stats = await detail_service.get_play_stats(
+        current_user, episode_id=episode.id
+    )
     history = await detail_service.list_recent_history(
         current_user,
         episode_id=episode.id,
@@ -90,6 +93,9 @@ async def episode_detail_page(
 
     episode_logo_url = detail_service.choose_episode_logo_url(episode)
     share_url = f"{settings.base_url.rstrip('/')}/episode/{episode.id}"
+    favorited_at = await favorites_service.get_favorited_at(
+        current_user, episode_id=episode.id
+    )
 
     response = templates.TemplateResponse(
         request=request,
@@ -104,10 +110,10 @@ async def episode_detail_page(
             "episode": episode,
             "episode_logo_url": episode_logo_url,
             "progress": progress,
+            "play_stats": play_stats,
             "history": history,
-            "is_favorited": await favorites_service.is_favorited(
-                current_user, episode_id=episode.id
-            ),
+            "is_favorited": favorited_at is not None,
+            "favorited_at": favorited_at,
             "share_url": share_url,
         },
     )

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Literal
 from sqlalchemy import func, select
 
 from app.core.placeholders import choose_placeholder_url_stable
+from app.core.time_format import format_duration_short
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
@@ -26,6 +27,18 @@ _COMPLETED_THRESHOLD = 0.90
 _COMPLETED_REMAINING_SECS = 120
 
 
+def is_episode_completed(play_position: int | None, play_total: int | None) -> bool:
+    if play_position is None or play_total is None:
+        return False
+    if play_total <= 0:
+        return False
+    remaining = play_total - play_position
+    return (
+        remaining <= _COMPLETED_REMAINING_SECS
+        or play_position / play_total >= _COMPLETED_THRESHOLD
+    )
+
+
 @dataclass(slots=True)
 class EpisodeCard:
     id: int
@@ -38,15 +51,7 @@ class EpisodeCard:
 
     @property
     def is_completed(self) -> bool:
-        if self.play_position is None or self.play_total is None:
-            return False
-        if self.play_total <= 0:
-            return False
-        remaining = self.play_total - self.play_position
-        return (
-            remaining <= _COMPLETED_REMAINING_SECS
-            or self.play_position / self.play_total >= _COMPLETED_THRESHOLD
-        )
+        return is_episode_completed(self.play_position, self.play_total)
 
     @property
     def progress_pct(self) -> int:
@@ -61,14 +66,7 @@ class PodcastListeningStats:
     total_seconds: int
 
     def format_total_time(self) -> str:
-        s = self.total_seconds
-        if s < 60:
-            return f"{s}s"
-        if s < 3600:
-            return f"{s // 60}min"
-        h = s // 3600
-        m = (s % 3600) // 60
-        return f"{h}h {m:02d}min"
+        return format_duration_short(self.total_seconds)
 
 
 def _normalize_timestamp(value: datetime) -> datetime:
@@ -187,3 +185,57 @@ class PodcastDetailService:
             .limit(1)
         )
         return result.scalar_one_or_none() is not None
+
+    async def get_last_played_at(
+        self,
+        user: UserModel,
+        *,
+        feed_id: int,
+    ) -> datetime | None:
+        statement = (
+            select(EpisodeActionEventModel.occurred_at)
+            .join(EpisodeModel, EpisodeModel.id == EpisodeActionEventModel.episode_id)
+            .where(
+                EpisodeActionEventModel.user_id == user.id,
+                EpisodeModel.feed_id == feed_id,
+                EpisodeActionEventModel.action == "play",
+            )
+            .order_by(
+                EpisodeActionEventModel.occurred_at.desc(),
+                EpisodeActionEventModel.id.desc(),
+            )
+            .limit(1)
+        )
+        row = (await self.session.execute(statement)).scalar_one_or_none()
+        if row is None:
+            return None
+        return _normalize_timestamp(row)
+
+
+@dataclass(slots=True)
+class PodcastCompletionMetrics:
+    completed_episodes: int
+    total_episodes: int
+    in_progress_episodes: int
+    completion_rate_pct: int | None
+
+
+def compute_podcast_completion_metrics(
+    episodes: list[EpisodeCard],
+) -> PodcastCompletionMetrics:
+    total = len(episodes)
+    completed = sum(1 for episode in episodes if episode.is_completed)
+    in_progress = sum(
+        1
+        for episode in episodes
+        if (episode.play_position or 0) > 0 and not episode.is_completed
+    )
+    completion_rate_pct = None
+    if total > 0:
+        completion_rate_pct = min(100, round(completed / total * 100))
+    return PodcastCompletionMetrics(
+        completed_episodes=completed,
+        total_episodes=total,
+        in_progress_episodes=in_progress,
+        completion_rate_pct=completion_rate_pct,
+    )

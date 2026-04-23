@@ -27,6 +27,17 @@ class EpisodeFavoritesService:
         )
         return result.scalar_one_or_none() is not None
 
+    async def get_favorited_at(
+        self, user: UserModel, *, episode_id: int
+    ) -> datetime | None:
+        result = await self.session.execute(
+            select(FavoriteEpisodeModel.favorited_at).where(
+                FavoriteEpisodeModel.user_id == user.id,
+                FavoriteEpisodeModel.episode_id == episode_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def toggle_favorite(self, user: UserModel, *, episode_id: int) -> bool:
         result = await self.session.execute(
             select(FavoriteEpisodeModel).where(

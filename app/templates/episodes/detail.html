@@ -75,6 +75,9 @@
             {% if progress.total and progress.position is not none %}
             <p class="text-xs font-bold text-on-surface-variant">
               {{ (((progress.position / progress.total) * 100) | round(0)) | int }}%
+              <span class="font-medium text-on-surface-variant">
+                ({{ format_seconds(progress.position) }} {{ copy["episode_detail.of"] }} {{ format_seconds(progress.total) }})
+              </span>
             </p>
             {% endif %}
           </div>
@@ -86,6 +89,38 @@
             <div class="h-full bg-outline-variant/40" style="width: 0%;"></div>
             {% endif %}
           </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant font-medium">
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">replay</span>
+            <strong class="text-on-surface">{{ play_stats.play_count }}</strong>
+            {{ copy["episode_detail.plays_count"] }}
+          </span>
+
+          {% if play_stats.first_played_at %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">flag</span>
+            <strong class="text-on-surface">{{ play_stats.first_played_at.strftime("%Y-%m-%d") }}</strong>
+            {{ copy["episode_detail.first_play"] }}
+          </span>
+          {% endif %}
+
+          {% if play_stats.last_played_at %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">history</span>
+            <strong class="text-on-surface">{{ play_stats.last_played_at.strftime("%Y-%m-%d") }}</strong>
+            {{ copy["episode_detail.last_play"] }}
+          </span>
+          {% endif %}
+
+          {% if favorited_at %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+            <strong class="text-on-surface">{{ favorited_at.strftime("%Y-%m-%d") }}</strong>
+            {{ copy["episode_detail.favorited_on"] }}
+          </span>
+          {% endif %}
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">

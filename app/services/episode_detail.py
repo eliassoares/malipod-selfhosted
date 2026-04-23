@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.core.placeholders import choose_placeholder_url_stable
@@ -31,6 +31,13 @@ class EpisodeProgress:
 class ListeningEvent:
     action: str
     occurred_at: datetime
+
+
+@dataclass(slots=True)
+class EpisodePlayStats:
+    play_count: int
+    first_played_at: datetime | None
+    last_played_at: datetime | None
 
 
 def _normalize_timestamp(value: datetime) -> datetime:
@@ -117,6 +124,35 @@ class EpisodeDetailService:
                 )
             )
         return events
+
+    async def get_play_stats(
+        self,
+        user: UserModel,
+        *,
+        episode_id: int,
+    ) -> EpisodePlayStats:
+        statement = select(
+            func.count(EpisodeActionEventModel.id),
+            func.min(EpisodeActionEventModel.occurred_at),
+            func.max(EpisodeActionEventModel.occurred_at),
+        ).where(
+            EpisodeActionEventModel.user_id == user.id,
+            EpisodeActionEventModel.episode_id == episode_id,
+            EpisodeActionEventModel.action == "play",
+        )
+        row = (await self.session.execute(statement)).one()
+        play_count = int(row[0] or 0)
+        first_played_at = row[1]
+        last_played_at = row[2]
+        return EpisodePlayStats(
+            play_count=play_count,
+            first_played_at=_normalize_timestamp(first_played_at)
+            if first_played_at is not None
+            else None,
+            last_played_at=_normalize_timestamp(last_played_at)
+            if last_played_at is not None
+            else None,
+        )
 
     @staticmethod
     def choose_episode_logo_url(episode: EpisodeModel) -> str:

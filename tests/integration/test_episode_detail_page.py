@@ -147,6 +147,68 @@ def seed_history(
         connection.commit()
 
 
+def seed_play_event(
+    settings: Settings,
+    *,
+    episode_id: int,
+    feed_url: str,
+    episode_url: str,
+    occurred_at: datetime,
+) -> None:
+    db_path = sqlite_path(settings)
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO episode_action_events
+                (
+                    user_id, episode_id, podcast_url, episode_url, device_id, action,
+                    occurred_at, started, position, total, created_at
+                )
+            SELECT users.id, ?, ?, ?, NULL, ?, ?, NULL, ?, ?, ?
+            FROM users
+            WHERE users.nickname = ?
+            """,
+            (
+                episode_id,
+                feed_url,
+                episode_url,
+                "play",
+                occurred_at.isoformat(),
+                30,
+                120,
+                occurred_at.isoformat(),
+                "listener_1",
+            ),
+        )
+        connection.commit()
+
+
+def seed_favorite(
+    settings: Settings, *, episode_id: int, favorited_at: datetime
+) -> None:
+    db_path = sqlite_path(settings)
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO favorite_episodes
+                (user_id, episode_id, favorited_at, created_at, updated_at)
+            SELECT users.id, ?, ?, ?, ?
+            FROM users
+            WHERE users.nickname = ?
+            """,
+            (
+                episode_id,
+                favorited_at.isoformat(),
+                favorited_at.isoformat(),
+                favorited_at.isoformat(),
+                "listener_1",
+            ),
+        )
+        connection.commit()
+
+
 def test_episode_detail_page_redirects_when_logged_out(
     client: TestClient,
     settings: Settings,
@@ -200,6 +262,7 @@ def test_episode_detail_page_renders_progress_when_present(
     assert response.status_code == 200
     assert "Progresso" in response.text
     assert "25%" in response.text
+    assert "30s de 2min" in response.text
 
 
 def test_episode_detail_page_download_visibility_and_redirect(
@@ -298,6 +361,56 @@ def test_episode_detail_page_renders_history_events_and_empty_state(
     assert filled.status_code == 200
     assert "Nenhum histórico ainda." not in filled.text
     assert "play" in filled.text
+
+
+def test_episode_detail_page_renders_play_count_and_first_last_play(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    episode_id, feed_url, episode_url = seed_episode(settings)
+
+    first = datetime(2026, 4, 20, 12, 0, tzinfo=UTC)
+    last = datetime(2026, 4, 22, 13, 0, tzinfo=UTC)
+    seed_play_event(
+        settings,
+        episode_id=episode_id,
+        feed_url=feed_url,
+        episode_url=episode_url,
+        occurred_at=first,
+    )
+    seed_play_event(
+        settings,
+        episode_id=episode_id,
+        feed_url=feed_url,
+        episode_url=episode_url,
+        occurred_at=last,
+    )
+
+    response = client.get(f"/episode/{episode_id}")
+
+    assert response.status_code == 200
+    assert "Vezes reproduzido" in response.text
+    assert "2" in response.text
+    assert "Primeiro play" in response.text
+    assert "Último play" in response.text
+
+
+def test_episode_detail_page_renders_favorited_timestamp_when_favorited(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    episode_id, _, _ = seed_episode(settings)
+
+    favorited_at = datetime(2026, 4, 21, 9, 0, tzinfo=UTC)
+    seed_favorite(settings, episode_id=episode_id, favorited_at=favorited_at)
+
+    response = client.get(f"/episode/{episode_id}")
+
+    assert response.status_code == 200
+    assert "Favoritado em" in response.text
+    assert "2026-04-21" in response.text
 
 
 def test_download_redirects_to_login_when_not_authenticated(
