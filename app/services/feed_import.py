@@ -478,10 +478,20 @@ class FeedImportService:
             existing = (
                 await self.session.execute(
                     select(EpisodeModel).where(
-                        EpisodeModel.episode_url == episode.episode_url
+                        EpisodeModel.feed_id == feed_row.id,
+                        EpisodeModel.episode_url == episode.episode_url,
                     )
                 )
             ).scalar_one_or_none()
+            if existing is None and episode.media_url:
+                existing = (
+                    await self.session.execute(
+                        select(EpisodeModel).where(
+                            EpisodeModel.feed_id == feed_row.id,
+                            EpisodeModel.episode_url == episode.media_url,
+                        )
+                    )
+                ).scalar_one_or_none()
             if existing is None:
                 self.session.add(
                     EpisodeModel(
