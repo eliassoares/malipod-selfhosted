@@ -37,9 +37,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 019-episode-detail-page: Added Python 3.13 + FastAPI + Starlette, Jinja2Templates, SQLAlchemy 2.x
 - 018-podcast-detail-page: Added Python 3.13 + FastAPI + Starlette, Jinja2Templates, SQLAlchemy 2.x
 - 017-subscriptions-page: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, SQLAlchemy 2.x, Alembic, Tailwind CDN (sem build step)
-- 016-user-data-tools: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, SQLAlchemy 2.x
 
 
 <!-- MANUAL ADDITIONS START -->
