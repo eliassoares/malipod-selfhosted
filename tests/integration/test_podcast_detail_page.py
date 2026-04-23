@@ -142,6 +142,21 @@ def test_podcast_detail_page_supports_episode_sorting(
     assert oldest.text.index("Episode One") < oldest.text.index("Episode Two")
 
 
+def test_subscribe_auto_creates_web_device_when_user_has_no_devices(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    feed_id = seed_podcast(settings)
+
+    subscribed = client.post(f"/podcast/{feed_id}/subscribe", follow_redirects=False)
+    assert subscribed.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert after.status_code == 200
+    assert "Inscrito" in after.text
+
+
 def test_podcast_detail_page_can_subscribe_when_not_subscribed(
     client: TestClient,
     settings: Settings,
