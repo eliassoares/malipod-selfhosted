@@ -242,3 +242,27 @@ def test_user_stats_page_renders_totals_and_rankings(
     assert '<html lang="pt-BR">' in response.text
     assert "Podcast Alpha" in response.text
     assert "Podcast Beta" in response.text
+
+
+def test_user_stats_page_renders_empty_state_with_no_play_data(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    create_device(client, username="listener_1", device_id="web")
+
+    feed_id = seed_feed(settings, title="Silent Podcast")
+    seed_subscription(settings, feed_id=feed_id)
+    seed_episode(
+        settings,
+        feed_id=feed_id,
+        episode_url="https://example.com/silent-ep1",
+        title="Silent Episode",
+    )
+
+    response = client.get("/user/listener_1/stats")
+
+    assert response.status_code == 200
+    assert "Minhas métricas" in response.text
+    assert "0" in response.text
+    assert "Ainda não há dados suficientes." in response.text

@@ -43,6 +43,7 @@
         </p>
         {% endif %}
 
+        {% if has_play_data %}
         <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant font-medium">
           {% if listening_stats.episodes_played > 0 %}
           <span class="flex items-center gap-1.5">
@@ -59,42 +60,31 @@
           {% endif %}
           {% endif %}
 
+          {% if completion_metrics.completion_rate_pct is not none %}
           <span class="flex items-center gap-1.5">
             <span class="material-symbols-outlined" style="font-size:1rem;">percent</span>
-            <strong class="text-on-surface">
-              {% if has_play_data and completion_metrics.completion_rate_pct is not none %}
-              {{ completion_metrics.completion_rate_pct }}%
-              {% else %}
-              {{ copy["podcast_detail.stats_no_data"] }}
-              {% endif %}
-            </strong>
+            <strong class="text-on-surface">{{ completion_metrics.completion_rate_pct }}%</strong>
             {{ copy["podcast_detail.stats_completion_rate"] }}
           </span>
+          {% endif %}
 
+          {% if completion_metrics.in_progress_episodes > 0 %}
           <span class="flex items-center gap-1.5">
             <span class="material-symbols-outlined" style="font-size:1rem;">pending</span>
-            <strong class="text-on-surface">
-              {% if has_play_data %}
-              {{ completion_metrics.in_progress_episodes }}
-              {% else %}
-              {{ copy["podcast_detail.stats_no_data"] }}
-              {% endif %}
-            </strong>
+            <strong class="text-on-surface">{{ completion_metrics.in_progress_episodes }}</strong>
             {{ copy["podcast_detail.stats_in_progress"] }}
           </span>
+          {% endif %}
 
+          {% if last_played_at %}
           <span class="flex items-center gap-1.5">
             <span class="material-symbols-outlined" style="font-size:1rem;">history</span>
-            <strong class="text-on-surface">
-              {% if last_played_at %}
-              {{ last_played_at.strftime("%Y-%m-%d") }}
-              {% else %}
-              {{ copy["podcast_detail.stats_no_data"] }}
-              {% endif %}
-            </strong>
+            <strong class="text-on-surface">{{ last_played_at.strftime("%Y-%m-%d") }}</strong>
             {{ copy["podcast_detail.stats_last_played"] }}
           </span>
+          {% endif %}
         </div>
+        {% endif %}
 
         <div class="flex flex-wrap gap-3 items-center">
           {% if feed.website %}

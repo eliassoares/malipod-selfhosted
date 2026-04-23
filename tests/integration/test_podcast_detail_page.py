@@ -252,6 +252,13 @@ def test_podcast_detail_page_can_toggle_favorite(
     assert after.status_code == 200
     assert "Remover favorito" in after.text
 
+    toggled_again = client.post(f"/podcast/{feed_id}/favorite", follow_redirects=False)
+    assert toggled_again.status_code == 303
+
+    after_again = client.get(f"/podcast/{feed_id}")
+    assert after_again.status_code == 200
+    assert "Favoritar" in after_again.text
+
 
 def test_podcast_detail_page_renders_new_header_metrics_with_play_data(
     client: TestClient,
@@ -298,8 +305,8 @@ def test_podcast_detail_page_renders_header_metric_empty_states_without_play_dat
     response = client.get(f"/podcast/{feed_id}")
 
     assert response.status_code == 200
-    assert "Taxa de conclusão" in response.text
-    assert "Sem dados" in response.text
+    assert "Taxa de conclusão" not in response.text
+    assert "Sem dados" not in response.text
 
 
 def test_podcast_detail_page_can_unsubscribe(

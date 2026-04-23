@@ -78,7 +78,7 @@ class UserStatsService:
         value = (await self.session.execute(statement)).scalar_one()
         return int(value or 0)
 
-    async def _episode_play_index(self, user_id: int) -> Subquery:
+    def _episode_play_index(self, user_id: int) -> Subquery:
         return (
             select(
                 EpisodeActionEventModel.episode_id.label("episode_id"),
@@ -99,7 +99,7 @@ class UserStatsService:
     async def build(self, user: UserModel) -> UserStatsPayload:
         followed_podcasts = await self._count_followed_podcasts(user.id)
 
-        play_index = await self._episode_play_index(user.id)
+        play_index = self._episode_play_index(user.id)
         play_rows = (await self.session.execute(select(play_index))).all()
 
         listened_seconds = sum(int(row.max_pos or 0) for row in play_rows)
