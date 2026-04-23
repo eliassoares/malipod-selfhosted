@@ -147,6 +147,24 @@ def _find_child_text(element: Element, name: str) -> str | None:
     return None
 
 
+def _pick_title(element: Element) -> str:
+    """Return the best human-readable title from all <title>/<itunes:title> children.
+
+    Some feeds (e.g. older Anchor.fm exports) set <title> to the media URL.
+    Collect every candidate, prefer the first that is not a URL, fall back to
+    'Untitled episode' only when nothing usable is found.
+    """
+    candidates = [
+        child.text.strip()
+        for child in element
+        if _strip_ns(child.tag) == "title" and child.text and child.text.strip()
+    ]
+    for candidate in candidates:
+        if not candidate.startswith(("http://", "https://")):
+            return candidate
+    return "Untitled episode"
+
+
 def _parse_datetime(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -236,7 +254,7 @@ def _parse_rss(channel: Element) -> ParsedFeed:
     for child in channel:
         if _strip_ns(child.tag) != "item":
             continue
-        item_title = _find_child_text(child, "title") or "Untitled episode"
+        item_title = _pick_title(child)
         link = _find_child_text(child, "link") or _find_child_text(child, "guid") or ""
         episode_url = link.strip()
         if not episode_url:
@@ -330,7 +348,7 @@ def _parse_atom(feed: Element) -> ParsedFeed:
     for child in feed:
         if _strip_ns(child.tag) != "entry":
             continue
-        item_title = _find_child_text(child, "title") or "Untitled episode"
+        item_title = _pick_title(child)
         link = None
         for link_el in child:
             if _strip_ns(link_el.tag) != "link":
