@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -123,7 +124,7 @@ async def download_episode(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
 
     media_url = (episode.media_url or "").strip()
-    if not media_url:
+    if not media_url or urlparse(media_url).scheme not in ("http", "https"):
         return RedirectResponse(
             url=f"/episode/{episode.id}",
             status_code=status.HTTP_303_SEE_OTHER,

@@ -281,3 +281,55 @@ def test_episode_detail_page_renders_history_events_and_empty_state(
     assert filled.status_code == 200
     assert "Nenhum histórico ainda." not in filled.text
     assert "play" in filled.text
+
+
+def test_download_redirects_to_login_when_not_authenticated(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    episode_id, _, _ = seed_episode(
+        settings, media_url="https://cdn.example.com/ep.mp3"
+    )
+
+    response = client.get(f"/episode/{episode_id}/download", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_favorite_redirects_to_login_when_not_authenticated(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    episode_id, _, _ = seed_episode(settings)
+
+    response = client.post(f"/episode/{episode_id}/favorite", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_download_redirects_to_episode_when_no_media_url(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    episode_id, _, _ = seed_episode(settings, media_url=None)
+
+    response = client.get(f"/episode/{episode_id}/download", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == f"/episode/{episode_id}"
+
+
+def test_download_rejects_non_http_scheme(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    episode_id, _, _ = seed_episode(settings, media_url="javascript:alert(1)")
+
+    response = client.get(f"/episode/{episode_id}/download", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == f"/episode/{episode_id}"
