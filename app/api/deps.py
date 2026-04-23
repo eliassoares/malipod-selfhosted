@@ -11,6 +11,8 @@ from app.db.session import get_db_session
 from app.services.auth import AuthError, AuthService
 from app.services.devices import DeviceService
 from app.services.directory import DirectoryService
+from app.services.episode_detail import EpisodeDetailService
+from app.services.episode_favorites import EpisodeFavoritesService
 from app.services.episodes import EpisodeService
 from app.services.favorites import FavoritesService
 from app.services.localization import LocalizationService
@@ -68,6 +70,18 @@ def get_episode_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> EpisodeService:
     return EpisodeService(session=session)
+
+
+def get_episode_detail_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> EpisodeDetailService:
+    return EpisodeDetailService(session=session)
+
+
+def get_episode_favorites_service(
+    session: Annotated[Any, Depends(get_request_session)],
+) -> EpisodeFavoritesService:
+    return EpisodeFavoritesService(session=session)
 
 
 def get_directory_service(

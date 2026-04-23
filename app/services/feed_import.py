@@ -168,6 +168,7 @@ class ParsedEpisode:
     description: str | None = None
     website: str | None = None
     logo_url: str | None = None
+    media_url: str | None = None
 
 
 @dataclass(slots=True)
@@ -244,6 +245,15 @@ def _parse_rss(channel: Element) -> ParsedFeed:
             UTC
         )
         ep_description = _find_child_text(child, "description")
+        media_url: str | None = None
+        for item_child in child:
+            tag = _strip_ns(item_child.tag)
+            if tag != "enclosure":
+                continue
+            candidate = (item_child.attrib.get("url") or "").strip()
+            if candidate:
+                media_url = candidate
+                break
         episode_logo_url: str | None = None
         for item_child in child:
             tag = _strip_ns(item_child.tag)
@@ -267,6 +277,7 @@ def _parse_rss(channel: Element) -> ParsedFeed:
                 description=ep_description,
                 website=episode_url,
                 logo_url=episode_logo_url,
+                media_url=media_url,
             )
         )
         if len(episodes) >= 200:
@@ -335,6 +346,15 @@ def _parse_atom(feed: Element) -> ParsedFeed:
         published = _parse_datetime(_find_child_text(child, "updated")) or datetime.now(
             UTC
         )
+        media_url: str | None = None
+        for link_el in child:
+            if _strip_ns(link_el.tag) != "link":
+                continue
+            rel = (link_el.attrib.get("rel") or "").lower()
+            href = (link_el.attrib.get("href") or "").strip()
+            if rel == "enclosure" and href:
+                media_url = href
+                break
         entry_logo_url: str | None = None
         for entry_child in child:
             tag = _strip_ns(entry_child.tag)
@@ -356,6 +376,7 @@ def _parse_atom(feed: Element) -> ParsedFeed:
                 description=_find_child_text(child, "summary"),
                 website=episode_url,
                 logo_url=entry_logo_url,
+                media_url=media_url,
             )
         )
         if len(episodes) >= 200:
@@ -451,6 +472,7 @@ class FeedImportService:
                         title=episode.title,
                         description=episode.description,
                         website=episode.website,
+                        media_url=episode.media_url,
                         mygpo_link=None,
                         logo_url=episode.logo_url or choose_placeholder_url_random(),
                         released_at=episode.released_at,
@@ -462,6 +484,8 @@ class FeedImportService:
                 existing.title = episode.title
                 existing.description = episode.description
                 existing.website = episode.website
+                if episode.media_url:
+                    existing.media_url = episode.media_url
                 if episode.logo_url:
                     existing.logo_url = episode.logo_url
                 existing.released_at = episode.released_at

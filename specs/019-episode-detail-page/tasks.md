@@ -11,10 +11,10 @@
 
 **Purpose**: Confirm baseline, keep scope tight, and prepare scaffolding for the feature.
 
-- [ ] T001 Confirm branch and feature directory alignment in `specs/019-episode-detail-page/spec.md`
-- [ ] T002 Confirm template reference assets exist in `google_stitch_templates/malipod_detalhe_do_episodio/code.html`
-- [ ] T003 [P] Create template target directory for episode pages in `app/templates/episodes/`
-- [ ] T004 Confirm existing episode data model fields for download feasibility in `app/db/models/podcast.py`
+- [x] T001 Confirm branch and feature directory alignment in `specs/019-episode-detail-page/spec.md`
+- [x] T002 Confirm template reference assets exist in `google_stitch_templates/malipod_detalhe_do_episodio/code.html`
+- [x] T003 [P] Create template target directory for episode pages in `app/templates/episodes/`
+- [x] T004 Confirm existing episode data model fields for download feasibility in `app/db/models/podcast.py`
 
 ---
 
@@ -24,15 +24,15 @@
 
 **⚠️ CRITICAL**: No user story work should merge without these foundations and tests passing.
 
-- [ ] T005 Add `media_url` (downloadable URL) field to `EpisodeModel` in `app/db/models/podcast.py`
-- [ ] T006 Create Alembic migration adding `episodes.media_url` in `alembic/versions/0014_episode_media_url.py`
-- [ ] T007 [P] Extend feed import parsing to capture enclosure/media URL for episodes in `app/services/feed_import.py`
-- [ ] T008 [P] Upsert `media_url` when importing episodes in `app/services/feed_import.py`
-- [ ] T009 [P] Add unit tests for feed parsing of media/enclosure URLs in `tests/unit/test_feed_import_media_url.py`
-- [ ] T010 [P] Add small service for toggling favorite episodes (site usage) in `app/services/episode_favorites.py`
-- [ ] T011 [P] Add dependency provider for episode favorites service in `app/api/deps.py`
-- [ ] T012 [P] Add small service for episode detail queries (episode + progress + history) in `app/services/episode_detail.py`
-- [ ] T013 [P] Add dependency provider for episode detail service in `app/api/deps.py`
+- [x] T005 Add `media_url` (downloadable URL) field to `EpisodeModel` in `app/db/models/podcast.py`
+- [x] T006 Create Alembic migration adding `episodes.media_url` in `alembic/versions/0014_episode_media_url.py`
+- [x] T007 [P] Extend feed import parsing to capture enclosure/media URL for episodes in `app/services/feed_import.py`
+- [x] T008 [P] Upsert `media_url` when importing episodes in `app/services/feed_import.py`
+- [x] T009 [P] Add unit tests for feed parsing of media/enclosure URLs in `tests/unit/test_feed_import_media_url.py`
+- [x] T010 [P] Add small service for toggling favorite episodes (site usage) in `app/services/episode_favorites.py`
+- [x] T011 [P] Add dependency provider for episode favorites service in `app/api/deps.py`
+- [x] T012 [P] Add small service for episode detail queries (episode + progress + history) in `app/services/episode_detail.py`
+- [x] T013 [P] Add dependency provider for episode detail service in `app/api/deps.py`
 
 **Checkpoint**: DB model/migration compiles; feed import tests pass; new services are importable.
 
