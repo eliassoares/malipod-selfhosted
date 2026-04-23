@@ -81,10 +81,17 @@
             </button>
           </form>
           {% else %}
-          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
-            {{ copy["podcast_detail.subscribed"] }}
-          </span>
+          <form action="/podcast/{{ feed.id }}/unsubscribe" method="post">
+            <button
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold font-headline hover:bg-error/10 hover:text-error transition-colors border-0 cursor-pointer group"
+              type="submit"
+            >
+              <span class="material-symbols-outlined group-hover:hidden" style="font-size:1.1rem;font-variation-settings: 'FILL' 1;">check_circle</span>
+              <span class="material-symbols-outlined hidden group-hover:inline" style="font-size:1.1rem;">remove_circle</span>
+              <span class="group-hover:hidden">{{ copy["podcast_detail.subscribed"] }}</span>
+              <span class="hidden group-hover:inline">{{ copy["podcast_detail.unsubscribe"] }}</span>
+            </button>
+          </form>
           {% endif %}
 
           <form action="/podcast/{{ feed.id }}/favorite" method="post">

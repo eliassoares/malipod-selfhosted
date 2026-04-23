@@ -195,6 +195,46 @@ async def subscribe_to_podcast(
     )
 
 
+@router.post("/podcast/{feed_id}/unsubscribe")
+async def unsubscribe_from_podcast(
+    feed_id: int,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    detail_service: PodcastDetailServiceDep,
+    subscription_service: SubscriptionServiceDep,
+    device_service: DeviceServiceDep,
+) -> RedirectResponse:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    feed = await detail_service.get_feed(feed_id=feed_id)
+    if feed is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=localization_service.build_copy(settings.default_locale)[
+                "podcast_detail.not_found_title"
+            ],
+        )
+
+    if not await detail_service.is_user_subscribed(current_user, feed_id=feed.id):
+        return RedirectResponse(
+            url=f"/podcast/{feed.id}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    remove_service = SubscriptionAddService(
+        device_service=device_service,
+        subscription_service=subscription_service,
+    )
+    await remove_service.unsubscribe_user_from_feed(current_user, feed.feed_url)
+
+    return RedirectResponse(
+        url=f"/podcast/{feed.id}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
 @router.post("/podcast/{feed_id}/favorite")
 async def toggle_podcast_favorite(
     feed_id: int,

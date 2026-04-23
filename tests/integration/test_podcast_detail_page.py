@@ -207,3 +207,52 @@ def test_podcast_detail_page_can_toggle_favorite(
     after_again = client.get(f"/podcast/{feed_id}")
     assert after_again.status_code == 200
     assert "Favoritar" in after_again.text
+
+
+def test_podcast_detail_page_can_unsubscribe(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    create_device(client, username="listener_1", device_id="web")
+    feed_id = seed_podcast(settings)
+
+    client.post(f"/podcast/{feed_id}/subscribe", follow_redirects=False)
+    subscribed = client.get(f"/podcast/{feed_id}")
+    assert "Inscrito" in subscribed.text
+
+    unsubscribed = client.post(
+        f"/podcast/{feed_id}/unsubscribe", follow_redirects=False
+    )
+    assert unsubscribed.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert after.status_code == 200
+    assert "Inscrever" in after.text
+    assert "Inscrito" not in after.text
+
+
+def test_unsubscribe_is_idempotent_when_not_subscribed(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    create_device(client, username="listener_1", device_id="web")
+    feed_id = seed_podcast(settings)
+
+    response = client.post(f"/podcast/{feed_id}/unsubscribe", follow_redirects=False)
+    assert response.status_code == 303
+
+    after = client.get(f"/podcast/{feed_id}")
+    assert "Inscrever" in after.text
+
+
+def test_unsubscribe_redirects_to_login_when_not_authenticated(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    feed_id = seed_podcast(settings)
+
+    response = client.post(f"/podcast/{feed_id}/unsubscribe", follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
