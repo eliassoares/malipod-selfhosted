@@ -1,0 +1,161 @@
+from __future__ import annotations
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+
+from app.api.deps import (
+    get_current_user,
+    get_episode_detail_service,
+    get_episode_favorites_service,
+    get_localization_service,
+    get_runtime_settings,
+)
+from app.api.utils import apply_locale_cookie
+from app.core.config import Settings
+from app.core.localization import SUPPORTED_LOCALE_CODES
+from app.db.models.user import UserModel
+from app.services.episode_detail import EpisodeDetailService
+from app.services.episode_favorites import EpisodeFavoritesService
+from app.services.localization import LocalizationService
+
+templates = Jinja2Templates(directory="app/templates")
+router = APIRouter(tags=["Episode Site"])
+
+SettingsDep = Annotated[Settings, Depends(get_runtime_settings)]
+LocalizationServiceDep = Annotated[
+    LocalizationService, Depends(get_localization_service)
+]
+CurrentUserDep = Annotated[UserModel | None, Depends(get_current_user)]
+EpisodeDetailServiceDep = Annotated[
+    EpisodeDetailService, Depends(get_episode_detail_service)
+]
+EpisodeFavoritesServiceDep = Annotated[
+    EpisodeFavoritesService, Depends(get_episode_favorites_service)
+]
+
+
+@router.get("/episode/{episode_id}", response_class=HTMLResponse)
+async def episode_detail_page(
+    episode_id: int,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    detail_service: EpisodeDetailServiceDep,
+    favorites_service: EpisodeFavoritesServiceDep,
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    locale = localization_service.resolve_locale(
+        request.cookies.get("malipod_locale"),
+        user=current_user,
+        explicit_locale=request.query_params.get("lang"),
+    ).effective_locale
+    copy = localization_service.build_copy(locale)
+
+    episode = await detail_service.get_episode(episode_id=episode_id)
+    if episode is None:
+        response = templates.TemplateResponse(
+            request=request,
+            name="episodes/not_found.html",
+            context={
+                "page_title": copy.get("episode_detail.not_found_title", "Not found"),
+                "app_name": settings.app_name,
+                "locale": locale,
+                "copy": copy,
+                "supported_locales": SUPPORTED_LOCALE_CODES,
+                "current_user": current_user,
+            },
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+        apply_locale_cookie(response, settings, locale)
+        return response
+
+    progress = await detail_service.get_progress(current_user, episode_id=episode.id)
+    history = await detail_service.list_recent_history(
+        current_user,
+        episode_id=episode.id,
+        limit=10,
+    )
+
+    episode_logo_url = detail_service.choose_episode_logo_url(episode)
+    share_url = f"{settings.base_url.rstrip('/')}/episode/{episode.id}"
+
+    response = templates.TemplateResponse(
+        request=request,
+        name="episodes/detail.html",
+        context={
+            "page_title": episode.title,
+            "app_name": settings.app_name,
+            "locale": locale,
+            "copy": copy,
+            "supported_locales": SUPPORTED_LOCALE_CODES,
+            "current_user": current_user,
+            "episode": episode,
+            "episode_logo_url": episode_logo_url,
+            "progress": progress,
+            "history": history,
+            "is_favorited": await favorites_service.is_favorited(
+                current_user, episode_id=episode.id
+            ),
+            "share_url": share_url,
+        },
+    )
+    apply_locale_cookie(response, settings, locale)
+    return response
+
+
+@router.get("/episode/{episode_id}/download")
+async def download_episode(
+    episode_id: int,
+    current_user: CurrentUserDep,
+    detail_service: EpisodeDetailServiceDep,
+) -> RedirectResponse:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    episode = await detail_service.get_episode(episode_id=episode_id)
+    if episode is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
+    media_url = (episode.media_url or "").strip()
+    if not media_url:
+        return RedirectResponse(
+            url=f"/episode/{episode.id}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    return RedirectResponse(url=media_url, status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/episode/{episode_id}/favorite")
+async def toggle_episode_favorite(
+    episode_id: int,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    detail_service: EpisodeDetailServiceDep,
+    favorites_service: EpisodeFavoritesServiceDep,
+) -> RedirectResponse:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    episode = await detail_service.get_episode(episode_id=episode_id)
+    if episode is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=localization_service.build_copy(settings.default_locale)[
+                "episode_detail.not_found_title"
+            ],
+        )
+
+    await favorites_service.toggle_favorite(current_user, episode_id=episode.id)
+
+    return RedirectResponse(
+        url=f"/episode/{episode.id}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )

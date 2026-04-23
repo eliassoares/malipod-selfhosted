@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% macro format_seconds(value) -%}
+  {%- if value is none -%}
+  {%- elif value < 60 -%}
+    {{ value }}s
+  {%- elif value < 3600 -%}
+    {{ (value // 60) }}min
+  {%- else -%}
+    {%- set h = (value // 3600) -%}
+    {%- set m = ((value % 3600) // 60) -%}
+    {{ h }}h {{ "%02d" % m }}min
+  {%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<div class="space-y-8">
+  <header class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+      <div class="w-full lg:w-72 flex-shrink-0">
+        <div class="relative">
+          <div class="absolute -inset-4 bg-primary/10 rounded-2xl blur-2xl"></div>
+          <img
+            class="relative w-full aspect-square object-cover rounded-2xl shadow-2xl z-10 bg-surface-container"
+            src="{{ episode_logo_url }}"
+            alt="{{ episode.title }}"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+      </div>
+
+      <div class="flex-1 space-y-5 min-w-0">
+        <div class="space-y-2">
+          <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight text-on-surface leading-tight">
+            {{ episode.title }}
+          </h1>
+          <p class="text-sm text-on-surface-variant font-medium">
+            {{ episode.feed.title }}
+          </p>
+        </div>
+
+        {% if episode.description %}
+        {% set desc = episode.description | striptags %}
+        <p class="text-sm text-on-surface-variant leading-relaxed max-w-3xl">
+          {{ desc }}
+        </p>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-4 text-sm text-on-surface-variant font-medium">
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+            {{ episode.released_at.strftime("%Y-%m-%d") }}
+          </span>
+
+          {% if progress.total %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">schedule</span>
+            {{ copy["episode_detail.total_time"] }}: {{ format_seconds(progress.total) }}
+          </span>
+          {% endif %}
+
+          {% if progress.position %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">timelapse</span>
+            {{ copy["episode_detail.watched_time"] }}: {{ format_seconds(progress.position) }}
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <p class="text-xs uppercase tracking-widest font-label text-on-surface-variant">
+              {{ copy["episode_detail.progress"] }}
+            </p>
+            {% if progress.total and progress.position is not none %}
+            <p class="text-xs font-bold text-on-surface-variant">
+              {{ (((progress.position / progress.total) * 100) | round(0)) | int }}%
+            </p>
+            {% endif %}
+          </div>
+          <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+            {% if progress.total and progress.position is not none %}
+            {% set pct = (progress.position / progress.total) * 100 %}
+            <div class="h-full bg-primary" style="width: {{ pct }}%;"></div>
+            {% else %}
+            <div class="h-full bg-outline-variant/40" style="width: 0%;"></div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 items-center">
+          <form action="/episode/{{ episode.id }}/favorite" method="post">
+            <button class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;{% if is_favorited %}font-variation-settings: 'FILL' 1;{% else %}font-variation-settings: 'FILL' 0;{% endif %}">star</span>
+              {% if is_favorited %}
+              {{ copy["episode_detail.unfavorite"] }}
+              {% else %}
+              {{ copy["episode_detail.favorite"] }}
+              {% endif %}
+            </button>
+          </form>
+
+          {% if episode.media_url %}
+          <a
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all"
+            href="/episode/{{ episode.id }}/download"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">download</span>
+            {{ copy["episode_detail.download"] }}
+          </a>
+          {% endif %}
+
+          <button
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer"
+            type="button"
+            onclick="navigator.clipboard.writeText('{{ share_url }}')"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">share</span>
+            {{ copy["episode_detail.share"] }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8 space-y-4">
+    <h2 class="font-headline font-black text-lg text-on-surface">{{ copy["episode_detail.history_title"] }}</h2>
+    {% if history | length == 0 %}
+    <p class="text-sm text-on-surface-variant">{{ copy["episode_detail.history_empty"] }}</p>
+    {% else %}
+    <ul class="space-y-2">
+      {% for event in history %}
+      <li class="flex items-center justify-between gap-4 bg-surface-container rounded-2xl px-4 py-3 border border-outline-variant/10">
+        <span class="text-sm font-medium text-on-surface">{{ event.action }}</span>
+        <span class="text-xs text-on-surface-variant">{{ event.occurred_at.strftime("%Y-%m-%d %H:%M") }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

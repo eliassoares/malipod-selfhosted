@@ -177,3 +177,38 @@
 ## Follow-ups
 
 - If desired, we can persist the subscriptions favorites filter preference per user (currently query-param based).
+
+---
+
+# Episode Detail Page PR Summary
+
+## Implemented Scope
+
+- Added authenticated episode detail page:
+  - `GET /episode/{episode_id}`
+  - Renders episode metadata (title, description, release date, podcast title, image/placeholder)
+  - Renders user progress when present (watched/total + progress bar)
+- Added episode actions:
+  - `GET /episode/{episode_id}/download` (redirects to `media_url` when present)
+  - `POST /episode/{episode_id}/favorite` (toggle)
+  - Share button that exposes the canonical episode URL (`{base_url}/episode/{id}`)
+- Added listening history section (best-effort) using recent action events with an empty state.
+- Linked podcast episode list items to the episode detail page.
+- Added integration coverage for episode detail page behavior (rendering, 404, progress, download, share, favorite, history).
+
+## Verification
+
+- `uv run pytest` (296 passed)
+- `uv run ruff check .`
+- `uv run mypy .`
+- `uv run bandit -r app -c pyproject.toml`
+
+## Migration Notes
+
+- Added Alembic revision `0014_episode_media_url`
+- Added new column:
+  - `episodes.media_url`
+
+## Follow-ups
+
+- Optional: replace clipboard-only share UX with a fallback (e.g., readonly input) for browsers that block `navigator.clipboard`.

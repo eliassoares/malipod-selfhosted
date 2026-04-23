@@ -67,9 +67,23 @@ class EpisodeDetailService:
         position = payload.get("position")
         total = payload.get("total")
         occurred_at = _normalize_timestamp(row.occurred_at)
+
+        def coerce_int(value: object) -> int | None:
+            if value is None or isinstance(value, bool):
+                return None
+            if isinstance(value, int):
+                return value
+            if isinstance(value, float) and value.is_integer():
+                return int(value)
+            if isinstance(value, str):
+                stripped = value.strip()
+                if stripped.isdigit():
+                    return int(stripped)
+            return None
+
         return EpisodeProgress(
-            position=int(position) if isinstance(position, int) else None,
-            total=int(total) if isinstance(total, int) else None,
+            position=coerce_int(position),
+            total=coerce_int(total),
             occurred_at=occurred_at,
         )
 
