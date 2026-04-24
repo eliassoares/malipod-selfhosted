@@ -11,6 +11,7 @@ from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
     EpisodeActionEventModel,
+    EpisodeModel,
     PodcastFeedModel,
 )
 from app.services.podcast_detail import is_episode_completed
@@ -78,27 +79,28 @@ class UserStatsService:
         return int(value or 0)
 
     def _episode_play_index(self, user_id: int) -> Subquery:
-        # Group by (episode_url, feed_id) from the events table itself, not by
-        # episode_id in episodes. This is immune to duplicate EpisodeModel rows
-        # (e.g. Anchor.fm→Spotify migrations) that would otherwise double-count
-        # the same audio under two different episode_ids.
+        # Deduplicate by coalesce(media_url, episode_url) per feed.
+        # Podcasts migrated from Anchor.fm to Spotify end up with two EpisodeModel
+        # rows per audio: the old row has episode_url = "<anchor play URL>",
+        # media_url = NULL; the new row has episode_url = "<spotify page URL>",
+        # media_url = "<anchor play URL>". coalesce(media_url, episode_url) resolves
+        # to the same physical URL for both rows, collapsing their play events into
+        # one group and avoiding double-counting.
+        canonical = func.coalesce(EpisodeModel.media_url, EpisodeModel.episode_url)
         return (
             select(
-                EpisodeActionEventModel.episode_url.label("episode_url"),
-                PodcastFeedModel.id.label("feed_id"),
+                canonical.label("canonical_url"),
+                EpisodeModel.feed_id.label("feed_id"),
                 func.max(EpisodeActionEventModel.position).label("max_pos"),
                 func.max(EpisodeActionEventModel.total).label("max_total"),
             )
-            .join(
-                PodcastFeedModel,
-                PodcastFeedModel.feed_url == EpisodeActionEventModel.podcast_url,
-            )
+            .join(EpisodeModel, EpisodeModel.id == EpisodeActionEventModel.episode_id)
             .where(
                 EpisodeActionEventModel.user_id == user_id,
                 EpisodeActionEventModel.action == "play",
                 EpisodeActionEventModel.position.is_not(None),
             )
-            .group_by(EpisodeActionEventModel.episode_url, PodcastFeedModel.id)
+            .group_by(canonical, EpisodeModel.feed_id)
             .subquery()
         )
 
