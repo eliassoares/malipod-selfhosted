@@ -1,4 +1,4 @@
-.PHONY: install lint fix format typecheck security audit check test test-auth test-device test-subscriptions test-episodes test-lists run compose-up compose-down compose-logs verify verify-auth verify-device verify-subscriptions verify-episodes verify-lists clean help
+.PHONY: install lint fix format typecheck security audit check test test-auth test-device test-subscriptions test-episodes test-lists run compose-up compose-down compose-logs dev-up dev-down dev-logs prod-up prod-down prod-logs verify verify-auth verify-device verify-subscriptions verify-episodes verify-lists clean help
 
 install: ## Install dependencies and pre-commit hooks
 	uv sync
@@ -46,14 +46,32 @@ test-lists: ## Run only Podcast Lists API tests
 run: ## Run the FastAPI application locally
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-compose-up: ## Start the Docker Compose stack
+compose-up: ## Start the Docker Compose stack (legacy — use dev-up instead)
 	docker compose up --build
 
-compose-down: ## Stop the Docker Compose stack
+compose-down: ## Stop the Docker Compose stack (legacy — use dev-down instead)
 	docker compose down --remove-orphans
 
-compose-logs: ## Tail Docker Compose logs
+compose-logs: ## Tail Docker Compose logs (legacy — use dev-logs instead)
 	docker compose logs -f app db
+
+dev-up: ## Start dev stack (app + postgres, hot-reload, dev deps)
+	docker compose -f docker-compose.dev.yml up --build
+
+dev-down: ## Stop dev stack
+	docker compose -f docker-compose.dev.yml down --remove-orphans
+
+dev-logs: ## Tail dev stack logs
+	docker compose -f docker-compose.dev.yml logs -f app db
+
+prod-up: ## Start prod stack (app only, requires .env.prod with external DATABASE_URL)
+	docker compose -f docker-compose.prod.yml up --build
+
+prod-down: ## Stop prod stack
+	docker compose -f docker-compose.prod.yml down --remove-orphans
+
+prod-logs: ## Tail prod stack logs
+	docker compose -f docker-compose.prod.yml logs -f app
 
 verify: check test ## Run full local verification
 

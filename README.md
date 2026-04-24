@@ -121,13 +121,31 @@ values are missing or insecure.
 
 ## Run Locally
 
-### Docker Compose
+### Development (Docker)
+
+Starts the app with hot-reload and a managed PostgreSQL container. Dev
+dependencies (pytest, ruff, mypy, etc.) are included in the image.
 
 ```bash
-docker compose up --build
+cp .env.example .env   # adjust values if needed
+make dev-up
+make dev-logs          # optional: tail logs
+make dev-down          # stop
 ```
 
-### Local process
+### Production (Docker)
+
+Connects to an existing PostgreSQL instance — no database container is started.
+Only runtime dependencies are installed in the image.
+
+```bash
+cp .env.prod.example .env.prod   # fill in DATABASE_URL and SECRET_KEY
+make prod-up
+make prod-logs                   # optional: tail logs
+make prod-down                   # stop
+```
+
+### Local process (no Docker)
 
 ```bash
 uv sync
