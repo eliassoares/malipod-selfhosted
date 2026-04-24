@@ -116,6 +116,12 @@ Required settings:
 - `TEST_DATABASE_URL`
 - `SECRET_KEY`
 
+Generate a secure `SECRET_KEY` with:
+
+```bash
+openssl rand -hex 32
+```
+
 The application validates configuration at startup and fails safely if required
 values are missing or insecure.
 
