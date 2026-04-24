@@ -105,20 +105,6 @@
           </div>
         </div>
 
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ml-1 font-label" for="language">
-            {{ copy["language.label"] }}
-          </label>
-          <select
-            class="w-full px-4 py-3.5 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
-            id="language" name="language_preference"
-          >
-            {% for code in supported_locales %}
-            <option value="{{ code }}" {% if form_data.get('language_preference', locale) == code %}selected{% endif %}>{{ code }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
         <button
           class="w-full gradient-primary text-on-primary font-bold font-headline py-4 rounded-full shadow-lg shadow-primary/25 hover:opacity-90 active:scale-[0.98] transition-all flex justify-center items-center gap-2 mt-2 border-0 cursor-pointer"
           type="submit"
