@@ -268,7 +268,6 @@ async def login_page(
             localization_service,
             "Login",
             current_user,
-            form_data={"language_preference": locale},
             success_message="Account created successfully." if created else None,
         ),
     )
@@ -285,7 +284,6 @@ async def login_user(
     current_user: CurrentUserDep,
     identifier: str = Form(...),
     password: str = Form(...),
-    language_preference: str = Form(default="en"),
 ) -> Response:
     if current_user is not None:
         return RedirectResponse(
@@ -294,12 +292,8 @@ async def login_user(
         )
     locale = localization_service.resolve_locale(
         request.cookies.get("malipod_locale"),
-        explicit_locale=language_preference,
     ).effective_locale
-    form_data = {
-        "identifier": identifier,
-        "language_preference": locale,
-    }
+    form_data = {"identifier": identifier}
     try:
         payload = LoginInput(identifier=identifier, password=password)
         user = await auth_service.authenticate_identifier(payload)
