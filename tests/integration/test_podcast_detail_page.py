@@ -97,6 +97,45 @@ def seed_podcast(settings: Settings) -> int:
         return feed_id
 
 
+def seed_play_event(
+    settings: Settings,
+    *,
+    feed_url: str,
+    episode_url: str,
+    position: int,
+    total: int,
+    occurred_at: datetime,
+) -> None:
+    db_path = sqlite_path(settings)
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO episode_action_events
+                (
+                    user_id, episode_id, podcast_url, episode_url, device_id, action,
+                    occurred_at, started, position, total, created_at
+                )
+            SELECT users.id, episodes.id, ?, ?, NULL, ?, ?, NULL, ?, ?, ?
+            FROM users, episodes
+            WHERE users.nickname = ?
+              AND episodes.episode_url = ?
+            """,
+            (
+                feed_url,
+                episode_url,
+                "play",
+                occurred_at.isoformat(),
+                position,
+                total,
+                occurred_at.isoformat(),
+                "listener_1",
+                episode_url,
+            ),
+        )
+        connection.commit()
+
+
 def test_podcast_detail_page_returns_404_for_missing_feed(
     client: TestClient,
     settings: Settings,
@@ -213,15 +252,61 @@ def test_podcast_detail_page_can_toggle_favorite(
     assert after.status_code == 200
     assert "Remover favorito" in after.text
 
-    toggled_again = client.post(
-        f"/podcast/{feed_id}/favorite",
-        follow_redirects=False,
-    )
+    toggled_again = client.post(f"/podcast/{feed_id}/favorite", follow_redirects=False)
     assert toggled_again.status_code == 303
 
     after_again = client.get(f"/podcast/{feed_id}")
     assert after_again.status_code == 200
     assert "Favoritar" in after_again.text
+
+
+def test_podcast_detail_page_renders_new_header_metrics_with_play_data(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    feed_id = seed_podcast(settings)
+
+    now = datetime.now(UTC)
+    seed_play_event(
+        settings,
+        feed_url="https://example.com/feed.xml",
+        episode_url="https://example.com/ep-1",
+        position=120,
+        total=120,
+        occurred_at=now,
+    )
+    seed_play_event(
+        settings,
+        feed_url="https://example.com/feed.xml",
+        episode_url="https://example.com/ep-2",
+        position=30,
+        total=3600,
+        occurred_at=now,
+    )
+
+    response = client.get(f"/podcast/{feed_id}")
+
+    assert response.status_code == 200
+    assert "Taxa de conclusão" in response.text
+    assert "50%" in response.text
+    assert "Em progresso" in response.text
+    assert "1" in response.text
+    assert "Último episódio ouvido" in response.text
+
+
+def test_podcast_detail_page_renders_header_metric_empty_states_without_play_data(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_and_login(client)
+    feed_id = seed_podcast(settings)
+
+    response = client.get(f"/podcast/{feed_id}")
+
+    assert response.status_code == 200
+    assert "Taxa de conclusão" not in response.text
+    assert "Sem dados" not in response.text
 
 
 def test_podcast_detail_page_can_unsubscribe(

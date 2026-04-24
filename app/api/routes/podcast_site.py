@@ -32,7 +32,12 @@ from app.db.models.user import UserModel
 from app.services.devices import DeviceService
 from app.services.feed_import import import_feed_in_background
 from app.services.localization import LocalizationService
-from app.services.podcast_detail import PodcastDetailService, SortMode
+from app.services.podcast_detail import (
+    PodcastCompletionMetrics,
+    PodcastDetailService,
+    SortMode,
+    compute_podcast_completion_metrics,
+)
 from app.services.podcast_favorites import PodcastFavoritesService
 from app.services.subscriptions import SubscriptionService
 from app.services.subscriptions_add import SubscriptionAddService
@@ -116,7 +121,13 @@ async def podcast_detail_page(
     )
 
     effective_sort = _normalize_episode_sort(sort)
-    episodes, listening_stats, is_subscribed, is_favorited = await _gather(
+    (
+        episodes,
+        listening_stats,
+        is_subscribed,
+        is_favorited,
+        last_played_at,
+    ) = await _gather(
         detail_service.list_episodes(
             feed_id=feed.id,
             sort=effective_sort,
@@ -126,7 +137,18 @@ async def podcast_detail_page(
         detail_service.get_listening_stats(current_user, feed_id=feed.id),
         detail_service.is_user_subscribed(current_user, feed_id=feed.id),
         favorites_service.is_favorited(current_user, feed_id=feed.id),
+        detail_service.get_last_played_at(current_user, feed_id=feed.id),
     )
+
+    completion_metrics = compute_podcast_completion_metrics(episodes)
+    has_play_data = listening_stats.episodes_played > 0 or last_played_at is not None
+    if not has_play_data:
+        completion_metrics = PodcastCompletionMetrics(
+            completed_episodes=completion_metrics.completed_episodes,
+            total_episodes=completion_metrics.total_episodes,
+            in_progress_episodes=completion_metrics.in_progress_episodes,
+            completion_rate_pct=None,
+        )
 
     response = templates.TemplateResponse(
         request=request,
@@ -145,6 +167,9 @@ async def podcast_detail_page(
             "is_subscribed": is_subscribed,
             "is_favorited": is_favorited,
             "listening_stats": listening_stats,
+            "completion_metrics": completion_metrics,
+            "last_played_at": last_played_at,
+            "has_play_data": has_play_data,
         },
     )
     apply_locale_cookie(response, settings, locale)

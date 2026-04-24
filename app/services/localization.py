@@ -6,7 +6,6 @@ from app.core.localization import (
     DEFAULT_LOCALE_CODE,
     LocaleResolution,
     get_translation_catalog,
-    is_supported_locale,
     normalize_locale,
 )
 
@@ -26,7 +25,7 @@ class LocalizationService:
         explicit_locale: str | None = None,
     ) -> LocaleResolution:
         normalized_explicit = normalize_locale(explicit_locale)
-        requested_locale = normalized_explicit or normalize_locale(cookie_locale)
+        normalized_cookie = normalize_locale(cookie_locale)
         if normalized_explicit is not None:
             return LocaleResolution(
                 requested_locale=normalized_explicit,
@@ -34,22 +33,22 @@ class LocalizationService:
                 source="explicit",
                 is_supported=True,
             )
+        if normalized_cookie is not None:
+            return LocaleResolution(
+                requested_locale=normalized_cookie,
+                effective_locale=normalized_cookie,
+                source="cookie_or_form",
+                is_supported=True,
+            )
         if user is not None:
             effective_locale = normalize_locale(user.language_preference) or (
                 self.settings.default_locale
             )
             return LocaleResolution(
-                requested_locale=requested_locale,
+                requested_locale=None,
                 effective_locale=effective_locale,
                 source="user",
-                is_supported=is_supported_locale(requested_locale),
-            )
-        if requested_locale is not None:
-            return LocaleResolution(
-                requested_locale=requested_locale,
-                effective_locale=requested_locale,
-                source="cookie_or_form",
-                is_supported=True,
+                is_supported=False,
             )
         return LocaleResolution(
             requested_locale=None,

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+  <header class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div class="space-y-1">
+        <h1 class="font-headline font-black text-3xl sm:text-4xl tracking-tight text-on-surface">
+          {{ copy["stats.title"] }}
+        </h1>
+        <p class="text-sm text-on-surface-variant font-medium">
+          {{ copy["stats.subtitle"] }}
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 sm:p-6 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">schedule</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs uppercase tracking-widest font-label text-on-surface-variant">
+          {{ copy["stats.total_time_listened"] }}
+        </p>
+        <p class="font-headline font-black text-xl text-on-surface truncate">
+          {{ stats.highlights.listened_formatted }}
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 sm:p-6 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">check_circle</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs uppercase tracking-widest font-label text-on-surface-variant">
+          {{ copy["stats.total_completed_episodes"] }}
+        </p>
+        <p class="font-headline font-black text-xl text-on-surface truncate">
+          {{ stats.highlights.completed_episodes }}
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 sm:p-6 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary" style="font-size:1.4rem;">rss_feed</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs uppercase tracking-widest font-label text-on-surface-variant">
+          {{ copy["stats.total_followed_podcasts"] }}
+        </p>
+        <p class="font-headline font-black text-xl text-on-surface truncate">
+          {{ stats.highlights.followed_podcasts }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8 space-y-4">
+      <h2 class="font-headline font-black text-lg text-on-surface">{{ copy["stats.top_by_time"] }}</h2>
+      {% if stats.top_by_time | length == 0 %}
+      <p class="text-sm text-on-surface-variant">{{ copy["stats.empty_rankings"] }}</p>
+      {% else %}
+      <ul class="space-y-3">
+        {% for entry in stats.top_by_time %}
+        <li class="flex items-center justify-between gap-4 bg-surface-container rounded-2xl px-4 py-3 border border-outline-variant/10">
+          <a class="flex items-center gap-3 min-w-0" href="/podcast/{{ entry.feed_id }}">
+            <img
+              src="{{ entry.logo_url }}"
+              alt="{{ entry.title }}"
+              class="w-10 h-10 rounded-2xl object-cover bg-surface-container flex-shrink-0"
+              onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+            />
+            <span class="text-sm font-bold text-on-surface truncate">{{ entry.title }}</span>
+          </a>
+          <span class="text-sm font-bold text-on-surface-variant">{{ entry.listened_formatted }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8 space-y-4">
+      <h2 class="font-headline font-black text-lg text-on-surface">{{ copy["stats.top_by_completed"] }}</h2>
+      {% if stats.top_by_completed | length == 0 %}
+      <p class="text-sm text-on-surface-variant">{{ copy["stats.empty_rankings"] }}</p>
+      {% else %}
+      <ul class="space-y-3">
+        {% for entry in stats.top_by_completed %}
+        <li class="flex items-center justify-between gap-4 bg-surface-container rounded-2xl px-4 py-3 border border-outline-variant/10">
+          <a class="flex items-center gap-3 min-w-0" href="/podcast/{{ entry.feed_id }}">
+            <img
+              src="{{ entry.logo_url }}"
+              alt="{{ entry.title }}"
+              class="w-10 h-10 rounded-2xl object-cover bg-surface-container flex-shrink-0"
+              onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+            />
+            <span class="text-sm font-bold text-on-surface truncate">{{ entry.title }}</span>
+          </a>
+          <span class="text-sm font-bold text-on-surface-variant">
+            {{ entry.completed_episodes }}/{{ entry.total_episodes }}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8 space-y-3">
+    <h2 class="font-headline font-black text-lg text-on-surface">{{ copy["stats.temporal_title"] }}</h2>
+    <p class="text-sm text-on-surface-variant">{{ copy["stats.temporal_placeholder"] }}</p>
+  </section>
+</div>
+{% endblock %}

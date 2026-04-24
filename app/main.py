@@ -21,6 +21,7 @@ from app.api.routes.podcast_site import router as podcast_site_router
 from app.api.routes.profile_site import router as profile_site_router
 from app.api.routes.settings_api import router as settings_api_router
 from app.api.routes.site import router as site_router
+from app.api.routes.stats_site import router as stats_site_router
 from app.api.routes.subscriptions_api import router as subscriptions_api_router
 from app.api.routes.subscriptions_site import router as subscriptions_site_router
 from app.api.routes.suggestions_api import router as suggestions_api_router
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_site_router)
     app.include_router(profile_site_router)
     app.include_router(subscriptions_site_router)
+    app.include_router(stats_site_router)
     app.include_router(podcast_site_router)
     app.include_router(episode_site_router)
     app.include_router(health_router)

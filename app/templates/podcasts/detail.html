@@ -43,8 +43,9 @@
         </p>
         {% endif %}
 
-        {% if listening_stats.episodes_played > 0 %}
+        {% if has_play_data %}
         <div class="flex flex-wrap gap-4 text-xs text-on-surface-variant font-medium">
+          {% if listening_stats.episodes_played > 0 %}
           <span class="flex items-center gap-1.5">
             <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 1;">headphones</span>
             <strong class="text-on-surface">{{ listening_stats.episodes_played }}</strong>
@@ -55,6 +56,31 @@
             <span class="material-symbols-outlined" style="font-size:1rem;">timer</span>
             <strong class="text-on-surface">{{ listening_stats.format_total_time() }}</strong>
             {{ copy["podcast_detail.stats_time"] }}
+          </span>
+          {% endif %}
+          {% endif %}
+
+          {% if completion_metrics.completion_rate_pct is not none %}
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;">percent</span>
+            <strong class="text-on-surface">{{ completion_metrics.completion_rate_pct }}%</strong>
+            {{ copy["podcast_detail.stats_completion_rate"] }}
+          </span>
+          {% endif %}
+
+          {% if completion_metrics.in_progress_episodes > 0 %}
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;">pending</span>
+            <strong class="text-on-surface">{{ completion_metrics.in_progress_episodes }}</strong>
+            {{ copy["podcast_detail.stats_in_progress"] }}
+          </span>
+          {% endif %}
+
+          {% if last_played_at %}
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined" style="font-size:1rem;">history</span>
+            <strong class="text-on-surface">{{ last_played_at.strftime("%Y-%m-%d") }}</strong>
+            {{ copy["podcast_detail.stats_last_played"] }}
           </span>
           {% endif %}
         </div>

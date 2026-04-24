@@ -10,11 +10,25 @@ if TYPE_CHECKING:
     from app.db.models.user import UserModel
 
 
-def test_localization_prefers_authenticated_user_locale(settings: Settings) -> None:
+def test_localization_prefers_cookie_over_authenticated_user_db_preference(
+    settings: Settings,
+) -> None:
     service = LocalizationService(settings)
     user = cast("UserModel", SimpleNamespace(language_preference="pt-BR"))
 
     resolved = service.resolve_locale("es", user=user)
+
+    assert resolved.effective_locale == "es"
+    assert resolved.source == "cookie_or_form"
+
+
+def test_localization_falls_back_to_user_db_preference_when_no_cookie(
+    settings: Settings,
+) -> None:
+    service = LocalizationService(settings)
+    user = cast("UserModel", SimpleNamespace(language_preference="pt-BR"))
+
+    resolved = service.resolve_locale(None, user=user)
 
     assert resolved.effective_locale == "pt-BR"
     assert resolved.source == "user"

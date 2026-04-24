@@ -212,3 +212,44 @@
 ## Follow-ups
 
 - Optional: replace clipboard-only share UX with a fallback (e.g., readonly input) for browsers that block `navigator.clipboard`.
+
+---
+
+# User Metrics PR Summary
+
+## Implemented Scope
+
+- Added authenticated user metrics page:
+  - `GET /user/{nickname}/stats` (owner-only; cross-account returns 404)
+  - Highlights: total listened time, completed episodes, followed podcasts
+  - Rankings: Top 5 podcasts by listened time and by completed episodes
+  - Temporal section placeholder with explicit “coming soon” copy
+- Added “Metrics” navigation item (desktop + mobile) between Subscriptions and Logout.
+- Enhanced podcast detail header metrics (`/podcast/{id}`):
+  - completion rate
+  - episodes in progress
+  - last episode listened date
+  - preserves existing “episodes listened” and “total time listened”
+- Enhanced episode detail metrics (`/episode/{id}`):
+  - textual progress `(position of total)` alongside percentage
+  - play count + first/last play dates
+  - “favorited on” timestamp when favorited
+- Added shared compact duration formatter:
+  - `app/core/time_format.py`
+
+## Verification
+
+- `uv run pytest` (314 passed)
+- `uv run ruff check .`
+- `uv run mypy .`
+- `uv run bandit -r app -c pyproject.toml`
+- `uv run pip-audit`
+
+## Notes / Semantics
+
+- “Completed episode” follows the existing completion heuristic already used in episode cards (near-end threshold or completion ratio).
+- “Time listened” totals and rankings are de-duplicated by episode using the maximum known play position per episode (avoids double-counting repeated plays).
+
+## Follow-ups
+
+- The temporal insights section (monthly bars, preferred hour, weekday, streak) is intentionally best-effort and currently shown as “coming soon” until timestamp quality/availability is strong enough.
