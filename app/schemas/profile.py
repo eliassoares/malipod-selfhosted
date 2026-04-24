@@ -10,6 +10,7 @@ class ProfilePageContext(BaseModel):
     email: str
     picture_url: str | None
     language_preference: str
+    centralize_sync: bool
     created_at: AwareDatetime
     updated_at: AwareDatetime
     accessed_at: AwareDatetime

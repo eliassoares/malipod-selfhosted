@@ -96,6 +96,40 @@
       </form>
     </article>
 
+    <!-- Sync Card -->
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-primary" style="font-size:1.2rem;">sync</span>
+        </div>
+        <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["profile.sync_title"] }}</h2>
+      </div>
+      <form class="flex items-start justify-between gap-6" action="/user/profile/{{ profile.nickname }}/centralize-sync" method="post">
+        <div class="flex-1">
+          <p class="font-headline font-semibold text-on-surface text-sm">{{ copy["profile.centralize_sync_label"] }}</p>
+          <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">
+            {% if profile.centralize_sync %}
+            {{ copy["profile.centralize_sync_description_on"] }}
+            {% else %}
+            {{ copy["profile.centralize_sync_description_off"] }}
+            {% endif %}
+          </p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0 mt-0.5">
+          <input
+            type="checkbox"
+            name="centralize_sync"
+            value="1"
+            class="sr-only peer"
+            {% if profile.centralize_sync %}checked{% endif %}
+            onchange="this.form.submit()"
+          />
+          <div class="w-11 h-6 bg-surface-container-high rounded-full peer-focus:ring-2 peer-focus:ring-primary/30 peer-checked:bg-primary transition-colors"></div>
+          <div class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-5"></div>
+        </label>
+      </form>
+    </article>
+
     <!-- Account Actions Card -->
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
       <div class="flex items-center gap-3 mb-5">

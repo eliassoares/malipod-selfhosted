@@ -73,6 +73,7 @@ def build_context(
             email=user.email,
             picture_url=user.picture_url,
             language_preference=user.language_preference,
+            centralize_sync=user.centralize_sync,
             created_at=user.created_at,
             updated_at=user.updated_at,
             accessed_at=user.accessed_at,
@@ -140,16 +141,14 @@ async def update_profile_language(
     nickname: str,
     request: Request,
     settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
     auth_service: AuthServiceDep,
     current_user: CurrentUserDep,
     language_preference: str = Form(...),
 ) -> RedirectResponse:
     if current_user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-    if current_user.nickname != nickname:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="profile not found"
-        )
+    _require_profile_owner(nickname, current_user, settings, localization_service)
     user = await auth_service.sync_user_locale(current_user, language_preference)
     response = RedirectResponse(
         url=f"/user/profile/{user.nickname}",
@@ -157,6 +156,26 @@ async def update_profile_language(
     )
     apply_locale_cookie(response, settings, user.language_preference)
     return response
+
+
+@router.post("/user/profile/{nickname}/centralize-sync")
+async def update_profile_centralize_sync(
+    nickname: str,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    auth_service: AuthServiceDep,
+    current_user: CurrentUserDep,
+    centralize_sync: str | None = Form(default=None),
+) -> RedirectResponse:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_profile_owner(nickname, current_user, settings, localization_service)
+    enabled = centralize_sync == "1"
+    await auth_service.sync_user_centralize_sync(current_user, enabled)
+    return RedirectResponse(
+        url=f"/user/profile/{nickname}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.post("/user/profile/{nickname}/export")

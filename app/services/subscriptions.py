@@ -144,6 +144,32 @@ class SubscriptionService:
         timestamp = result.scalar_one()
         return int(timestamp or 0)
 
+    async def _current_timestamp_for_user(self, user: UserModel) -> int:
+        result = await self.session.execute(
+            select(func.max(SubscriptionChangeEventModel.id))
+            .join(DeviceModel, DeviceModel.id == SubscriptionChangeEventModel.device_pk)
+            .where(DeviceModel.user_id == user.id)
+        )
+        timestamp = result.scalar_one()
+        return int(timestamp or 0)
+
+    async def _active_urls_for_user(self, user: UserModel) -> set[str]:
+        result = await self.session.execute(
+            select(PodcastFeedModel.feed_url)
+            .select_from(DeviceSubscriptionModel)
+            .join(
+                PodcastFeedModel,
+                PodcastFeedModel.id == DeviceSubscriptionModel.feed_id,
+            )
+            .join(DeviceModel, DeviceModel.id == DeviceSubscriptionModel.device_pk)
+            .where(
+                DeviceModel.user_id == user.id,
+                DeviceSubscriptionModel.unsubscribed_at.is_(None),
+            )
+            .distinct()
+        )
+        return set(result.scalars().all())
+
     def _normalize_imports(
         self, subscriptions: Sequence[ImportedSubscription]
     ) -> list[NormalizedImportedSubscription]:
@@ -176,6 +202,8 @@ class SubscriptionService:
         self, user: UserModel, device_id: str
     ) -> list[SubscriptionItem]:
         device = await self._get_device(user, device_id)
+        if user.centralize_sync:
+            return await self.list_account_subscriptions(user)
         result = await self.session.execute(
             select(DeviceSubscriptionModel)
             .options(selectinload(DeviceSubscriptionModel.feed))
@@ -351,14 +379,28 @@ class SubscriptionService:
     ) -> SubscriptionDeltaResponse:
         device = await self._get_device(user, device_id)
         query_since = since or 0
-        result = await self.session.execute(
-            select(SubscriptionChangeEventModel)
-            .where(
-                SubscriptionChangeEventModel.device_pk == device.id,
-                SubscriptionChangeEventModel.id > query_since,
+        if user.centralize_sync:
+            result = await self.session.execute(
+                select(SubscriptionChangeEventModel)
+                .join(
+                    DeviceModel,
+                    DeviceModel.id == SubscriptionChangeEventModel.device_pk,
+                )
+                .where(
+                    DeviceModel.user_id == user.id,
+                    SubscriptionChangeEventModel.id > query_since,
+                )
+                .order_by(SubscriptionChangeEventModel.id.asc())
             )
-            .order_by(SubscriptionChangeEventModel.id.asc())
-        )
+        else:
+            result = await self.session.execute(
+                select(SubscriptionChangeEventModel)
+                .where(
+                    SubscriptionChangeEventModel.device_pk == device.id,
+                    SubscriptionChangeEventModel.id > query_since,
+                )
+                .order_by(SubscriptionChangeEventModel.id.asc())
+            )
         net_changes: OrderedDict[str, str] = OrderedDict()
         for event in result.scalars().all():
             if event.feed_url in net_changes:
@@ -366,11 +408,18 @@ class SubscriptionService:
             net_changes[event.feed_url] = event.operation
 
         add = [url for url, operation in net_changes.items() if operation == "add"]
-        remove = [
+        remove_candidates = [
             url for url, operation in net_changes.items() if operation == "remove"
         ]
+        if user.centralize_sync:
+            active_urls = await self._active_urls_for_user(user)
+            remove = [url for url in remove_candidates if url not in active_urls]
+            timestamp = await self._current_timestamp_for_user(user)
+        else:
+            remove = remove_candidates
+            timestamp = await self._current_timestamp(device.id)
         return SubscriptionDeltaResponse(
             add=add,
             remove=remove,
-            timestamp=await self._current_timestamp(device.id),
+            timestamp=timestamp,
         )

@@ -11,7 +11,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.home": "Home",
         "nav.register": "Register",
         "nav.login": "Login",
-        "nav.profile": "Profile",
+        "nav.profile": "Settings",
         "nav.subscriptions": "Subscriptions",
         "nav.metrics": "Metrics",
         "nav.logout": "Logout",
@@ -43,6 +43,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Created",
         "profile.updated_at": "Updated",
         "profile.save_language": "Update language",
+        "profile.sync_title": "Sync",
+        "profile.centralize_sync_label": "Centralized sync",
+        "profile.centralize_sync_description_off": (
+            "Each device syncs its own subscription list independently."
+        ),
+        "profile.centralize_sync_description_on": (
+            "All devices share one unified list — subscribing on any device"
+            " makes the podcast available everywhere."
+        ),
         "profile.logout": "Log out",
         "profile.account_title": "Account",
         "profile.export_data": "Export data",
@@ -225,7 +234,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.home": "Inicio",
         "nav.register": "Registro",
         "nav.login": "Entrar",
-        "nav.profile": "Perfil",
+        "nav.profile": "Configuración",
         "nav.subscriptions": "Suscripciones",
         "nav.metrics": "Métricas",
         "nav.logout": "Salir",
@@ -260,6 +269,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Creado",
         "profile.updated_at": "Actualizado",
         "profile.save_language": "Actualizar idioma",
+        "profile.sync_title": "Sincronización",
+        "profile.centralize_sync_label": "Sincronización centralizada",
+        "profile.centralize_sync_description_off": (
+            "Cada dispositivo sincroniza su propia lista de forma independiente."
+        ),
+        "profile.centralize_sync_description_on": (
+            "Todos los dispositivos comparten una lista unificada —"
+            " suscribirse en cualquier dispositivo lo hace disponible en todos."
+        ),
         "profile.logout": "Cerrar sesión",
         "profile.account_title": "Cuenta",
         "profile.export_data": "Exportar datos",
@@ -448,7 +466,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "nav.home": "Início",
         "nav.register": "Cadastro",
         "nav.login": "Entrar",
-        "nav.profile": "Perfil",
+        "nav.profile": "Configurações",
         "nav.subscriptions": "Subscrições",
         "nav.metrics": "Métricas",
         "nav.logout": "Sair",
@@ -483,6 +501,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Criado em",
         "profile.updated_at": "Atualizado em",
         "profile.save_language": "Atualizar idioma",
+        "profile.sync_title": "Sincronização",
+        "profile.centralize_sync_label": "Sincronização centralizada",
+        "profile.centralize_sync_description_off": (
+            "Cada dispositivo sincroniza sua própria lista de forma independente."
+        ),
+        "profile.centralize_sync_description_on": (
+            "Todos os dispositivos compartilham uma lista unificada —"
+            " inscrever em qualquer dispositivo torna o podcast disponível em todos."
+        ),
         "profile.logout": "Sair",
         "profile.account_title": "Conta",
         "profile.export_data": "Exportar dados",
