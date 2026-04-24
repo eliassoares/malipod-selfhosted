@@ -208,6 +208,31 @@ def test_get_device_subscriptions_contract_opml_honors_centralize_sync(
     assert "https://example.com/feed-c.xml" in centralized.text
 
 
+def test_get_device_subscriptions_contract_txt_honors_centralize_sync(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    seed_subscription_state(settings)
+
+    device_scoped = client.get(
+        "/subscriptions/listener_1/phone-01.txt",
+        auth=("listener_1", "supersecret"),
+    )
+    set_user_centralize_sync(settings, nickname="listener_1", enabled=True)
+    centralized = client.get(
+        "/subscriptions/listener_1/phone-01.txt",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert device_scoped.status_code == 200
+    assert "https://example.com/feed-a.xml" in device_scoped.text
+    assert "https://example.com/feed-c.xml" not in device_scoped.text
+    assert centralized.status_code == 200
+    assert "https://example.com/feed-a.xml" in centralized.text
+    assert "https://example.com/feed-c.xml" in centralized.text
+
+
 def test_get_account_subscriptions_contract_opml_and_txt(
     client: TestClient, settings: Settings
 ) -> None:

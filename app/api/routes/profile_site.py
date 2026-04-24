@@ -161,7 +161,6 @@ async def update_profile_language(
 @router.post("/user/profile/{nickname}/centralize-sync")
 async def update_profile_centralize_sync(
     nickname: str,
-    request: Request,
     settings: SettingsDep,
     localization_service: LocalizationServiceDep,
     auth_service: AuthServiceDep,
