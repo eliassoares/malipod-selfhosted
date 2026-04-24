@@ -5,6 +5,90 @@ podcast synchronization server. It implements the full gpodder.net v2 API, enabl
 podcast apps like AntennaPod to sync subscriptions, episode actions, and device
 state across multiple clients.
 
+## Features
+
+### Podcast app sync (gpodder.net v2 API)
+
+Malipod is a drop-in replacement for gpodder.net. Any app that supports the
+gpodder.net v2 API — including AntennaPod — can point to your Malipod instance
+and sync subscriptions, episode progress, and device state across all your
+devices without sending any data to third-party servers.
+
+### Add podcasts by URL
+
+On the Subscriptions page, paste any RSS/Atom feed URL into the "Add podcast"
+field and click **Add**. Malipod fetches and imports the feed metadata in the
+background, then adds the podcast to your library. The episode list, artwork,
+author, and description are all stored locally.
+
+### Favorites
+
+Both podcasts and individual episodes can be favorited from their detail pages.
+Favorited podcasts are accessible through the **Favorites** filter on the
+Subscriptions page. The gpodder.net Favorites API
+(`GET /api/2/favorites/{username}.json`) also exposes favorited episodes to
+compatible clients.
+
+### Listening metrics
+
+The **Metrics** page (`/user/{nickname}/stats`) shows:
+
+- **Highlights** — total content completed, completed episodes, and followed podcasts
+- **Top by time** — the 5 podcasts you've spent the most time on
+- **Top by completed** — the 5 podcasts with the most completed episodes
+
+Each **podcast detail page** shows per-podcast listening stats: completion rate,
+episodes in progress, and the date of the last episode played.
+
+Each **episode detail page** shows per-episode stats: progress percentage and
+bar, play count, first and last play date, and the date it was favorited (if
+applicable).
+
+### Centralized subscription sync
+
+By default, subscriptions are synced per device (standard gpodder.net
+behaviour). Enable **Centralized sync** in Settings to merge all your devices
+into one unified list:
+
+- **Off** — each device syncs its own subscription list independently.
+- **On** — all devices share one unified list. Subscribing on any device makes
+  the podcast available everywhere; a podcast only leaves the list once it is
+  removed from every device. Fully transparent to the podcast app — no client
+  changes required.
+
+### Export and import data
+
+From the Settings page, you can:
+
+- **Export** — download a full JSON snapshot of your account: subscriptions,
+  episode actions, favorites, and settings.
+- **Import** — restore from a previously exported snapshot, merging the data
+  into your current account.
+
+This makes it easy to migrate between Malipod instances or keep an offline
+backup of your listening history.
+
+### Privacy and data control
+
+Malipod is self-hosted — your listening history never leaves your server.
+The Settings page provides two irreversible deletion options:
+
+- **Delete data** — removes all episode actions, subscriptions, favorites, and
+  settings while keeping the account active.
+- **Delete account** — permanently removes the account and all associated data.
+
+Both actions require confirmation and are scoped strictly to the authenticated
+user's own data.
+
+### Multi-language web UI
+
+The web interface is available in **English**, **Spanish**, and
+**Brazilian Portuguese**. The language can be switched at any time from the
+top navigation bar; the choice is persisted in a cookie and remembered across
+sessions.
+
+---
+
 ## Stack
 
 - Python 3.13
