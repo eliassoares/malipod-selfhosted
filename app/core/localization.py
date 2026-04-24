@@ -45,10 +45,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.save_language": "Update language",
         "profile.sync_title": "Sync",
         "profile.centralize_sync_label": "Centralized sync",
-        "profile.centralize_sync_description": (
-            "Return a unified subscriptions list across all your devices."
+        "profile.centralize_sync_description_off": (
+            "Each device syncs its own subscription list independently."
         ),
-        "profile.save_sync": "Save",
+        "profile.centralize_sync_description_on": (
+            "All devices share one unified list — subscribing on any device"
+            " makes the podcast available everywhere."
+        ),
         "profile.logout": "Log out",
         "profile.account_title": "Account",
         "profile.export_data": "Export data",
@@ -268,10 +271,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.save_language": "Actualizar idioma",
         "profile.sync_title": "Sincronización",
         "profile.centralize_sync_label": "Sincronización centralizada",
-        "profile.centralize_sync_description": (
-            "Devuelve una lista unificada de suscripciones de todos tus dispositivos."
+        "profile.centralize_sync_description_off": (
+            "Cada dispositivo sincroniza su propia lista de forma independiente."
         ),
-        "profile.save_sync": "Guardar",
+        "profile.centralize_sync_description_on": (
+            "Todos los dispositivos comparten una lista unificada —"
+            " suscribirse en cualquier dispositivo lo hace disponible en todos."
+        ),
         "profile.logout": "Cerrar sesión",
         "profile.account_title": "Cuenta",
         "profile.export_data": "Exportar datos",
@@ -497,10 +503,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.save_language": "Atualizar idioma",
         "profile.sync_title": "Sincronização",
         "profile.centralize_sync_label": "Sincronização centralizada",
-        "profile.centralize_sync_description": (
-            "Retorna a lista unificada de inscrições de todos os seus dispositivos."
+        "profile.centralize_sync_description_off": (
+            "Cada dispositivo sincroniza sua própria lista de forma independente."
         ),
-        "profile.save_sync": "Salvar",
+        "profile.centralize_sync_description_on": (
+            "Todos os dispositivos compartilham uma lista unificada —"
+            " inscrever em qualquer dispositivo torna o podcast disponível em todos."
+        ),
         "profile.logout": "Sair",
         "profile.account_title": "Conta",
         "profile.export_data": "Exportar dados",
