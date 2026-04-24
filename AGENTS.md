@@ -1,6 +1,6 @@
 # malipod Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-23
+Auto-generated from all feature plans. Last updated: 2026-04-24
 
 ## Active Technologies
 - Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, (004-user-auth)
@@ -38,9 +38,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 022-centralized-subscriptions-sync: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, SQLAlchemy 2.x, Alembic
 - 020-user-metrics: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, SQLAlchemy 2.x, Alembic
 - 019-episode-detail-page: Added Python 3.13 + FastAPI + Starlette, Jinja2Templates, SQLAlchemy 2.x
-- 018-podcast-detail-page: Added Python 3.13 + FastAPI + Starlette, Jinja2Templates, SQLAlchemy 2.x
 
 
 <!-- MANUAL ADDITIONS START -->

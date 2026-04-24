@@ -116,6 +116,19 @@ def seed_subscription_state(
         connection.commit()
 
 
+def set_user_centralize_sync(
+    settings: Settings, *, nickname: str, enabled: bool
+) -> None:
+    db_path = sqlite_path(settings)
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE users SET centralize_sync = ? WHERE nickname = ?",
+            (1 if enabled else 0, nickname),
+        )
+        connection.commit()
+
+
 def test_get_device_subscriptions_contract_json_and_jsonp(
     client: TestClient, settings: Settings
 ) -> None:
@@ -138,6 +151,61 @@ def test_get_device_subscriptions_contract_json_and_jsonp(
     ]
     assert jsonp.status_code == 200
     assert jsonp.text.startswith("callback([")
+
+
+def test_get_device_subscriptions_contract_supports_centralized_union(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    seed_subscription_state(settings)
+
+    device_scoped = client.get(
+        "/subscriptions/listener_1/phone-01.json",
+        auth=("listener_1", "supersecret"),
+    )
+    set_user_centralize_sync(settings, nickname="listener_1", enabled=True)
+    centralized = client.get(
+        "/subscriptions/listener_1/phone-01.json",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert device_scoped.status_code == 200
+    assert [item["url"] for item in device_scoped.json()] == [
+        "https://example.com/feed-a.xml",
+        "https://example.com/feed-b.xml",
+    ]
+    assert centralized.status_code == 200
+    assert [item["url"] for item in centralized.json()] == [
+        "https://example.com/feed-a.xml",
+        "https://example.com/feed-b.xml",
+        "https://example.com/feed-c.xml",
+    ]
+
+
+def test_get_device_subscriptions_contract_opml_honors_centralize_sync(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    seed_subscription_state(settings)
+
+    device_scoped = client.get(
+        "/subscriptions/listener_1/phone-01.opml",
+        auth=("listener_1", "supersecret"),
+    )
+    set_user_centralize_sync(settings, nickname="listener_1", enabled=True)
+    centralized = client.get(
+        "/subscriptions/listener_1/phone-01.opml",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert device_scoped.status_code == 200
+    assert "https://example.com/feed-a.xml" in device_scoped.text
+    assert "https://example.com/feed-c.xml" not in device_scoped.text
+    assert centralized.status_code == 200
+    assert "https://example.com/feed-a.xml" in centralized.text
+    assert "https://example.com/feed-c.xml" in centralized.text
 
 
 def test_get_account_subscriptions_contract_opml_and_txt(
@@ -283,3 +351,78 @@ def test_get_subscription_changes_contract_returns_changes_since_timestamp(
     assert empty.status_code == 200
     assert empty.json()["add"] == []
     assert empty.json()["remove"] == []
+
+
+def test_get_subscription_changes_contract_centralized_add_is_union_across_devices(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    seed_subscription_state(settings)
+    set_user_centralize_sync(settings, nickname="listener_1", enabled=True)
+
+    baseline = client.get(
+        "/api/2/subscriptions/listener_1/phone-01.json?since=0",
+        auth=("listener_1", "supersecret"),
+    )
+    client.post(
+        "/api/2/subscriptions/listener_1/phone-01.json",
+        auth=("listener_1", "supersecret"),
+        json={"add": ["https://example.com/feed-d.xml"], "remove": []},
+    )
+    client.post(
+        "/api/2/subscriptions/listener_1/tablet-01.json",
+        auth=("listener_1", "supersecret"),
+        json={"add": ["https://example.com/feed-e.xml"], "remove": []},
+    )
+    changes = client.get(
+        f"/api/2/subscriptions/listener_1/phone-01.json?since={baseline.json()['timestamp']}",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert changes.status_code == 200
+    assert set(changes.json()["add"]) == {
+        "https://example.com/feed-d.xml",
+        "https://example.com/feed-e.xml",
+    }
+
+
+def test_get_subscription_changes_contract_centralized_remove_only_when_absent(
+    client: TestClient,
+    settings: Settings,
+) -> None:
+    register_user(client)
+    seed_subscription_state(settings)
+    set_user_centralize_sync(settings, nickname="listener_1", enabled=True)
+
+    baseline = client.get(
+        "/api/2/subscriptions/listener_1/phone-01.json?since=0",
+        auth=("listener_1", "supersecret"),
+    )
+    client.post(
+        "/api/2/subscriptions/listener_1/phone-01.json",
+        auth=("listener_1", "supersecret"),
+        json={"add": [], "remove": ["https://example.com/feed-b.xml"]},
+    )
+    changes_while_still_subscribed = client.get(
+        f"/api/2/subscriptions/listener_1/phone-01.json?since={baseline.json()['timestamp']}",
+        auth=("listener_1", "supersecret"),
+    )
+    since_all_devices = changes_while_still_subscribed.json()["timestamp"]
+
+    client.post(
+        "/api/2/subscriptions/listener_1/tablet-01.json",
+        auth=("listener_1", "supersecret"),
+        json={"add": [], "remove": ["https://example.com/feed-b.xml"]},
+    )
+    changes_after_removed_everywhere = client.get(
+        f"/api/2/subscriptions/listener_1/phone-01.json?since={since_all_devices}",
+        auth=("listener_1", "supersecret"),
+    )
+
+    assert changes_while_still_subscribed.status_code == 200
+    assert changes_while_still_subscribed.json()["remove"] == []
+    assert changes_after_removed_everywhere.status_code == 200
+    assert changes_after_removed_everywhere.json()["remove"] == [
+        "https://example.com/feed-b.xml"
+    ]

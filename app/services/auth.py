@@ -162,8 +162,23 @@ class AuthService:
         await self.session.commit()
 
     async def sync_user_locale(self, user: UserModel, locale: str) -> UserModel:
-        user.language_preference = normalize_locale(locale) or DEFAULT_LOCALE_CODE
-        user.updated_at = datetime.now(UTC)
+        db_user = await self.session.get(UserModel, user.id)
+        if db_user is None:
+            raise RuntimeError("user not found")
+        db_user.language_preference = normalize_locale(locale) or DEFAULT_LOCALE_CODE
+        db_user.updated_at = datetime.now(UTC)
         await self.session.commit()
-        await self.session.refresh(user)
-        return user
+        await self.session.refresh(db_user)
+        return db_user
+
+    async def sync_user_centralize_sync(
+        self, user: UserModel, enabled: bool
+    ) -> UserModel:
+        db_user = await self.session.get(UserModel, user.id)
+        if db_user is None:
+            raise RuntimeError("user not found")
+        db_user.centralize_sync = enabled
+        db_user.updated_at = datetime.now(UTC)
+        await self.session.commit()
+        await self.session.refresh(db_user)
+        return db_user

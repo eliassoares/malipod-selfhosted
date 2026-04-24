@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, String, func
+from sqlalchemy import Boolean, DateTime, String, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -36,6 +36,12 @@ class UserModel(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     picture_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     language_preference: Mapped[str] = mapped_column(String(8), nullable=False)
+    centralize_sync: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=text("false"),
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

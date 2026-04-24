@@ -43,6 +43,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Created",
         "profile.updated_at": "Updated",
         "profile.save_language": "Update language",
+        "profile.sync_title": "Sync",
+        "profile.centralize_sync_label": "Centralized sync",
+        "profile.centralize_sync_description": (
+            "Return a unified subscriptions list across all your devices."
+        ),
+        "profile.save_sync": "Save",
         "profile.logout": "Log out",
         "profile.account_title": "Account",
         "profile.export_data": "Export data",
@@ -260,6 +266,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Creado",
         "profile.updated_at": "Actualizado",
         "profile.save_language": "Actualizar idioma",
+        "profile.sync_title": "Sincronización",
+        "profile.centralize_sync_label": "Sincronización centralizada",
+        "profile.centralize_sync_description": (
+            "Devuelve una lista unificada de suscripciones de todos tus dispositivos."
+        ),
+        "profile.save_sync": "Guardar",
         "profile.logout": "Cerrar sesión",
         "profile.account_title": "Cuenta",
         "profile.export_data": "Exportar datos",
@@ -483,6 +495,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "profile.created_at": "Criado em",
         "profile.updated_at": "Atualizado em",
         "profile.save_language": "Atualizar idioma",
+        "profile.sync_title": "Sincronização",
+        "profile.centralize_sync_label": "Sincronização centralizada",
+        "profile.centralize_sync_description": (
+            "Retorna a lista unificada de inscrições de todos os seus dispositivos."
+        ),
+        "profile.save_sync": "Salvar",
         "profile.logout": "Sair",
         "profile.account_title": "Conta",
         "profile.export_data": "Exportar dados",
