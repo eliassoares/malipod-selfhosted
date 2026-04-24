@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", ".venv/bin/alembic upgrade head && .venv/bin/gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w $(nproc) --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", ".venv/bin/alembic upgrade head && .venv/bin/gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w $(( $(nproc) > 8 ? 8 : $(nproc) )) --bind 0.0.0.0:8000"]
