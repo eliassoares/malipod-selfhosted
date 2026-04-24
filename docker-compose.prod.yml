@@ -3,6 +3,5 @@ services:
     image: malipod-app
     env_file:
       - .env.prod
-    ports:
-      - "8000:8000"
+    network_mode: host
     restart: unless-stopped

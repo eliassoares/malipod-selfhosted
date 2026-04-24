@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
 from alembic import context
+from app.core.config import get_settings
 from app.db.base import Base
 
 config = context.config
@@ -39,7 +40,9 @@ def _do_run_migrations(connection: object) -> None:
 
 
 async def _run_async_migrations() -> None:
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_settings().effective_database_url or config.get_main_option(
+        "sqlalchemy.url"
+    )
     if not url:
         raise RuntimeError("sqlalchemy.url is not configured for alembic migrations")
     engine = create_async_engine(url, poolclass=NullPool)
