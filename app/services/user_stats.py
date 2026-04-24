@@ -11,7 +11,6 @@ from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
     DeviceSubscriptionModel,
     EpisodeActionEventModel,
-    EpisodeModel,
     PodcastFeedModel,
 )
 from app.services.podcast_detail import is_episode_completed
@@ -79,20 +78,27 @@ class UserStatsService:
         return int(value or 0)
 
     def _episode_play_index(self, user_id: int) -> Subquery:
+        # Group by (episode_url, feed_id) from the events table itself, not by
+        # episode_id in episodes. This is immune to duplicate EpisodeModel rows
+        # (e.g. Anchor.fm→Spotify migrations) that would otherwise double-count
+        # the same audio under two different episode_ids.
         return (
             select(
-                EpisodeActionEventModel.episode_id.label("episode_id"),
-                EpisodeModel.feed_id.label("feed_id"),
+                EpisodeActionEventModel.episode_url.label("episode_url"),
+                PodcastFeedModel.id.label("feed_id"),
                 func.max(EpisodeActionEventModel.position).label("max_pos"),
                 func.max(EpisodeActionEventModel.total).label("max_total"),
             )
-            .join(EpisodeModel, EpisodeModel.id == EpisodeActionEventModel.episode_id)
+            .join(
+                PodcastFeedModel,
+                PodcastFeedModel.feed_url == EpisodeActionEventModel.podcast_url,
+            )
             .where(
                 EpisodeActionEventModel.user_id == user_id,
                 EpisodeActionEventModel.action == "play",
                 EpisodeActionEventModel.position.is_not(None),
             )
-            .group_by(EpisodeActionEventModel.episode_id, EpisodeModel.feed_id)
+            .group_by(EpisodeActionEventModel.episode_url, PodcastFeedModel.id)
             .subquery()
         )
 
