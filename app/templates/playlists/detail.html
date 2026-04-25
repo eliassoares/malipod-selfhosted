@@ -34,15 +34,15 @@
   {% endif %}
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
       <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.episodes"] }}</p>
       <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.episode_count }}</p>
     </div>
-    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
       <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.listened"] }}</p>
       <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.listened_formatted }}</p>
     </div>
-    <div class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
       <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.total"] }}</p>
       <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.total_formatted }}</p>
     </div>
@@ -125,12 +125,21 @@
         <form method="post" action="/user/{{ nickname }}/playlists/favorites/items" class="flex-shrink-0">
           <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
           <input type="hidden" name="action" value="remove" />
-          <button class="px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit">
-            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">star_off</span>
+          <button class="px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit" title="{{ copy['playlists.remove'] }}">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">close</span>
           </button>
         </form>
         {% else %}
-        <span class="text-xs text-on-surface-variant whitespace-nowrap flex-shrink-0">{{ row.released_at.strftime("%Y-%m-%d") }}</span>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="text-xs text-on-surface-variant whitespace-nowrap">{{ row.released_at.strftime("%Y-%m-%d") }}</span>
+          <form method="post" action="/user/{{ nickname }}/playlists/{{ payload.card.playlist_id }}/items">
+            <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
+            <input type="hidden" name="action" value="remove" />
+            <button class="w-7 h-7 rounded-md bg-surface-container-low hover:bg-error/10 hover:text-error text-on-surface-variant border-0 cursor-pointer flex items-center justify-center transition-colors" type="submit" title="{{ copy['playlists.remove'] }}">
+              <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
+            </button>
+          </form>
+        </div>
         {% endif %}
       </div>
       {% endfor %}
