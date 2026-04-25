@@ -190,6 +190,24 @@ class EpisodeSettingsSnapshotRow(BaseModel):
     updated_at: UtcDatetime
 
 
+class EpisodePlaylistSnapshotRow(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    title: str
+    description: str | None = None
+    image_url: str | None = None
+    created_at: UtcDatetime
+    updated_at: UtcDatetime
+
+
+class EpisodePlaylistItemSnapshotRow(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    playlist_title: str
+    episode_url: HttpUrlStr
+    created_at: UtcDatetime
+
+
 class UserDataSnapshot(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -214,3 +232,7 @@ class UserDataSnapshot(BaseModel):
     podcast_list_items: list[PodcastListItemSnapshotRow] = Field(default_factory=list)
     podcast_settings: list[PodcastSettingsSnapshotRow] = Field(default_factory=list)
     episode_settings: list[EpisodeSettingsSnapshotRow] = Field(default_factory=list)
+    episode_playlists: list[EpisodePlaylistSnapshotRow] = Field(default_factory=list)
+    episode_playlist_items: list[EpisodePlaylistItemSnapshotRow] = Field(
+        default_factory=list
+    )

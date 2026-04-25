@@ -47,6 +47,23 @@ EpisodePlaylistsServiceDep = Annotated[
 
 OPTIONAL_IMAGE_FILE = File(default=None)
 
+_VALID_MANAGE_ERRORS = frozenset(
+    {
+        "invalid_title",
+        "invalid_description",
+        "title_conflict",
+        "image_too_large",
+        "invalid_image",
+        "playlist_not_found",
+        "missing_confirmation",
+    }
+)
+_VALID_MANAGE_SUCCESSES = frozenset({"created", "updated", "deleted"})
+_VALID_DETAIL_ERRORS = frozenset(
+    {"playlist_not_found", "invalid_action", "invalid_title", "invalid_description"}
+)
+_VALID_DETAIL_SUCCESSES = frozenset({"episode_added", "episode_removed"})
+
 
 def _require_owner(
     nickname: str,
@@ -68,10 +85,31 @@ def _require_owner(
     return current_user
 
 
-def _read_image_upload(upload: UploadFile | None) -> tuple[str | None, bytes] | None:
-    if upload is None:
-        return None
-    return (upload.content_type, upload.file.read())
+async def _read_image(
+    image: UploadFile | None,
+    playlists_service: EpisodePlaylistsService,
+    owner: UserModel,
+    redirect_url: str,
+) -> tuple[str | None, RedirectResponse | None]:
+    """Read and save an image upload. Returns (image_url, None) on success,
+    or (None, redirect) on error. Returns (None, None) when no file was uploaded."""
+    if image is None:
+        return None, None
+    raw = await image.read(1 * 1024 * 1024 + 1)
+    if not raw:
+        return None, None
+    try:
+        image_url = await playlists_service.save_image_upload(
+            owner,
+            content_type=image.content_type,
+            raw=raw,
+        )
+    except EpisodePlaylistsError as exc:
+        return None, RedirectResponse(
+            url=f"{redirect_url}?error={exc.code}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    return image_url, None
 
 
 @router.get("/user/{nickname}/playlists", response_class=HTMLResponse)
@@ -112,8 +150,8 @@ async def playlists_manage_page(
             "current_user": owner,
             "nickname": nickname,
             "cards": cards,
-            "error": error,
-            "success": success,
+            "error": error if error in _VALID_MANAGE_ERRORS else None,
+            "success": success if success in _VALID_MANAGE_SUCCESSES else None,
             "highlight_playlist_id": playlist_id,
         },
     )
@@ -137,20 +175,11 @@ async def create_playlist(
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     owner = _require_owner(nickname, current_user, settings, localization_service)
 
-    image_url: str | None = None
-    if image is not None:
-        raw = await image.read(1 * 1024 * 1024 + 1)
-        try:
-            image_url = await playlists_service.save_image_upload(
-                owner,
-                content_type=image.content_type,
-                raw=raw,
-            )
-        except EpisodePlaylistsError as exc:
-            return RedirectResponse(
-                url=f"/user/{nickname}/playlists?error={exc.code}",
-                status_code=status.HTTP_303_SEE_OTHER,
-            )
+    image_url, err = await _read_image(
+        image, playlists_service, owner, f"/user/{nickname}/playlists"
+    )
+    if err is not None:
+        return err
 
     try:
         playlist_id = await playlists_service.create_playlist(
@@ -190,20 +219,12 @@ async def update_playlist(
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     owner = _require_owner(nickname, current_user, settings, localization_service)
 
-    image_url: str | None = None
-    if image is not None:
-        raw = await image.read(1 * 1024 * 1024 + 1)
-        try:
-            image_url = await playlists_service.save_image_upload(
-                owner,
-                content_type=image.content_type,
-                raw=raw,
-            )
-        except EpisodePlaylistsError as exc:
-            return RedirectResponse(
-                url=f"/user/{nickname}/playlists?error={exc.code}",
-                status_code=status.HTTP_303_SEE_OTHER,
-            )
+    # _read_image returns None when no file is uploaded, which preserves existing image
+    image_url, err = await _read_image(
+        image, playlists_service, owner, f"/user/{nickname}/playlists"
+    )
+    if err is not None:
+        return err
 
     try:
         await playlists_service.update_playlist(
@@ -305,8 +326,8 @@ async def playlist_detail_page(
             "current_user": owner,
             "nickname": nickname,
             "payload": payload,
-            "error": error,
-            "success": success,
+            "error": error if error in _VALID_DETAIL_ERRORS else None,
+            "success": success if success in _VALID_DETAIL_SUCCESSES else None,
         },
     )
     apply_locale_cookie(response, settings, locale)
@@ -338,10 +359,10 @@ async def update_playlist_items(
     try:
         if cleaned_action == "add":
             await playlists_service.add_episode(owner, playlist_id, episode_id)
-            success = "episode_added"
+            result_success = "episode_added"
         else:
             await playlists_service.remove_episode(owner, playlist_id, episode_id)
-            success = "episode_removed"
+            result_success = "episode_removed"
     except EpisodePlaylistsError as exc:
         return RedirectResponse(
             url=f"/user/{nickname}/playlists/{playlist_id}?error={exc.code}",
@@ -349,7 +370,7 @@ async def update_playlist_items(
         )
 
     return RedirectResponse(
-        url=f"/user/{nickname}/playlists/{playlist_id}?success={success}",
+        url=f"/user/{nickname}/playlists/{playlist_id}?success={result_success}",
         status_code=status.HTTP_303_SEE_OTHER,
     )
 

@@ -12,6 +12,8 @@ from app.db.models.podcast import (
     EpisodeActionEventModel,
     EpisodeActionModel,
     EpisodeModel,
+    EpisodePlaylistItemModel,
+    EpisodePlaylistModel,
     FavoriteEpisodeModel,
     PodcastFeedModel,
     PodcastListItemModel,
@@ -75,6 +77,8 @@ class UserDataToolsService:
 
         podcast_settings = await self._export_podcast_settings(user)
         episode_settings = await self._export_episode_settings(user)
+        episode_playlists = await self._export_episode_playlists(user)
+        episode_playlist_items = await self._export_episode_playlist_items(user)
 
         feed_urls, episode_urls = await self._collect_catalog_references(
             device_subscriptions=device_subscriptions,
@@ -84,6 +88,7 @@ class UserDataToolsService:
             favorite_episodes=favorite_episodes,
             episode_actions=episode_actions,
             episode_action_events=episode_action_events,
+            episode_playlist_items=episode_playlist_items,
         )
         podcast_feeds, episodes = await self._export_catalog(feed_urls, episode_urls)
 
@@ -117,6 +122,8 @@ class UserDataToolsService:
             "podcast_list_items": podcast_list_items,
             "podcast_settings": podcast_settings,
             "episode_settings": episode_settings,
+            "episode_playlists": episode_playlists,
+            "episode_playlist_items": episode_playlist_items,
         }
 
     async def import_snapshot(
@@ -149,6 +156,7 @@ class UserDataToolsService:
             | {r.episode_url for r in snapshot.episode_actions}
             | {r.episode_url for r in snapshot.favorite_episodes}
             | {r.episode_url for r in snapshot.episode_action_events}
+            | {r.episode_url for r in snapshot.episode_playlist_items}
         )
         episode_id_map = await self._episode_id_map(episode_urls)
 
@@ -182,6 +190,12 @@ class UserDataToolsService:
         await self._import_favorite_episodes(user, snapshot, episode_id_map)
         await self._import_subscription_change_events(user, snapshot, device_pk_map)
         await self._import_episode_action_events(user, snapshot, episode_id_map)
+
+        # Phase 6: episode playlists
+        await self._import_episode_playlists(user, snapshot)
+        await self.session.flush()
+        await self._import_episode_playlist_items(user, snapshot, episode_id_map)
+
         await self.session.commit()
 
     async def delete_user_data(self, user: UserModel) -> None:
@@ -487,6 +501,7 @@ class UserDataToolsService:
         favorite_episodes: list[dict[str, Any]],
         episode_actions: list[dict[str, Any]],
         episode_action_events: list[dict[str, Any]],
+        episode_playlist_items: list[dict[str, Any]] | None = None,
     ) -> tuple[set[str], set[str]]:
         feed_urls: set[str] = set()
         episode_urls: set[str] = set()
@@ -497,6 +512,8 @@ class UserDataToolsService:
         episode_urls.update(item["episode_url"] for item in favorite_episodes)
         episode_urls.update(item["episode_url"] for item in episode_actions)
         episode_urls.update(item["episode_url"] for item in episode_action_events)
+        if episode_playlist_items:
+            episode_urls.update(item["episode_url"] for item in episode_playlist_items)
 
         if episode_urls:
             result = await self.session.execute(
@@ -1122,6 +1139,120 @@ class UserDataToolsService:
                     position=row.position,
                     total=row.total,
                     created_at=row.created_at,
+                )
+            )
+
+    async def _export_episode_playlists(self, user: UserModel) -> list[dict[str, Any]]:
+        result = await self.session.execute(
+            select(EpisodePlaylistModel).where(EpisodePlaylistModel.user_id == user.id)
+        )
+        return [
+            {
+                "title": row.title,
+                "description": row.description,
+                "image_url": row.image_url,
+                "created_at": _as_iso(row.created_at),
+                "updated_at": _as_iso(row.updated_at),
+            }
+            for row in result.scalars().all()
+        ]
+
+    async def _export_episode_playlist_items(
+        self, user: UserModel
+    ) -> list[dict[str, Any]]:
+        result = await self.session.execute(
+            select(
+                EpisodePlaylistItemModel,
+                EpisodePlaylistModel.title,
+                EpisodeModel.episode_url,
+            )
+            .join(
+                EpisodePlaylistModel,
+                EpisodePlaylistItemModel.playlist_id == EpisodePlaylistModel.id,
+            )
+            .join(EpisodeModel, EpisodePlaylistItemModel.episode_id == EpisodeModel.id)
+            .where(EpisodePlaylistModel.user_id == user.id)
+        )
+        return [
+            {
+                "playlist_title": playlist_title,
+                "episode_url": episode_url,
+                "created_at": _as_iso(item.created_at),
+            }
+            for item, playlist_title, episode_url in result.all()
+        ]
+
+    async def _import_episode_playlists(
+        self, user: UserModel, snapshot: UserDataSnapshot
+    ) -> None:
+        if not snapshot.episode_playlists:
+            return
+        existing_result = await self.session.execute(
+            select(EpisodePlaylistModel).where(EpisodePlaylistModel.user_id == user.id)
+        )
+        existing_by_title = {row.title: row for row in existing_result.scalars().all()}
+        for row in snapshot.episode_playlists:
+            existing = existing_by_title.get(row.title)
+            if existing is None:
+                model = EpisodePlaylistModel(
+                    user_id=user.id,
+                    title=row.title,
+                    description=row.description,
+                    image_url=row.image_url,
+                    created_at=row.created_at,
+                    updated_at=row.updated_at,
+                )
+                self.session.add(model)
+                existing_by_title[row.title] = model
+                continue
+            if _as_utc(existing.updated_at) >= row.updated_at:
+                continue
+            existing.description = row.description
+            existing.image_url = row.image_url
+            existing.updated_at = row.updated_at
+
+    async def _import_episode_playlist_items(
+        self,
+        user: UserModel,
+        snapshot: UserDataSnapshot,
+        episode_id_map: dict[str, int],
+    ) -> None:
+        if not snapshot.episode_playlist_items:
+            return
+        playlist_result = await self.session.execute(
+            select(EpisodePlaylistModel.title, EpisodePlaylistModel.id).where(
+                EpisodePlaylistModel.user_id == user.id
+            )
+        )
+        playlist_id_map: dict[str, int] = {
+            title: int(pid) for title, pid in playlist_result.all()
+        }
+        playlist_ids = list(playlist_id_map.values())
+        if not playlist_ids:
+            return
+
+        existing_result = await self.session.execute(
+            select(
+                EpisodePlaylistItemModel.playlist_id,
+                EpisodePlaylistItemModel.episode_id,
+            ).where(EpisodePlaylistItemModel.playlist_id.in_(playlist_ids))
+        )
+        existing_pairs = {(int(r[0]), int(r[1])) for r in existing_result.all()}
+
+        now = datetime.now(UTC)
+        for row in snapshot.episode_playlist_items:
+            playlist_id = playlist_id_map.get(row.playlist_title)
+            episode_id = episode_id_map.get(row.episode_url)
+            if playlist_id is None or episode_id is None:
+                continue
+            if (playlist_id, episode_id) in existing_pairs:
+                continue
+            self.session.add(
+                EpisodePlaylistItemModel(
+                    playlist_id=playlist_id,
+                    episode_id=episode_id,
+                    created_at=row.created_at,
+                    updated_at=now,
                 )
             )
 
