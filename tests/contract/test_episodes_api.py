@@ -162,7 +162,7 @@ def test_post_episode_actions_contract_rejects_invalid_play_payload(
     )
 
     assert response.status_code == 400
-    assert "play actions require" in response.json()["detail"]
+    assert "play/pause actions require" in response.json()["detail"]
 
 
 def test_get_episode_actions_contract_supports_since_and_filters(

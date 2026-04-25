@@ -1,0 +1,83 @@
+<div id="player-bar" class="fixed bottom-0 left-0 right-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+    <div class="glass-panel ambient-shadow border border-outline-variant/20 rounded-2xl p-3 sm:p-4">
+      <audio id="maliplayer-audio" preload="metadata"></audio>
+
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-surface-container overflow-hidden flex-shrink-0">
+          <img
+            id="maliplayer-cover"
+            src="/static/placeholders/malte.png"
+            alt=""
+            class="w-full h-full object-cover"
+            onerror="this.onerror=null;this.src='/static/placeholders/malte.png'"
+          />
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p
+            id="maliplayer-episode-title"
+            class="font-headline font-extrabold text-on-surface text-sm truncate"
+            data-empty-title="{{ copy.get('player.empty_title', 'No episode selected') if copy is defined else 'No episode selected' }}"
+          >
+            {{ copy.get("player.empty_title", "No episode selected") if copy is defined else "No episode selected" }}
+          </p>
+          <p
+            id="maliplayer-podcast-title"
+            class="text-xs text-on-surface-variant truncate"
+            data-empty-subtitle="{{ copy.get('player.empty_subtitle', 'Start from an episode or playlist') if copy is defined else 'Start from an episode or playlist' }}"
+          >
+            {{ copy.get("player.empty_subtitle", "Start from an episode or playlist") if copy is defined else "Start from an episode or playlist" }}
+          </p>
+
+          <div class="mt-2 flex items-center gap-3">
+            <div
+              id="maliplayer-progress"
+              class="relative flex-1 h-2 bg-surface-container rounded-full overflow-hidden cursor-pointer"
+              role="slider"
+              aria-label="{{ copy.get('player.progress', 'Progress') if copy is defined else 'Progress' }}"
+            >
+              <div id="maliplayer-progress-fill" class="h-full bg-primary" style="width: 0%;"></div>
+            </div>
+            <p class="text-[11px] text-on-surface-variant font-medium whitespace-nowrap">
+              <span id="maliplayer-time-current">0:00</span>
+              /
+              <span id="maliplayer-time-total">0:00</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <button
+            id="maliplayer-rewind"
+            type="button"
+            class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface"
+            title="{{ copy.get('player.rewind_15', 'Rewind 15s') if copy is defined else 'Rewind 15s' }}"
+          >
+            <span class="material-symbols-outlined">replay_15</span>
+          </button>
+
+          <button
+            id="maliplayer-play-pause"
+            type="button"
+            class="w-12 h-12 rounded-full gradient-primary text-on-primary border-0 cursor-pointer flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all"
+            title="{{ copy.get('player.play', 'Play') if copy is defined else 'Play' }}"
+            data-label-play="{{ copy.get('player.play', 'Play') if copy is defined else 'Play' }}"
+            data-label-pause="{{ copy.get('player.pause', 'Pause') if copy is defined else 'Pause' }}"
+          >
+            <span id="maliplayer-play-icon" class="material-symbols-outlined">play_arrow</span>
+          </button>
+
+          <button
+            id="maliplayer-forward"
+            type="button"
+            class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface"
+            title="{{ copy.get('player.forward_30', 'Forward 30s') if copy is defined else 'Forward 30s' }}"
+          >
+            <span class="material-symbols-outlined">forward_30</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

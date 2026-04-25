@@ -219,6 +219,9 @@ class EpisodePlaylistItemModel(Base):
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
     )
+    position: Mapped[int | None] = mapped_column(
+        nullable=True,
+    )
 
     playlist: Mapped[EpisodePlaylistModel] = relationship(back_populates="items")
     episode: Mapped[EpisodeModel] = relationship(back_populates="playlist_items")

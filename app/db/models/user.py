@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, String, func, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -64,6 +64,20 @@ class UserModel(Base):
     )
     deactivated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
+        nullable=True,
+    )
+    last_episode_id: Mapped[int | None] = mapped_column(
+        ForeignKey("episodes.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    last_position_sec: Mapped[int | None] = mapped_column(
+        nullable=True,
+    )
+    last_queue_mode: Mapped[str | None] = mapped_column(
+        String(16),
+        nullable=True,
+    )
+    last_queue_ref_id: Mapped[int | None] = mapped_column(
         nullable=True,
     )
     devices: Mapped[list[DeviceModel]] = relationship(

@@ -150,7 +150,7 @@ class EpisodeService:
     ) -> dict[str, Any] | None:
         if action == "new":
             return None
-        if action == "play":
+        if action in {"play", "pause"}:
             return {
                 "started": started,
                 "position": position,

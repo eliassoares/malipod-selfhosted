@@ -20,6 +20,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-25
 - PostgreSQL (runtime/dev) and SQLite (tests), via SQLAlchemy + Alembic (018-podcast-detail-page)
 - Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, SQLAlchemy 2.x, Alembic (020-user-metrics)
 - Python 3.13 + FastAPI, Starlette, Jinja2Templates, Pydantic Settings, SQLAlchemy 2.x, Alembic (027-episode-playlists)
+- PostgreSQL (runtime/dev) e SQLite (tests) (028-web-audio-player)
 
 - Python 3.13 + FastAPI, Uvicorn, Pydantic Settings, SQLAlchemy 2.x, (003-podcast-sync-platform)
 
@@ -39,9 +40,9 @@ uv run pytest && uv run ruff check .
 Python 3.13: Follow standard conventions
 
 ## Recent Changes
+- 028-web-audio-player: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, SQLAlchemy 2.x, Alembic
 - 027-episode-playlists: Added Python 3.13 + FastAPI, Starlette, Jinja2Templates, Pydantic Settings, SQLAlchemy 2.x, Alembic
 - 022-centralized-subscriptions-sync: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, SQLAlchemy 2.x, Alembic
-- 020-user-metrics: Added Python 3.13 + FastAPI, Starlette, Jinja2, Pydantic Settings, SQLAlchemy 2.x, Alembic
 
 
 <!-- MANUAL ADDITIONS START -->

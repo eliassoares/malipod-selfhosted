@@ -29,6 +29,7 @@ from app.api.routes.subscriptions_api import router as subscriptions_api_router
 from app.api.routes.subscriptions_site import router as subscriptions_site_router
 from app.api.routes.suggestions_api import router as suggestions_api_router
 from app.api.routes.sync_devices_api import router as sync_devices_api_router
+from app.api.routes.web_player_api import router as web_player_api_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.db.session import close_database_connections, initialize_database
@@ -76,6 +77,7 @@ def create_app() -> FastAPI:
     app.include_router(suggestions_api_router)
     app.include_router(subscriptions_api_router)
     app.include_router(sync_devices_api_router)
+    app.include_router(web_player_api_router)
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
     return app
 
