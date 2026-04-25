@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.db.models.podcast import (
         EpisodeActionEventModel,
         EpisodeActionModel,
+        EpisodePlaylistModel,
         FavoriteEpisodeModel,
         FavoritePodcastModel,
         PodcastListModel,
@@ -86,6 +87,10 @@ class UserModel(Base):
         cascade="all, delete-orphan",
     )
     podcast_lists: Mapped[list[PodcastListModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    episode_playlists: Mapped[list[EpisodePlaylistModel]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )

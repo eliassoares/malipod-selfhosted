@@ -135,6 +135,15 @@
             </button>
           </form>
 
+          <button
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer"
+            type="button"
+            id="open-playlists"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">queue_music</span>
+            {{ copy["episode_detail.add_to_playlist"] }}
+          </button>
+
           {% if episode.media_url %}
           <a
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all"
@@ -198,6 +207,70 @@
       </div>
     </div>
   </header>
+
+  <!-- Add to playlists modal -->
+  <div class="fixed inset-0 bg-black/40 hidden items-end sm:items-center justify-center p-4 z-50" id="playlists-modal" aria-hidden="true">
+    <div class="w-full max-w-lg bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-headline font-black text-xl text-on-surface">{{ copy["episode_detail.add_to_playlist_title"] }}</h3>
+        <button type="button" class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer" data-close-playlists>
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      {% if playlists | length == 0 %}
+      <p class="text-sm text-on-surface-variant">{{ copy["episode_detail.no_playlists"] }}</p>
+      <div class="flex items-center justify-end gap-2 pt-5">
+        <a class="px-5 py-2.5 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90" href="/user/{{ current_user.nickname }}/playlists">
+          {{ copy["episode_detail.go_to_playlists"] }}
+        </a>
+      </div>
+      {% else %}
+      <form action="/user/{{ current_user.nickname }}/episode/{{ episode.id }}/playlists" method="post" class="space-y-4">
+        <div class="space-y-2 max-h-64 overflow-auto pr-1">
+          {% for pid, title in playlists %}
+          <label class="flex items-center gap-3 bg-surface-container rounded-xl px-4 py-3 cursor-pointer hover:bg-surface-container-high transition-colors">
+            <input type="checkbox" name="playlist_ids" value="{{ pid }}" class="accent-primary w-4 h-4" />
+            <span class="font-headline font-bold text-on-surface text-sm">{{ title }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close-playlists>
+            {{ copy["playlists.cancel"] }}
+          </button>
+          <button type="submit" class="px-6 py-2.5 rounded-full gradient-primary text-on-primary font-bold font-headline border-0 cursor-pointer hover:opacity-90">
+            {{ copy["episode_detail.add_to_playlist_confirm"] }}
+          </button>
+        </div>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modal = document.getElementById('playlists-modal');
+      var btn = document.getElementById('open-playlists');
+      function openModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      btn.addEventListener('click', openModal);
+      document.querySelectorAll('[data-close-playlists]').forEach(function (el) {
+        el.addEventListener('click', closeModal);
+      });
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+    })();
+  </script>
 
   <section class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 sm:p-8 space-y-4">
     <h2 class="font-headline font-black text-lg text-on-surface">{{ copy["episode_detail.history_title"] }}</h2>

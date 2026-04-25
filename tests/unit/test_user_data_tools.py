@@ -12,6 +12,8 @@ from app.db.models.podcast import (
     EpisodeActionEventModel,
     EpisodeActionModel,
     EpisodeModel,
+    EpisodePlaylistItemModel,
+    EpisodePlaylistModel,
     PodcastFeedModel,
     SubscriptionChangeEventModel,
 )
@@ -802,3 +804,279 @@ async def test_import_device_subscription_missing_in_db_is_inserted(
     sub = result.scalar_one_or_none()
     assert sub is not None
     assert sub.unsubscribed_at is None
+
+
+@pytest.mark.asyncio
+async def test_export_includes_episode_playlists(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+
+    feed = PodcastFeedModel(
+        feed_url="https://example.com/feed.xml",
+        title="Feed",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(feed)
+    await db_session.flush()
+
+    episode = EpisodeModel(
+        feed_id=feed.id,
+        episode_url="https://example.com/ep1",
+        title="Ep 1",
+        released_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(episode)
+    await db_session.flush()
+
+    playlist = EpisodePlaylistModel(
+        user_id=user.id,
+        title="My List",
+        description="desc",
+        image_url=None,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(playlist)
+    await db_session.flush()
+
+    item = EpisodePlaylistItemModel(
+        playlist_id=playlist.id,
+        episode_id=episode.id,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(item)
+    await db_session.commit()
+
+    service = UserDataToolsService(db_session)
+    snapshot = await service.export_snapshot(user)
+
+    assert len(snapshot["episode_playlists"]) == 1
+    assert snapshot["episode_playlists"][0]["title"] == "My List"
+    assert len(snapshot["episode_playlist_items"]) == 1
+    assert snapshot["episode_playlist_items"][0]["playlist_title"] == "My List"
+    item = snapshot["episode_playlist_items"][0]
+    assert item["episode_url"] == str(episode.episode_url)
+
+
+@pytest.mark.asyncio
+async def test_import_episode_playlists_round_trip(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+
+    feed = PodcastFeedModel(
+        feed_url="https://example.com/feed2.xml",
+        title="Feed2",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(feed)
+    await db_session.flush()
+
+    episode = EpisodeModel(
+        feed_id=feed.id,
+        episode_url="https://example.com/ep2",
+        title="Ep 2",
+        released_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(episode)
+    await db_session.commit()
+
+    service = UserDataToolsService(db_session)
+    snapshot = UserDataSnapshot.model_validate(
+        {
+            "users": [
+                {
+                    "nickname": user.nickname,
+                    "email": user.email,
+                    "picture_url": user.picture_url,
+                    "language_preference": user.language_preference,
+                    "created_at": user.created_at.isoformat(),
+                    "updated_at": user.updated_at.isoformat(),
+                    "accessed_at": user.accessed_at.isoformat(),
+                    "deactivated_at": None,
+                }
+            ],
+            "podcast_feeds": [
+                {
+                    "feed_url": "https://example.com/feed2.xml",
+                    "title": "Feed2",
+                    "created_at": now.isoformat(),
+                    "updated_at": now.isoformat(),
+                }
+            ],
+            "episodes": [
+                {
+                    "feed_url": "https://example.com/feed2.xml",
+                    "episode_url": "https://example.com/ep2",
+                    "title": "Ep 2",
+                    "released_at": now.isoformat(),
+                    "created_at": now.isoformat(),
+                    "updated_at": now.isoformat(),
+                }
+            ],
+            "episode_playlists": [
+                {
+                    "title": "Imported Playlist",
+                    "description": "imported",
+                    "image_url": None,
+                    "created_at": now.isoformat(),
+                    "updated_at": now.isoformat(),
+                }
+            ],
+            "episode_playlist_items": [
+                {
+                    "playlist_title": "Imported Playlist",
+                    "episode_url": "https://example.com/ep2",
+                    "created_at": now.isoformat(),
+                }
+            ],
+        }
+    )
+    await service.import_snapshot(user, snapshot)
+
+    playlists = (
+        (
+            await db_session.execute(
+                select(EpisodePlaylistModel).where(
+                    EpisodePlaylistModel.user_id == user.id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert len(playlists) == 1
+    assert playlists[0].title == "Imported Playlist"
+
+    items = (
+        (
+            await db_session.execute(
+                select(EpisodePlaylistItemModel).where(
+                    EpisodePlaylistItemModel.playlist_id == playlists[0].id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert len(items) == 1
+
+
+@pytest.mark.asyncio
+async def test_import_episode_playlists_is_idempotent(
+    db_session: AsyncSession,
+    settings: Settings,
+) -> None:
+    user = await create_user(db_session, settings)
+    now = datetime.now(UTC)
+
+    feed = PodcastFeedModel(
+        feed_url="https://example.com/feed3.xml",
+        title="Feed3",
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(feed)
+    await db_session.flush()
+
+    episode = EpisodeModel(
+        feed_id=feed.id,
+        episode_url="https://example.com/ep3",
+        title="Ep 3",
+        released_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db_session.add(episode)
+    await db_session.commit()
+
+    base_snapshot = {
+        "users": [
+            {
+                "nickname": user.nickname,
+                "email": user.email,
+                "picture_url": user.picture_url,
+                "language_preference": user.language_preference,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
+                "accessed_at": user.accessed_at.isoformat(),
+                "deactivated_at": None,
+            }
+        ],
+        "podcast_feeds": [
+            {
+                "feed_url": "https://example.com/feed3.xml",
+                "title": "Feed3",
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "episodes": [
+            {
+                "feed_url": "https://example.com/feed3.xml",
+                "episode_url": "https://example.com/ep3",
+                "title": "Ep 3",
+                "released_at": now.isoformat(),
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "episode_playlists": [
+            {
+                "title": "Idempotent Playlist",
+                "description": None,
+                "image_url": None,
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+            }
+        ],
+        "episode_playlist_items": [
+            {
+                "playlist_title": "Idempotent Playlist",
+                "episode_url": "https://example.com/ep3",
+                "created_at": now.isoformat(),
+            }
+        ],
+    }
+
+    service = UserDataToolsService(db_session)
+    await service.import_snapshot(user, UserDataSnapshot.model_validate(base_snapshot))
+    await service.import_snapshot(user, UserDataSnapshot.model_validate(base_snapshot))
+
+    playlists = (
+        (
+            await db_session.execute(
+                select(EpisodePlaylistModel).where(
+                    EpisodePlaylistModel.user_id == user.id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert len(playlists) == 1
+
+    items = (
+        (
+            await db_session.execute(
+                select(EpisodePlaylistItemModel).where(
+                    EpisodePlaylistItemModel.playlist_id == playlists[0].id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert len(items) == 1

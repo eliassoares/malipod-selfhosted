@@ -4,39 +4,53 @@
 
       <!-- Brand -->
       <a class="font-headline text-xl font-black tracking-tighter text-primary" href="/">
-        <span class="material-symbols-outlined text-primary align-middle mr-1" style="font-size:1.4rem; font-variation-settings: 'FILL' 1;">podcasts</span>{{ copy["brand"] }}
+        <span class="material-symbols-outlined text-primary align-middle mr-1"
+          style="font-size:1.4rem; font-variation-settings: 'FILL' 1;">podcasts</span>{{ copy["brand"] }}
       </a>
 
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
-        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/">
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all"
+          href="/">
           <span class="material-symbols-outlined" style="font-size:1.1rem;">home</span>
           {{ copy["nav.home"] }}
         </a>
         {% if current_user %}
-        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/user/profile/{{ current_user.nickname }}">
-          <span class="material-symbols-outlined" style="font-size:1.1rem;">settings</span>
-          {{ copy["nav.profile"] }}
-        </a>
-        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/user/subscriptions/{{ current_user.nickname }}">
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all"
+          href="/user/subscriptions/{{ current_user.nickname }}">
           <span class="material-symbols-outlined" style="font-size:1.1rem;">rss_feed</span>
           {{ copy["nav.subscriptions"] }}
         </a>
-        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/stats">
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all"
+          href="/user/{{ current_user.nickname }}/playlists">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">queue_music</span>
+          {{ copy["nav.playlists"] }}
+        </a>
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all"
+          href="/user/{{ current_user.nickname }}/stats">
           <span class="material-symbols-outlined" style="font-size:1.1rem;">bar_chart</span>
           {{ copy["nav.metrics"] }}
         </a>
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all"
+          href="/user/profile/{{ current_user.nickname }}">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">settings</span>
+          {{ copy["nav.profile"] }}
+        </a>
         <form action="/logout" method="post" class="inline">
-          <button class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all cursor-pointer border-0 bg-transparent" type="submit">
+          <button
+            class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all cursor-pointer border-0 bg-transparent"
+            type="submit">
             <span class="material-symbols-outlined" style="font-size:1.1rem;">logout</span>
             {{ copy["nav.logout"] }}
           </button>
         </form>
         {% else %}
-        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}" href="/register">
+        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}"
+          href="/register">
           {{ copy["nav.register"] }}
         </a>
-        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}" href="/login">
+        <a class="flex items-center gap-1.5 px-5 py-2 text-sm font-bold font-headline rounded-full transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container hover:text-on-surface{% endif %}"
+          href="/login">
           {{ copy["nav.login"] }}
         </a>
         {% endif %}
@@ -44,14 +58,18 @@
 
       <!-- Locale + Hamburger -->
       <div class="flex items-center gap-2">
-        <div class="hidden sm:flex items-center gap-0.5 bg-surface-container px-1.5 py-1 rounded-full border border-outline-variant/15">
+        <div
+          class="hidden sm:flex items-center gap-0.5 bg-surface-container px-1.5 py-1 rounded-full border border-outline-variant/15">
           {% for code in supported_locales %}
-          <a class="px-2.5 py-1 rounded-full text-[11px] font-bold font-label uppercase tracking-wide transition-all {% if locale == code %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{{ request.url.path }}?lang={{ code }}">{{ code }}</a>
+          <a class="px-2.5 py-1 rounded-full text-[11px] font-bold font-label uppercase tracking-wide transition-all {% if locale == code %}gradient-primary text-on-primary{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}"
+            href="{{ request.url.path }}?lang={{ code }}">{{ code }}</a>
           {% endfor %}
         </div>
 
         <!-- Hamburger (mobile only) -->
-        <button class="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container transition-colors text-on-surface border-0 bg-transparent cursor-pointer" id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+        <button
+          class="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container transition-colors text-on-surface border-0 bg-transparent cursor-pointer"
+          id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
           <span class="material-symbols-outlined" id="menu-icon">menu</span>
         </button>
       </div>
@@ -61,43 +79,58 @@
   <!-- Mobile Menu -->
   <div class="md:hidden hidden border-t border-outline-variant/20 bg-background/95 backdrop-blur-md" id="mobile-menu">
     <div class="max-w-6xl mx-auto px-4 py-3 space-y-1">
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all"
+        href="/">
         <span class="material-symbols-outlined text-base">home</span>
         {{ copy["nav.home"] }}
       </a>
       {% if current_user %}
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/profile/{{ current_user.nickname }}">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all"
+        href="/user/profile/{{ current_user.nickname }}">
         <span class="material-symbols-outlined text-base">settings</span>
         {{ copy["nav.profile"] }}
       </a>
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/subscriptions/{{ current_user.nickname }}">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all"
+        href="/user/subscriptions/{{ current_user.nickname }}">
         <span class="material-symbols-outlined text-base">rss_feed</span>
         {{ copy["nav.subscriptions"] }}
       </a>
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/stats">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all"
+        href="/user/{{ current_user.nickname }}/playlists">
+        <span class="material-symbols-outlined text-base">queue_music</span>
+        {{ copy["nav.playlists"] }}
+      </a>
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all"
+        href="/user/{{ current_user.nickname }}/stats">
         <span class="material-symbols-outlined text-base">bar_chart</span>
         {{ copy["nav.metrics"] }}
       </a>
       <form action="/logout" method="post">
-        <button class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all cursor-pointer border-0 bg-transparent" type="submit">
+        <button
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all cursor-pointer border-0 bg-transparent"
+          type="submit">
           <span class="material-symbols-outlined text-base">logout</span>
           {{ copy["nav.logout"] }}
         </button>
       </form>
       {% else %}
-      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}" href="/register">
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path == '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}"
+        href="/register">
         {{ copy["nav.register"] }}
       </a>
-      <a class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}" href="/login">
+      <a class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold font-headline transition-all {% if request.url.path != '/register' %}gradient-primary text-on-primary shadow-sm hover:opacity-90{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}"
+        href="/login">
         {{ copy["nav.login"] }}
       </a>
       {% endif %}
 
       <!-- Locale on mobile -->
       <div class="flex items-center gap-2 pt-3 pb-1 border-t border-outline-variant/20 mt-1">
-        <span class="text-[11px] font-label text-on-surface-variant uppercase tracking-widest">{{ copy["language.label"] }}</span>
+        <span class="text-[11px] font-label text-on-surface-variant uppercase tracking-widest">{{ copy["language.label"]
+          }}</span>
         {% for code in supported_locales %}
-        <a class="px-3 py-1.5 rounded-full text-[11px] font-bold font-label uppercase tracking-wide transition-all {% if locale == code %}gradient-primary text-on-primary{% else %}bg-surface-container text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{{ request.url.path }}?lang={{ code }}">{{ code }}</a>
+        <a class="px-3 py-1.5 rounded-full text-[11px] font-bold font-label uppercase tracking-wide transition-all {% if locale == code %}gradient-primary text-on-primary{% else %}bg-surface-container text-on-surface-variant hover:bg-surface-container-high{% endif %}"
+          href="{{ request.url.path }}?lang={{ code }}">{{ code }}</a>
         {% endfor %}
       </div>
     </div>

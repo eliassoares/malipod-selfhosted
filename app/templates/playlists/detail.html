@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div class="flex items-start gap-4">
+      <div class="w-20 h-20 rounded-2xl bg-surface-container overflow-hidden flex-shrink-0">
+        <img src="{{ payload.card.image_url }}" alt="" class="w-full h-full object-cover" />
+      </div>
+      <div>
+        <a href="/user/{{ nickname }}/playlists" class="text-xs font-headline text-on-surface-variant hover:text-on-surface inline-flex items-center gap-1">
+          <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+          {{ copy["playlists.back"] }}
+        </a>
+        <h1 class="font-headline font-black text-3xl text-on-surface tracking-tight mt-1">
+          {{ payload.card.title }}
+        </h1>
+        {% if payload.card.description %}
+        <p class="text-on-surface-variant text-sm mt-1 max-w-2xl">{{ payload.card.description }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="bg-error/10 text-error px-4 py-3 rounded-xl text-sm font-headline">
+    {{ copy.get("playlists.error_" + error, error) }}
+  </div>
+  {% endif %}
+  {% if success %}
+  <div class="bg-primary/10 text-primary px-4 py-3 rounded-xl text-sm font-headline">
+    {{ copy.get("playlists.success_" + success, success) }}
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.episodes"] }}</p>
+      <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.episode_count }}</p>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.listened"] }}</p>
+      <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.listened_formatted }}</p>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.total"] }}</p>
+      <p class="font-headline font-black text-on-surface text-2xl mt-1">{{ payload.card.total_formatted }}</p>
+    </div>
+  </div>
+
+  <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+    <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-4">
+      <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["playlists.episodes_in_playlist"] }}</h2>
+      {% if not payload.card.is_favorites %}
+      <form class="flex gap-2" method="get" action="/user/{{ nickname }}/playlists/{{ payload.card.playlist_id }}">
+        <input
+          class="w-full sm:w-72 px-4 py-2.5 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+          name="q"
+          value="{{ payload.search_query or '' }}"
+          placeholder="{{ copy['playlists.search_placeholder'] }}"
+        />
+        <button
+          class="px-5 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer"
+          type="submit"
+        >
+          <span class="material-symbols-outlined align-middle" style="font-size:1.1rem;">search</span>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+    {% if payload.search_query and not payload.card.is_favorites %}
+    <div class="mb-6">
+      <h3 class="text-sm font-headline font-bold text-on-surface mb-2">{{ copy["playlists.search_results"] }}</h3>
+      {% if payload.search_results %}
+      <div class="space-y-2">
+        {% for row in payload.search_results %}
+        <div class="flex items-center justify-between gap-3 bg-surface-container rounded-xl p-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
+              <img src="{{ row.logo_url }}" alt="" class="w-full h-full object-cover" />
+            </div>
+            <div class="min-w-0">
+              <p class="font-headline font-bold text-on-surface text-sm truncate">{{ row.title }}</p>
+              <p class="text-xs text-on-surface-variant truncate">{{ row.podcast_title }}</p>
+            </div>
+          </div>
+          <form method="post" action="/user/{{ nickname }}/playlists/{{ payload.card.playlist_id }}/items">
+            <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
+            {% if row.is_in_playlist %}
+            <input type="hidden" name="action" value="remove" />
+            <button class="px-4 py-2 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit">
+              {{ copy["playlists.remove"] }}
+            </button>
+            {% else %}
+            <input type="hidden" name="action" value="add" />
+            <button class="px-4 py-2 rounded-lg gradient-primary text-on-primary font-bold font-headline text-sm border-0 cursor-pointer hover:opacity-90" type="submit">
+              {{ copy["playlists.add"] }}
+            </button>
+            {% endif %}
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-on-surface-variant">{{ copy["playlists.empty_search"] }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if payload.episodes %}
+    <div class="space-y-2">
+      {% for row in payload.episodes %}
+      <div class="flex items-center justify-between gap-3 bg-surface-container rounded-xl p-3 {% if not payload.card.is_favorites %}hover:bg-surface-container-high transition-colors{% endif %}">
+        <a href="/episode/{{ row.episode_id }}" class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
+            <img src="{{ row.logo_url }}" alt="" class="w-full h-full object-cover" />
+          </div>
+          <div class="min-w-0">
+            <p class="font-headline font-bold text-on-surface text-sm truncate">{{ row.title }}</p>
+            <p class="text-xs text-on-surface-variant truncate">{{ row.podcast_title }}</p>
+          </div>
+        </a>
+        {% if payload.card.is_favorites %}
+        <form method="post" action="/user/{{ nickname }}/playlists/favorites/items" class="flex-shrink-0">
+          <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
+          <input type="hidden" name="action" value="remove" />
+          <button class="px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit" title="{{ copy['playlists.remove'] }}">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">close</span>
+          </button>
+        </form>
+        {% else %}
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="text-xs text-on-surface-variant whitespace-nowrap">{{ row.released_at.strftime("%Y-%m-%d") }}</span>
+          <form method="post" action="/user/{{ nickname }}/playlists/{{ payload.card.playlist_id }}/items">
+            <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
+            <input type="hidden" name="action" value="remove" />
+            <button class="w-7 h-7 rounded-md bg-surface-container-low hover:bg-error/10 hover:text-error text-on-surface-variant border-0 cursor-pointer flex items-center justify-center transition-colors" type="submit" title="{{ copy['playlists.remove'] }}">
+              <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-on-surface-variant">{{ copy["playlists.empty_playlist"] }}</p>
+    {% endif %}
+  </article>
+</div>
+{% endblock %}

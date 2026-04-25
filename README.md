@@ -21,6 +21,25 @@ field and click **Add**. Malipod fetches and imports the feed metadata in the
 background, then adds the podcast to your library. The episode list, artwork,
 author, and description are all stored locally.
 
+### Episode playlists
+
+Create and manage custom playlists of episodes from the **Playlists** page
+(`/user/{nickname}/playlists`):
+
+- **Create** a playlist with a title, optional description, and cover image
+  (PNG, JPEG, or WebP, up to 1 MB).
+- **Edit** the title, description, or cover image at any time.
+- **Delete** a playlist with a confirmation step.
+- **Detail page** — search your subscribed episodes by title or podcast name to
+  add or remove them. Each episode row links directly to its episode page.
+- **Favorites playlist** — a built-in read-only playlist populated automatically
+  from your favorited episodes. Open it to browse and selectively unfavorite
+  episodes without leaving the playlists area.
+
+Each playlist card shows the episode count and total listening time. Playlists
+and their items are included in the export/import snapshot, so they survive
+account migrations.
+
 ### Favorites
 
 Both podcasts and individual episodes can be favorited from their detail pages.
