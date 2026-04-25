@@ -40,7 +40,7 @@ repos:
     hooks:
       - id: pip-audit
         name: pip-audit
-        entry: uv run pip-audit
+        entry: uv run pip-audit --ignore-vuln GHSA-58qw-9mgm-455v
         language: system
         # GHSA-58qw-9mgm-455v: affects jinja2 sandboxed env (not used here); no fix available yet
         args: [--ignore-vuln, GHSA-58qw-9mgm-455v]

@@ -2,17 +2,17 @@ services:
   app:
     build:
       context: .
-      dockerfile: docker/app/Dockerfile
+      dockerfile: docker/app/Dockerfile.dev
     env_file:
       - .env
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/.venv
     depends_on:
       db:
         condition: service_healthy
-    command: >
-      sh -c "uv run alembic upgrade head &&
-             uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
   db:
     image: postgres:17.6-alpine
@@ -28,7 +28,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_dev:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  postgres_data_dev:

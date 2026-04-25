@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", ".venv/bin/alembic upgrade head && .venv/bin/gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w $(( $(nproc) > 8 ? 8 : $(nproc) )) --bind 0.0.0.0:8000"]

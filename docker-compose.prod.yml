@@ -1,0 +1,7 @@
+services:
+  app:
+    image: malipod-app
+    env_file:
+      - .env.prod
+    network_mode: host
+    restart: unless-stopped
