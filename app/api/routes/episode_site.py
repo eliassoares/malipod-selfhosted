@@ -16,6 +16,7 @@ from app.api.deps import (
     get_current_user,
     get_episode_detail_service,
     get_episode_favorites_service,
+    get_episode_playlists_service,
     get_localization_service,
     get_runtime_settings,
 )
@@ -25,6 +26,7 @@ from app.core.localization import SUPPORTED_LOCALE_CODES
 from app.db.models.user import UserModel
 from app.services.episode_detail import EpisodeDetailService
 from app.services.episode_favorites import EpisodeFavoritesService
+from app.services.episode_playlists import EpisodePlaylistsService
 from app.services.localization import LocalizationService
 
 templates = Jinja2Templates(directory="app/templates")
@@ -41,6 +43,9 @@ EpisodeDetailServiceDep = Annotated[
 EpisodeFavoritesServiceDep = Annotated[
     EpisodeFavoritesService, Depends(get_episode_favorites_service)
 ]
+EpisodePlaylistsServiceDep = Annotated[
+    EpisodePlaylistsService, Depends(get_episode_playlists_service)
+]
 
 
 @router.get("/episode/{episode_id}", response_class=HTMLResponse)
@@ -52,6 +57,7 @@ async def episode_detail_page(
     current_user: CurrentUserDep,
     detail_service: EpisodeDetailServiceDep,
     favorites_service: EpisodeFavoritesServiceDep,
+    playlists_service: EpisodePlaylistsServiceDep,
 ) -> Response:
     if current_user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
@@ -96,6 +102,7 @@ async def episode_detail_page(
     favorited_at = await favorites_service.get_favorited_at(
         current_user, episode_id=episode.id
     )
+    playlists = await playlists_service.list_user_playlists(current_user)
 
     response = templates.TemplateResponse(
         request=request,
@@ -115,6 +122,7 @@ async def episode_detail_page(
             "is_favorited": favorited_at is not None,
             "favorited_at": favorited_at,
             "share_url": share_url,
+            "playlists": playlists,
         },
     )
     apply_locale_cookie(response, settings, locale)

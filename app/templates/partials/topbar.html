@@ -22,6 +22,10 @@
           <span class="material-symbols-outlined" style="font-size:1.1rem;">rss_feed</span>
           {{ copy["nav.subscriptions"] }}
         </a>
+        <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/playlists">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">queue_music</span>
+          {{ copy["nav.playlists"] }}
+        </a>
         <a class="flex items-center gap-1.5 px-4 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/stats">
           <span class="material-symbols-outlined" style="font-size:1.1rem;">bar_chart</span>
           {{ copy["nav.metrics"] }}
@@ -73,6 +77,10 @@
       <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/subscriptions/{{ current_user.nickname }}">
         <span class="material-symbols-outlined text-base">rss_feed</span>
         {{ copy["nav.subscriptions"] }}
+      </a>
+      <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/playlists">
+        <span class="material-symbols-outlined text-base">queue_music</span>
+        {{ copy["nav.playlists"] }}
       </a>
       <a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-on-surface-variant hover:bg-surface-container text-sm font-medium font-headline transition-all" href="/user/{{ current_user.nickname }}/stats">
         <span class="material-symbols-outlined text-base">bar_chart</span>

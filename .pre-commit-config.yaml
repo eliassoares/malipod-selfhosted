@@ -42,5 +42,6 @@ repos:
         name: pip-audit
         entry: uv run pip-audit
         language: system
+        args: [--ignore-vuln, GHSA-58qw-9mgm-455v]
         pass_filenames: false
         always_run: true

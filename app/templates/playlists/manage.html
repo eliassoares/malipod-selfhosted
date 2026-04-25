@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div>
+      <h1 class="font-headline font-black text-3xl text-on-surface tracking-tight">
+        {{ copy["playlists.manage_title"] }}
+      </h1>
+      <p class="text-on-surface-variant text-sm mt-1">{{ copy["playlists.manage_subtitle"] }}</p>
+    </div>
+    <button
+      type="button"
+      class="gradient-primary text-on-primary font-bold font-headline px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer"
+      id="open-create"
+    >
+      <span class="material-symbols-outlined align-middle mr-1" style="font-size:1.1rem;">add</span>
+      {{ copy["playlists.create"] }}
+    </button>
+  </div>
+
+  {% if error %}
+  <div class="bg-error/10 text-error px-4 py-3 rounded-xl text-sm font-headline">
+    {{ copy.get("playlists.error_" + error, error) }}
+  </div>
+  {% endif %}
+  {% if success %}
+  <div class="bg-primary/10 text-primary px-4 py-3 rounded-xl text-sm font-headline">
+    {{ copy.get("playlists.success_" + success, success) }}
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for card in cards %}
+    <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 {% if highlight_playlist_id and card.playlist_id == highlight_playlist_id %}ring-2 ring-primary/30{% endif %}">
+      <a class="flex items-start gap-4" href="{% if card.is_favorites %}#{% else %}/user/{{ nickname }}/playlists/{{ card.playlist_id }}{% endif %}">
+        <div class="w-16 h-16 rounded-2xl bg-surface-container overflow-hidden flex-shrink-0">
+          <img src="{{ card.image_url }}" alt="" class="w-full h-full object-cover" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <h2 class="font-headline font-extrabold text-on-surface text-lg truncate">
+            {% if card.is_favorites %}
+              {{ copy["playlists.favorites_title"] }}
+            {% else %}
+              {{ card.title }}
+            {% endif %}
+          </h2>
+          {% if card.description %}
+          <p class="text-xs text-on-surface-variant mt-0.5 line-clamp-2">{{ card.description }}</p>
+          {% endif %}
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <div class="bg-surface-container rounded-xl p-3">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.episodes"] }}</p>
+              <p class="font-headline font-black text-on-surface text-lg mt-1">{{ card.episode_count }}</p>
+            </div>
+            <div class="bg-surface-container rounded-xl p-3">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-label">{{ copy["playlists.listened"] }}</p>
+              <p class="font-headline font-black text-on-surface text-lg mt-1">{{ card.listened_formatted }}</p>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      {% if not card.is_favorites %}
+      <div class="flex items-center justify-between mt-4 pt-4 border-t border-outline-variant/20 gap-2">
+        <button
+          type="button"
+          class="flex-1 bg-surface-container hover:bg-surface-container-high rounded-xl px-4 py-2.5 text-sm font-headline font-bold text-on-surface transition-colors border-0 cursor-pointer"
+          data-edit
+          data-playlist-id="{{ card.playlist_id }}"
+          data-title="{{ card.title }}"
+          data-description="{{ card.description or '' }}"
+        >
+          <span class="material-symbols-outlined align-middle mr-1" style="font-size:1rem;">edit</span>
+          {{ copy["playlists.edit"] }}
+        </button>
+        <button
+          type="button"
+          class="flex-1 bg-error/10 hover:bg-error/20 rounded-xl px-4 py-2.5 text-sm font-headline font-bold text-error transition-colors border-0 cursor-pointer"
+          data-delete
+          data-playlist-id="{{ card.playlist_id }}"
+          data-title="{{ card.title }}"
+        >
+          <span class="material-symbols-outlined align-middle mr-1" style="font-size:1rem;">delete</span>
+          {{ copy["playlists.delete"] }}
+        </button>
+      </div>
+      {% else %}
+      <div class="mt-4 pt-4 border-t border-outline-variant/20">
+        <p class="text-xs text-on-surface-variant">{{ copy["playlists.favorites_read_only"] }}</p>
+      </div>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="fixed inset-0 bg-black/40 hidden items-end sm:items-center justify-center p-4 z-50" id="create-modal" aria-hidden="true">
+  <div class="w-full max-w-lg bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-headline font-black text-xl text-on-surface">{{ copy["playlists.create_title"] }}</h3>
+      <button type="button" class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer" data-close>
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form action="/user/{{ nickname }}/playlists/create" method="post" enctype="multipart/form-data" class="space-y-3">
+      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="title" placeholder="{{ copy['playlists.title_placeholder'] }}" required />
+      <textarea class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="description" maxlength="1024" rows="4" placeholder="{{ copy['playlists.description_placeholder'] }}"></textarea>
+      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0" type="file" name="image" accept="image/*" />
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close>
+          {{ copy["playlists.cancel"] }}
+        </button>
+        <button type="submit" class="px-6 py-2.5 rounded-full gradient-primary text-on-primary font-bold font-headline border-0 cursor-pointer">
+          {{ copy["playlists.create"] }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="fixed inset-0 bg-black/40 hidden items-end sm:items-center justify-center p-4 z-50" id="edit-modal" aria-hidden="true">
+  <div class="w-full max-w-lg bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-headline font-black text-xl text-on-surface">{{ copy["playlists.edit_title"] }}</h3>
+      <button type="button" class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer" data-close>
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form action="#" method="post" enctype="multipart/form-data" class="space-y-3" id="edit-form">
+      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="title" id="edit-title" required />
+      <textarea class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="description" maxlength="1024" rows="4" id="edit-description"></textarea>
+      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0" type="file" name="image" accept="image/*" />
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close>
+          {{ copy["playlists.cancel"] }}
+        </button>
+        <button type="submit" class="px-6 py-2.5 rounded-full gradient-primary text-on-primary font-bold font-headline border-0 cursor-pointer">
+          {{ copy["playlists.save"] }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="fixed inset-0 bg-black/40 hidden items-end sm:items-center justify-center p-4 z-50" id="delete-modal" aria-hidden="true">
+  <div class="w-full max-w-lg bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-error/10 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-error" style="font-size:1.2rem;">delete</span>
+      </div>
+      <div class="flex-1">
+        <h3 class="font-headline font-black text-xl text-on-surface">{{ copy["playlists.delete_title"] }}</h3>
+        <p class="text-sm text-on-surface-variant mt-1">
+          {{ copy["playlists.delete_description"] }}
+          <span class="font-semibold text-on-surface" id="delete-name"></span>
+        </p>
+      </div>
+    </div>
+    <form action="#" method="post" class="mt-5 flex items-center justify-end gap-2" id="delete-form">
+      <input type="hidden" name="confirm" value="1" />
+      <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close>
+        {{ copy["playlists.cancel"] }}
+      </button>
+      <button type="submit" class="px-6 py-2.5 rounded-full bg-error text-on-error font-bold font-headline border-0 cursor-pointer hover:opacity-90">
+        {{ copy["playlists.delete_confirm"] }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function openModal(el) {
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+      el.setAttribute('aria-hidden', 'false');
+    }
+    function closeModal(el) {
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+      el.setAttribute('aria-hidden', 'true');
+    }
+
+    var createModal = document.getElementById('create-modal');
+    var editModal = document.getElementById('edit-modal');
+    var deleteModal = document.getElementById('delete-modal');
+
+    document.getElementById('open-create').addEventListener('click', function () {
+      openModal(createModal);
+    });
+
+    document.querySelectorAll('[data-close]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        closeModal(createModal);
+        closeModal(editModal);
+        closeModal(deleteModal);
+      });
+    });
+
+    var editForm = document.getElementById('edit-form');
+    var editTitle = document.getElementById('edit-title');
+    var editDescription = document.getElementById('edit-description');
+
+    document.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pid = btn.getAttribute('data-playlist-id');
+        var title = btn.getAttribute('data-title') || '';
+        var desc = btn.getAttribute('data-description') || '';
+        editForm.setAttribute('action', '/user/{{ nickname }}/playlists/' + pid + '/update');
+        editTitle.value = title;
+        editDescription.value = desc;
+        openModal(editModal);
+      });
+    });
+
+    var deleteForm = document.getElementById('delete-form');
+    var deleteName = document.getElementById('delete-name');
+    document.querySelectorAll('[data-delete]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pid = btn.getAttribute('data-playlist-id');
+        var title = btn.getAttribute('data-title') || '';
+        deleteForm.setAttribute('action', '/user/{{ nickname }}/playlists/' + pid + '/delete');
+        deleteName.textContent = title;
+        openModal(deleteModal);
+      });
+    });
+
+    [createModal, editModal, deleteModal].forEach(function (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal(modal);
+      });
+    });
+  })();
+</script>
+{% endblock %}

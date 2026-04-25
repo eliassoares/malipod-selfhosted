@@ -17,3 +17,12 @@ def choose_placeholder_url_stable(seed: str) -> str:
     digest = hashlib.sha256(seed.encode("utf-8")).digest()
     index = int.from_bytes(digest[:2], "big") % len(PLACEHOLDER_URLS)
     return PLACEHOLDER_URLS[index]
+
+
+def resolve_image_url(value: str | None, *, seed: str | None = None) -> str:
+    cleaned = (value or "").strip()
+    if cleaned:
+        return cleaned
+    if seed is None:
+        return choose_placeholder_url_random()
+    return choose_placeholder_url_stable(seed)

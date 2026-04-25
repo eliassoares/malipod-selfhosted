@@ -151,6 +151,79 @@ class PodcastListItemModel(Base):
     feed: Mapped[PodcastFeedModel] = relationship(back_populates="list_items")
 
 
+class EpisodePlaylistModel(Base):
+    __tablename__ = "episode_playlists"
+    __table_args__ = (
+        UniqueConstraint("user_id", "title", name="uq_episode_playlists_user_id_title"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    user: Mapped[UserModel] = relationship(back_populates="episode_playlists")
+    items: Mapped[list[EpisodePlaylistItemModel]] = relationship(
+        back_populates="playlist",
+        cascade="all, delete-orphan",
+        order_by="EpisodePlaylistItemModel.created_at",
+    )
+
+
+class EpisodePlaylistItemModel(Base):
+    __tablename__ = "episode_playlist_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "playlist_id",
+            "episode_id",
+            name="uq_episode_playlist_items_playlist_id_episode_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    playlist_id: Mapped[int] = mapped_column(
+        ForeignKey("episode_playlists.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    episode_id: Mapped[int] = mapped_column(
+        ForeignKey("episodes.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    playlist: Mapped[EpisodePlaylistModel] = relationship(back_populates="items")
+    episode: Mapped[EpisodeModel] = relationship(back_populates="playlist_items")
+
+
 class DeviceSubscriptionModel(Base):
     __tablename__ = "device_subscriptions"
     __table_args__ = (
@@ -263,6 +336,11 @@ class EpisodeModel(Base):
     favorites: Mapped[list[FavoriteEpisodeModel]] = relationship(
         back_populates="episode",
         cascade="all, delete-orphan",
+    )
+    playlist_items: Mapped[list[EpisodePlaylistItemModel]] = relationship(
+        back_populates="episode",
+        cascade="save-update, merge, delete",
+        passive_deletes=True,
     )
 
 
