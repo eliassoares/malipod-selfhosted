@@ -133,7 +133,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "playlists.title_placeholder": "Playlist name",
         "playlists.description_placeholder": "Description (optional)",
         "playlists.favorites_title": "Favorites",
-        "playlists.favorites_read_only": ("Favorites is a special read-only playlist."),
+        "playlists.favorites_read_only": "Favorites is a special playlist.",
+        "playlists.view": "View",
+        "playlists.choose_image": "Choose image (optional)",
         "playlists.episodes": "Episodes",
         "playlists.listened": "Listened",
         "playlists.edit": "Edit",
@@ -412,9 +414,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "playlists.title_placeholder": "Nombre de la playlist",
         "playlists.description_placeholder": "Descripción (opcional)",
         "playlists.favorites_title": "Favoritos",
-        "playlists.favorites_read_only": (
-            "Favoritos es una playlist especial de solo lectura."
-        ),
+        "playlists.favorites_read_only": "Favoritos es una playlist especial.",
+        "playlists.view": "Ver",
+        "playlists.choose_image": "Elegir imagen (opcional)",
         "playlists.episodes": "Episodios",
         "playlists.listened": "Escuchado",
         "playlists.edit": "Editar",
@@ -699,9 +701,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "playlists.title_placeholder": "Nome da playlist",
         "playlists.description_placeholder": "Descrição (opcional)",
         "playlists.favorites_title": "Favoritos",
-        "playlists.favorites_read_only": (
-            "Favoritos é uma playlist especial somente leitura."
-        ),
+        "playlists.favorites_read_only": "Favoritos é uma playlist especial.",
+        "playlists.view": "Ver",
+        "playlists.choose_image": "Escolher imagem (opcional)",
         "playlists.episodes": "Episódios",
         "playlists.listened": "Ouvido",
         "playlists.edit": "Editar",

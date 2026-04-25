@@ -18,6 +18,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.api.deps import (
     get_current_user,
+    get_episode_favorites_service,
     get_episode_playlists_service,
     get_localization_service,
     get_runtime_settings,
@@ -26,6 +27,7 @@ from app.api.utils import apply_locale_cookie
 from app.core.config import Settings
 from app.core.localization import SUPPORTED_LOCALE_CODES
 from app.db.models.user import UserModel
+from app.services.episode_favorites import EpisodeFavoritesService
 from app.services.episode_playlists import (
     EpisodePlaylistsError,
     EpisodePlaylistsService,
@@ -43,6 +45,9 @@ LocalizationServiceDep = Annotated[
 CurrentUserDep = Annotated[UserModel | None, Depends(get_current_user)]
 EpisodePlaylistsServiceDep = Annotated[
     EpisodePlaylistsService, Depends(get_episode_playlists_service)
+]
+EpisodeFavoritesServiceDep = Annotated[
+    EpisodeFavoritesService, Depends(get_episode_favorites_service)
 ]
 
 OPTIONAL_IMAGE_FILE = File(default=None)
@@ -276,6 +281,73 @@ async def delete_playlist(
         )
     return RedirectResponse(
         url=f"/user/{nickname}/playlists?success=deleted",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.get("/user/{nickname}/playlists/favorites", response_class=HTMLResponse)
+async def favorites_detail_page(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    playlists_service: EpisodePlaylistsServiceDep,
+    error: str | None = None,
+    success: str | None = None,
+) -> Response:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    owner = _require_owner(nickname, current_user, settings, localization_service)
+    locale = localization_service.resolve_locale(
+        request.cookies.get("malipod_locale"),
+        user=owner,
+        explicit_locale=request.query_params.get("lang"),
+    ).effective_locale
+    copy = localization_service.build_copy(locale)
+    payload = await playlists_service.build_favorites_detail(owner)
+    response = templates.TemplateResponse(
+        request=request,
+        name="playlists/detail.html",
+        context={
+            "page_title": copy.get("playlists.favorites_title", "Favorites"),
+            "app_name": settings.app_name,
+            "locale": locale,
+            "copy": copy,
+            "supported_locales": SUPPORTED_LOCALE_CODES,
+            "current_user": owner,
+            "nickname": nickname,
+            "payload": payload,
+            "error": error if error in _VALID_DETAIL_ERRORS else None,
+            "success": success if success in _VALID_DETAIL_SUCCESSES else None,
+        },
+    )
+    apply_locale_cookie(response, settings, locale)
+    return response
+
+
+@router.post("/user/{nickname}/playlists/favorites/items")
+async def update_favorites_items(
+    nickname: str,
+    request: Request,
+    settings: SettingsDep,
+    localization_service: LocalizationServiceDep,
+    current_user: CurrentUserDep,
+    favorites_service: EpisodeFavoritesServiceDep,
+    episode_id: int = Form(...),
+    action: str = Form(""),
+) -> RedirectResponse:
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    owner = _require_owner(nickname, current_user, settings, localization_service)
+    if action.strip().lower() != "remove":
+        return RedirectResponse(
+            url=f"/user/{nickname}/playlists/favorites?error=invalid_action",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    await favorites_service.toggle_favorite(owner, episode_id=episode_id)
+    return RedirectResponse(
+        url=f"/user/{nickname}/playlists/favorites?success=episode_removed",
         status_code=status.HTTP_303_SEE_OTHER,
     )
 

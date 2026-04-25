@@ -51,23 +51,25 @@
   <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-6">
     <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-4">
       <h2 class="font-headline font-bold text-on-surface text-lg">{{ copy["playlists.episodes_in_playlist"] }}</h2>
+      {% if not payload.card.is_favorites %}
       <form class="flex gap-2" method="get" action="/user/{{ nickname }}/playlists/{{ payload.card.playlist_id }}">
         <input
-          class="w-full sm:w-72 px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
+          class="w-full sm:w-72 px-4 py-2.5 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 transition-all text-on-surface font-body"
           name="q"
           value="{{ payload.search_query or '' }}"
           placeholder="{{ copy['playlists.search_placeholder'] }}"
         />
         <button
-          class="px-5 py-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer"
+          class="px-5 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer"
           type="submit"
         >
           <span class="material-symbols-outlined align-middle" style="font-size:1.1rem;">search</span>
         </button>
       </form>
+      {% endif %}
     </div>
 
-    {% if payload.search_query %}
+    {% if payload.search_query and not payload.card.is_favorites %}
     <div class="mb-6">
       <h3 class="text-sm font-headline font-bold text-on-surface mb-2">{{ copy["playlists.search_results"] }}</h3>
       {% if payload.search_results %}
@@ -75,7 +77,7 @@
         {% for row in payload.search_results %}
         <div class="flex items-center justify-between gap-3 bg-surface-container rounded-xl p-3">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-low flex-shrink-0">
+            <div class="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
               <img src="{{ row.logo_url }}" alt="" class="w-full h-full object-cover" />
             </div>
             <div class="min-w-0">
@@ -87,12 +89,12 @@
             <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
             {% if row.is_in_playlist %}
             <input type="hidden" name="action" value="remove" />
-            <button class="px-4 py-2 rounded-xl bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit">
+            <button class="px-4 py-2 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit">
               {{ copy["playlists.remove"] }}
             </button>
             {% else %}
             <input type="hidden" name="action" value="add" />
-            <button class="px-4 py-2 rounded-xl gradient-primary text-on-primary font-bold font-headline text-sm border-0 cursor-pointer hover:opacity-90" type="submit">
+            <button class="px-4 py-2 rounded-lg gradient-primary text-on-primary font-bold font-headline text-sm border-0 cursor-pointer hover:opacity-90" type="submit">
               {{ copy["playlists.add"] }}
             </button>
             {% endif %}
@@ -109,18 +111,28 @@
     {% if payload.episodes %}
     <div class="space-y-2">
       {% for row in payload.episodes %}
-      <a href="/episode/{{ row.episode_id }}" class="flex items-center justify-between gap-3 bg-surface-container rounded-xl p-3 hover:bg-surface-container-high transition-colors">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-low flex-shrink-0">
+      <div class="flex items-center justify-between gap-3 bg-surface-container rounded-xl p-3 {% if not payload.card.is_favorites %}hover:bg-surface-container-high transition-colors{% endif %}">
+        <a href="/episode/{{ row.episode_id }}" class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
             <img src="{{ row.logo_url }}" alt="" class="w-full h-full object-cover" />
           </div>
           <div class="min-w-0">
             <p class="font-headline font-bold text-on-surface text-sm truncate">{{ row.title }}</p>
             <p class="text-xs text-on-surface-variant truncate">{{ row.podcast_title }}</p>
           </div>
-        </div>
-        <span class="text-xs text-on-surface-variant whitespace-nowrap">{{ row.released_at.strftime("%Y-%m-%d") }}</span>
-      </a>
+        </a>
+        {% if payload.card.is_favorites %}
+        <form method="post" action="/user/{{ nickname }}/playlists/favorites/items" class="flex-shrink-0">
+          <input type="hidden" name="episode_id" value="{{ row.episode_id }}" />
+          <input type="hidden" name="action" value="remove" />
+          <button class="px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error font-bold font-headline text-sm border-0 cursor-pointer" type="submit">
+            <span class="material-symbols-outlined align-middle" style="font-size:1rem;">star_off</span>
+          </button>
+        </form>
+        {% else %}
+        <span class="text-xs text-on-surface-variant whitespace-nowrap flex-shrink-0">{{ row.released_at.strftime("%Y-%m-%d") }}</span>
+        {% endif %}
+      </div>
       {% endfor %}
     </div>
     {% else %}

@@ -33,7 +33,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for card in cards %}
     <article class="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 {% if highlight_playlist_id and card.playlist_id == highlight_playlist_id %}ring-2 ring-primary/30{% endif %}">
-      <a class="flex items-start gap-4" href="{% if card.is_favorites %}#{% else %}/user/{{ nickname }}/playlists/{{ card.playlist_id }}{% endif %}">
+      <a class="flex items-start gap-4" href="{% if card.is_favorites %}/user/{{ nickname }}/playlists/favorites{% else %}/user/{{ nickname }}/playlists/{{ card.playlist_id }}{% endif %}">
         <div class="w-16 h-16 rounded-2xl bg-surface-container overflow-hidden flex-shrink-0">
           <img src="{{ card.image_url }}" alt="" class="w-full h-full object-cover" />
         </div>
@@ -86,8 +86,15 @@
         </button>
       </div>
       {% else %}
-      <div class="mt-4 pt-4 border-t border-outline-variant/20">
+      <div class="flex items-center justify-between mt-4 pt-4 border-t border-outline-variant/20">
         <p class="text-xs text-on-surface-variant">{{ copy["playlists.favorites_read_only"] }}</p>
+        <a
+          href="/user/{{ nickname }}/playlists/favorites"
+          class="bg-surface-container hover:bg-surface-container-high rounded-lg px-4 py-2 text-sm font-headline font-bold text-on-surface transition-colors"
+        >
+          <span class="material-symbols-outlined align-middle mr-1" style="font-size:1rem;">list</span>
+          {{ copy["playlists.view"] }}
+        </a>
       </div>
       {% endif %}
     </article>
@@ -105,9 +112,13 @@
       </button>
     </div>
     <form action="/user/{{ nickname }}/playlists/create" method="post" enctype="multipart/form-data" class="space-y-3">
-      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="title" placeholder="{{ copy['playlists.title_placeholder'] }}" required />
-      <textarea class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="description" maxlength="1024" rows="4" placeholder="{{ copy['playlists.description_placeholder'] }}"></textarea>
-      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0" type="file" name="image" accept="image/*" />
+      <input class="w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/40 text-on-surface font-body" name="title" placeholder="{{ copy['playlists.title_placeholder'] }}" required />
+      <textarea class="w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/40 text-on-surface font-body resize-none" name="description" maxlength="1024" rows="4" placeholder="{{ copy['playlists.description_placeholder'] }}"></textarea>
+      <label class="block w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 text-on-surface-variant text-sm font-body cursor-pointer hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined align-middle mr-1 text-outline" style="font-size:1rem;">image</span>
+        <span id="create-file-label">{{ copy.get("playlists.choose_image", "Choose image (optional)") }}</span>
+        <input class="hidden" type="file" name="image" accept="image/*" id="create-file-input" />
+      </label>
       <div class="flex items-center justify-end gap-2 pt-2">
         <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close>
           {{ copy["playlists.cancel"] }}
@@ -130,9 +141,13 @@
       </button>
     </div>
     <form action="#" method="post" enctype="multipart/form-data" class="space-y-3" id="edit-form">
-      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="title" id="edit-title" required />
-      <textarea class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-primary/30" name="description" maxlength="1024" rows="4" id="edit-description"></textarea>
-      <input class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0" type="file" name="image" accept="image/*" />
+      <input class="w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/40 text-on-surface font-body" name="title" id="edit-title" required />
+      <textarea class="w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/40 text-on-surface font-body resize-none" name="description" maxlength="1024" rows="4" id="edit-description"></textarea>
+      <label class="block w-full px-4 py-2.5 bg-surface-container-low rounded-lg border border-outline-variant/30 text-on-surface-variant text-sm font-body cursor-pointer hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined align-middle mr-1 text-outline" style="font-size:1rem;">image</span>
+        <span id="edit-file-label">{{ copy.get("playlists.choose_image", "Choose image (optional)") }}</span>
+        <input class="hidden" type="file" name="image" accept="image/*" id="edit-file-input" />
+      </label>
       <div class="flex items-center justify-end gap-2 pt-2">
         <button type="button" class="px-5 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-bold font-headline border-0 cursor-pointer" data-close>
           {{ copy["playlists.cancel"] }}
@@ -234,6 +249,26 @@
         if (e.target === modal) closeModal(modal);
       });
     });
+
+    // Custom file input label display
+    var createFileInput = document.getElementById('create-file-input');
+    var createFileLabel = document.getElementById('create-file-label');
+    if (createFileInput && createFileLabel) {
+      createFileInput.addEventListener('change', function () {
+        createFileLabel.textContent = createFileInput.files[0]
+          ? createFileInput.files[0].name
+          : '{{ copy.get("playlists.choose_image", "Choose image (optional)") }}';
+      });
+    }
+    var editFileInput = document.getElementById('edit-file-input');
+    var editFileLabel = document.getElementById('edit-file-label');
+    if (editFileInput && editFileLabel) {
+      editFileInput.addEventListener('change', function () {
+        editFileLabel.textContent = editFileInput.files[0]
+          ? editFileInput.files[0].name
+          : '{{ copy.get("playlists.choose_image", "Choose image (optional)") }}';
+      });
+    }
   })();
 </script>
 {% endblock %}

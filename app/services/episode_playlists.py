@@ -392,6 +392,39 @@ class EpisodePlaylistsService:
         await self.session.delete(item)
         await self.session.commit()
 
+    async def build_favorites_detail(
+        self,
+        user: UserModel,
+    ) -> EpisodePlaylistDetailPayload:
+        card = await self._build_favorites_card(user)
+        episodes = await self._list_favorites_episodes(user)
+        return EpisodePlaylistDetailPayload(card=card, episodes=episodes)
+
+    async def _list_favorites_episodes(
+        self, user: UserModel
+    ) -> list[PlaylistEpisodeRow]:
+        statement = (
+            select(EpisodeModel, PodcastFeedModel.title)
+            .join(
+                FavoriteEpisodeModel,
+                FavoriteEpisodeModel.episode_id == EpisodeModel.id,
+            )
+            .join(PodcastFeedModel, PodcastFeedModel.id == EpisodeModel.feed_id)
+            .where(FavoriteEpisodeModel.user_id == user.id)
+            .order_by(FavoriteEpisodeModel.created_at.desc())
+        )
+        rows = (await self.session.execute(statement)).all()
+        return [
+            PlaylistEpisodeRow(
+                episode_id=episode.id,
+                title=episode.title,
+                podcast_title=podcast_title,
+                released_at=_as_aware(episode.released_at),
+                logo_url=resolve_image_url(episode.logo_url, seed=episode.episode_url),
+            )
+            for episode, podcast_title in rows
+        ]
+
     async def add_episode_to_playlists(
         self,
         user: UserModel,
