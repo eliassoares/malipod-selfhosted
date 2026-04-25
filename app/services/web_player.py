@@ -100,11 +100,16 @@ class WebPlayerService:
         await self.get_or_create_web_device(user)
 
         occurred_at = payload.timestamp or datetime.now(UTC)
+        # gpodder uses "play" with started/position for progress; "pause"/"stop"
+        # are non-standard and ignored by clients like AntennaPod.
+        gpodder_action = (
+            "play" if payload.action in {"pause", "stop"} else payload.action
+        )
         action = EpisodeActionInput(
             podcast=podcast_url,
             episode=episode.episode_url,
             device=WEB_PLAYER_DEVICE_ID,
-            action=payload.action,
+            action=gpodder_action,
             timestamp=occurred_at,
             started=payload.started,
             position=payload.position,

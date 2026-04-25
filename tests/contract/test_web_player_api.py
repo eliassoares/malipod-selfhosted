@@ -152,6 +152,40 @@ def test_web_player_action_creates_device_and_inserts_event(client: TestClient) 
         assert int(stored_episode_id) == episode_id
 
 
+def test_web_player_pause_action_stored_as_play_for_gpodder_compat(
+    client: TestClient,
+) -> None:
+    register_user(client, nickname="listener_1")
+    api_login(client, nickname="listener_1")
+    episode_id = _seed_feed_and_episode()
+
+    response = client.post(
+        "/web/player/action",
+        json={
+            "episode_id": episode_id,
+            "action": "pause",
+            "started": 10,
+            "position": 120,
+            "total": 2000,
+        },
+    )
+    assert response.status_code == 200
+
+    db_path = _sqlite_path()
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT action, started, position "
+            "FROM episode_action_events "
+            "ORDER BY id DESC LIMIT 1"
+        )
+        row = cursor.fetchone()
+        # pause must be stored as play for gpodder compatibility
+        assert row[0] == "play"
+        assert row[1] == 10
+        assert row[2] == 120
+
+
 def test_web_player_state_clear_resets_user_fields(client: TestClient) -> None:
     register_user(client, nickname="listener_1")
     api_login(client, nickname="listener_1")

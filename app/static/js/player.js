@@ -339,15 +339,32 @@
   });
 
   window.addEventListener("beforeunload", function () {
+    var currentPos = Math.floor(audio.currentTime || 0);
     persistState({
       episodeId: state.episodeId,
-      positionSec: Math.floor(audio.currentTime || 0),
+      positionSec: currentPos,
       queueMode: state.queueMode,
       queueRefId: state.queueRefId,
       queueIds: state.queueIds,
       queueIndex: state.queueIndex,
       isPlaying: !audio.paused,
     });
+    if (state.episodeId && !audio.paused) {
+      var total = audio.duration;
+      if (Number.isFinite(total) && total > 0 && state.startedSec != null) {
+        var actionPayload = JSON.stringify({
+          episode_id: state.episodeId,
+          action: "pause",
+          started: state.startedSec,
+          position: currentPos,
+          total: Math.floor(total),
+        });
+        navigator.sendBeacon(
+          "/web/player/action",
+          new Blob([actionPayload], { type: "application/json" }),
+        );
+      }
+    }
   });
 
   document.querySelectorAll("[data-maliplayer-play-episode]").forEach(function (el) {
