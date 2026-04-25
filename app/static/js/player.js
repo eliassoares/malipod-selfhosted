@@ -346,6 +346,7 @@
       queueRefId: state.queueRefId,
       queueIds: state.queueIds,
       queueIndex: state.queueIndex,
+      isPlaying: !audio.paused,
     });
   });
 
@@ -442,6 +443,7 @@
     state.queueIds = Array.isArray(persisted.queueIds) ? persisted.queueIds : [];
     state.queueIndex = persisted.queueIndex || 0;
     var startSec = persisted.positionSec || 0;
-    loadEpisode(persisted.episodeId, startSec, null, true);
+    var wasPaused = !persisted.isPlaying;
+    loadEpisode(persisted.episodeId, startSec, null, wasPaused);
   }
 })();

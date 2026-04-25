@@ -1,6 +1,6 @@
 <div id="player-bar" class="fixed bottom-0 left-0 right-0 z-40">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-    <div class="glass-panel ambient-shadow border border-outline-variant/20 rounded-2xl p-3 sm:p-4">
+    <div class="bg-surface-container-highest shadow-lg border border-outline-variant/40 rounded-2xl p-3 sm:p-4">
       <audio id="maliplayer-audio" preload="metadata"></audio>
 
       <div class="flex items-center gap-3">
@@ -51,30 +51,30 @@
           <button
             id="maliplayer-rewind"
             type="button"
-            class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface flex items-center justify-center overflow-hidden"
             title="{{ copy.get('player.rewind_15', 'Rewind 15s') if copy is defined else 'Rewind 15s' }}"
           >
-            <span class="material-symbols-outlined">replay_15</span>
+            <span class="material-symbols-outlined" style="font-size:1.25rem;">replay_15</span>
           </button>
 
           <button
             id="maliplayer-play-pause"
             type="button"
-            class="w-12 h-12 rounded-full gradient-primary text-on-primary border-0 cursor-pointer flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all"
+            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full gradient-primary text-on-primary border-0 cursor-pointer flex items-center justify-center overflow-hidden hover:opacity-90 active:scale-[0.98] transition-all"
             title="{{ copy.get('player.play', 'Play') if copy is defined else 'Play' }}"
             data-label-play="{{ copy.get('player.play', 'Play') if copy is defined else 'Play' }}"
             data-label-pause="{{ copy.get('player.pause', 'Pause') if copy is defined else 'Pause' }}"
           >
-            <span id="maliplayer-play-icon" class="material-symbols-outlined">play_arrow</span>
+            <span id="maliplayer-play-icon" class="material-symbols-outlined" style="font-size:1.5rem;">play_arrow</span>
           </button>
 
           <button
             id="maliplayer-forward"
             type="button"
-            class="w-10 h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-surface-container transition-colors border-0 bg-transparent cursor-pointer text-on-surface flex items-center justify-center overflow-hidden"
             title="{{ copy.get('player.forward_30', 'Forward 30s') if copy is defined else 'Forward 30s' }}"
           >
-            <span class="material-symbols-outlined">forward_30</span>
+            <span class="material-symbols-outlined" style="font-size:1.25rem;">forward_30</span>
           </button>
         </div>
       </div>
