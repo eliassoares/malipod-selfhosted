@@ -485,13 +485,7 @@ class EpisodePlaylistsService:
             EpisodePlaylistItemModel.playlist_id == playlist_id
         )
         value = (await self.session.execute(statement)).scalar_one()
-        if value is not None:
-            return int(value) + 1
-        count_statement = select(func.count(EpisodePlaylistItemModel.id)).where(
-            EpisodePlaylistItemModel.playlist_id == playlist_id
-        )
-        count_value = (await self.session.execute(count_statement)).scalar_one()
-        return int(count_value or 0) + 1
+        return int(value) + 1 if value is not None else 1
 
     async def _max_positions_for_playlists(
         self, playlist_ids: set[int]

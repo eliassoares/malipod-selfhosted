@@ -45,8 +45,8 @@ class WebPlayerService:
             DeviceModel.device_id == WEB_PLAYER_DEVICE_ID,
         )
         device = (await self.session.execute(statement)).scalar_one_or_none()
-        now = datetime.now(UTC)
         if device is None:
+            now = datetime.now(UTC)
             device = DeviceModel(
                 user_id=user.id,
                 device_id=WEB_PLAYER_DEVICE_ID,
@@ -60,8 +60,6 @@ class WebPlayerService:
             await self.session.refresh(device)
             return device
 
-        device.updated_at = now
-        await self.session.commit()
         return device
 
     async def upsert_state(self, user: UserModel, payload: PlayerStateInput) -> None:

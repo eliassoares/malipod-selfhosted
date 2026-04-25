@@ -150,3 +150,78 @@ def test_web_player_action_creates_device_and_inserts_event(client: TestClient) 
         assert action == "play"
         assert device_id == "web-player"
         assert int(stored_episode_id) == episode_id
+
+
+def test_web_player_state_clear_resets_user_fields(client: TestClient) -> None:
+    register_user(client, nickname="listener_1")
+    api_login(client, nickname="listener_1")
+    episode_id = _seed_feed_and_episode()
+
+    client.post(
+        "/web/player/state",
+        json={
+            "episode_id": episode_id,
+            "position_sec": 30,
+            "queue_mode": "podcast",
+            "queue_ref_id": 1,
+        },
+    )
+
+    response = client.post("/web/player/state", json={"episode_id": None})
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+
+    page = client.get("/user/listener_1/playlists")
+    assert page.status_code == 200
+    assert "window.__PLAYER_STATE__ = null" in page.text
+
+
+def test_web_player_episode_info_returns_metadata(client: TestClient) -> None:
+    register_user(client, nickname="listener_1")
+    api_login(client, nickname="listener_1")
+    episode_id = _seed_feed_and_episode()
+
+    response = client.get(f"/web/episode/{episode_id}/info")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["episode_id"] == episode_id
+    assert data["episode_title"] == "Episode One"
+    assert data["podcast_title"] == "Example Podcast"
+    assert data["media_url"] == "https://example.com/audio-1.mp3"
+
+
+def test_web_player_state_requires_auth(client: TestClient) -> None:
+    response = client.post(
+        "/web/player/state",
+        json={
+            "episode_id": 1,
+            "position_sec": 10,
+            "queue_mode": "podcast",
+            "queue_ref_id": 1,
+        },
+    )
+    assert response.status_code == 401
+
+
+def test_web_player_action_requires_auth(client: TestClient) -> None:
+    response = client.post(
+        "/web/player/action",
+        json={
+            "episode_id": 1,
+            "action": "play",
+            "started": 0,
+            "position": 5,
+            "total": 120,
+        },
+    )
+    assert response.status_code == 401
+
+
+def test_web_player_next_requires_auth(client: TestClient) -> None:
+    response = client.get("/web/episode/1/next")
+    assert response.status_code == 401
+
+
+def test_web_player_info_requires_auth(client: TestClient) -> None:
+    response = client.get("/web/episode/1/info")
+    assert response.status_code == 401

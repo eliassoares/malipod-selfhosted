@@ -126,3 +126,32 @@ async def test_upsert_state_persists_last_state(
     assert user.last_position_sec == 99
     assert user.last_queue_mode == "podcast"
     assert user.last_queue_ref_id == episode.feed_id
+
+
+@pytest.mark.asyncio
+async def test_upsert_state_clears_last_state(
+    db_session: AsyncSession, settings: Settings
+) -> None:
+    user = await create_user(db_session, settings)
+    episode = await create_episode(db_session)
+    service = WebPlayerService(session=db_session, settings=settings)
+
+    await service.upsert_state(
+        user,
+        PlayerStateInput(
+            episode_id=episode.id,
+            position_sec=50,
+            queue_mode="podcast",
+            queue_ref_id=episode.feed_id,
+        ),
+    )
+    await db_session.refresh(user)
+    assert user.last_episode_id == episode.id
+
+    await service.upsert_state(user, PlayerStateInput(episode_id=None))
+    await db_session.refresh(user)
+
+    assert user.last_episode_id is None
+    assert user.last_position_sec is None
+    assert user.last_queue_mode is None
+    assert user.last_queue_ref_id is None
