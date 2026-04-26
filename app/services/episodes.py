@@ -284,6 +284,12 @@ class EpisodeService:
                 position=item.position,
                 total=item.total,
             )
+            if (
+                item.action == "play"
+                and item.position is not None
+                and episode.id == user.last_episode_id
+            ):
+                user.last_position_sec = item.position
 
         await self.session.commit()
         return EpisodeActionUploadResponse(
