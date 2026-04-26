@@ -23,6 +23,14 @@ class EpisodeActionInput(BaseModel):
     position: int | None = Field(default=None, ge=0)
     total: int | None = Field(default=None, ge=0)
 
+    @field_validator("started", "position", "total", mode="before")
+    @classmethod
+    def coerce_negative_to_none(cls, value: object) -> object:
+        # AntennaPod sends -1 as sentinel for "unknown/not tracked"
+        if isinstance(value, int) and value < 0:
+            return None
+        return value
+
     @field_validator("device")
     @classmethod
     def validate_device_field(cls, value: str | None) -> str | None:

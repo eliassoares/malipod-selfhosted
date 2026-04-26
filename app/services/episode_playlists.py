@@ -368,10 +368,12 @@ class EpisodePlaylistsService:
         ).scalar_one_or_none()
         if existing is not None:
             return
+        position = await self._next_item_position(playlist_id)
         self.session.add(
             EpisodePlaylistItemModel(
                 playlist_id=playlist_id,
                 episode_id=episode_id,
+                position=position,
                 created_at=datetime.now(UTC),
                 updated_at=datetime.now(UTC),
             )
@@ -460,19 +462,65 @@ class EpisodePlaylistsService:
         )
         existing_ids = {int(row[0]) for row in existing_result.all()}
 
+        max_positions = await self._max_positions_for_playlists(allowed_ids)
         now = datetime.now(UTC)
         for playlist_id in unique_ids:
             if playlist_id not in allowed_ids or playlist_id in existing_ids:
                 continue
+            position = max_positions.get(playlist_id, 0) + 1
+            max_positions[playlist_id] = position
             self.session.add(
                 EpisodePlaylistItemModel(
                     playlist_id=playlist_id,
                     episode_id=episode_id,
+                    position=position,
                     created_at=now,
                     updated_at=now,
                 )
             )
         await self.session.commit()
+
+    async def _next_item_position(self, playlist_id: int) -> int:
+        statement = select(func.max(EpisodePlaylistItemModel.position)).where(
+            EpisodePlaylistItemModel.playlist_id == playlist_id
+        )
+        value = (await self.session.execute(statement)).scalar_one()
+        return int(value) + 1 if value is not None else 1
+
+    async def _max_positions_for_playlists(
+        self, playlist_ids: set[int]
+    ) -> dict[int, int]:
+        if not playlist_ids:
+            return {}
+        statement = (
+            select(
+                EpisodePlaylistItemModel.playlist_id,
+                func.max(EpisodePlaylistItemModel.position).label("max_pos"),
+            )
+            .where(EpisodePlaylistItemModel.playlist_id.in_(playlist_ids))
+            .group_by(EpisodePlaylistItemModel.playlist_id)
+        )
+        rows = (await self.session.execute(statement)).all()
+        result: dict[int, int] = {int(pid): int(max_pos or 0) for pid, max_pos in rows}
+        for pid in playlist_ids:
+            result.setdefault(pid, 0)
+        return result
+
+    async def list_queue_episode_ids(
+        self, user: UserModel, playlist_id: int
+    ) -> list[int]:
+        playlist = await self.get_playlist(user, playlist_id)
+        statement = (
+            select(EpisodePlaylistItemModel.episode_id)
+            .where(EpisodePlaylistItemModel.playlist_id == playlist.id)
+            .order_by(
+                EpisodePlaylistItemModel.position.asc().nulls_last(),
+                EpisodePlaylistItemModel.created_at.asc(),
+                EpisodePlaylistItemModel.id.asc(),
+            )
+        )
+        rows = (await self.session.execute(statement)).all()
+        return [int(row.episode_id) for row in rows]
 
     async def save_image_upload(
         self,

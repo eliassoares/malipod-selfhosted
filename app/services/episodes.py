@@ -150,7 +150,7 @@ class EpisodeService:
     ) -> dict[str, Any] | None:
         if action == "new":
             return None
-        if action == "play":
+        if action in {"play", "pause"}:
             return {
                 "started": started,
                 "position": position,
@@ -284,6 +284,12 @@ class EpisodeService:
                 position=item.position,
                 total=item.total,
             )
+            if (
+                item.action == "play"
+                and item.position is not None
+                and episode.id == user.last_episode_id
+            ):
+                user.last_position_sec = item.position
 
         await self.session.commit()
         return EpisodeActionUploadResponse(

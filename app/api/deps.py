@@ -27,6 +27,7 @@ from app.services.subscriptions_page import SubscriptionsPageService
 from app.services.sync_devices import SyncDevicesService
 from app.services.user_data_tools import UserDataToolsService
 from app.services.user_stats import UserStatsService
+from app.services.web_player import WebPlayerService
 
 if TYPE_CHECKING:
     from app.db.models.user import UserModel
@@ -159,6 +160,13 @@ def get_user_stats_service(
     session: Annotated[Any, Depends(get_request_session)],
 ) -> UserStatsService:
     return UserStatsService(session=session)
+
+
+def get_web_player_service(
+    session: Annotated[Any, Depends(get_request_session)],
+    settings: Annotated[Settings, Depends(get_runtime_settings)],
+) -> WebPlayerService:
+    return WebPlayerService(session=session, settings=settings)
 
 
 async def get_current_user(

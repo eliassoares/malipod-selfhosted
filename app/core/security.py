@@ -14,7 +14,7 @@ DEVICE_ID_RE = re.compile(r"^[\w.-]+$")
 JSONP_CALLBACK_RE = re.compile(r"^[A-Za-z_$][\w.$]*$")
 
 SUBSCRIPTION_FORMATS = ("json", "opml", "txt")
-EPISODE_ACTION_TYPES = ("download", "delete", "play", "new", "flattr")
+EPISODE_ACTION_TYPES = ("download", "delete", "play", "pause", "stop", "new", "flattr")
 SETTINGS_SCOPES = ("account", "device", "podcast", "episode")
 
 PBKDF2_ALGORITHM = "sha256"
@@ -186,14 +186,15 @@ def validate_episode_progress(
     total: int | None,
 ) -> tuple[int | None, int | None, int | None]:
     values = (started, position, total)
-    if action == "play":
-        if any(value is None for value in values):
+    if action in {"play", "pause"}:
+        # All three must come together or none at all (gpodder fields are optional).
+        if any(v is not None for v in values) and any(v is None for v in values):
             raise ValueError(
-                "play actions require started, position, and total together"
+                "play/pause actions require started, position, and total together"
             )
         return values
     if any(value is not None for value in values):
-        raise ValueError("started, position, and total are only valid for play")
+        raise ValueError("started, position, and total are only valid for play/pause")
     return values
 
 

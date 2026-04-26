@@ -306,6 +306,7 @@ async def favorites_detail_page(
     ).effective_locale
     copy = localization_service.build_copy(locale)
     payload = await playlists_service.build_favorites_detail(owner)
+    queue_ids = [row.episode_id for row in payload.episodes]
     response = templates.TemplateResponse(
         request=request,
         name="playlists/detail.html",
@@ -318,6 +319,7 @@ async def favorites_detail_page(
             "current_user": owner,
             "nickname": nickname,
             "payload": payload,
+            "play_queue_ids": queue_ids,
             "error": error if error in _VALID_DETAIL_ERRORS else None,
             "success": success if success in _VALID_DETAIL_SUCCESSES else None,
         },
@@ -386,6 +388,8 @@ async def playlist_detail_page(
             detail=exc.code,
         ) from exc
 
+    queue_ids = await playlists_service.list_queue_episode_ids(owner, playlist_id)
+
     response = templates.TemplateResponse(
         request=request,
         name="playlists/detail.html",
@@ -398,6 +402,7 @@ async def playlist_detail_page(
             "current_user": owner,
             "nickname": nickname,
             "payload": payload,
+            "play_queue_ids": queue_ids,
             "error": error if error in _VALID_DETAIL_ERRORS else None,
             "success": success if success in _VALID_DETAIL_SUCCESSES else None,
         },

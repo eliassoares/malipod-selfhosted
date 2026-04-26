@@ -135,6 +135,32 @@
             </button>
           </form>
 
+          {% if episode.media_url %}
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all"
+            data-maliplayer-play-episode
+            data-episode-id="{{ episode.id }}"
+            data-feed-id="{{ episode.feed.id }}"
+            data-media-url="{{ episode.media_url }}"
+            data-episode-title="{{ episode.title }}"
+            data-podcast-title="{{ episode.feed.title }}"
+            data-cover-url="{{ episode_logo_url }}"
+            data-start-sec="{% if progress.position is not none %}{{ progress.position }}{% else %}0{% endif %}"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">play_arrow</span>
+            {{ copy.get("player.play", "Play") }}
+          </button>
+          {% else %}
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-bold font-headline opacity-40 cursor-not-allowed select-none"
+            title="{{ copy['episode_detail.download_unavailable'] }}"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">play_arrow</span>
+            {{ copy.get("player.play", "Play") }}
+          </span>
+          {% endif %}
+
           <button
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer"
             type="button"

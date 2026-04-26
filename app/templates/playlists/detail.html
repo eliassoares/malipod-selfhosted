@@ -20,6 +20,27 @@
         {% endif %}
       </div>
     </div>
+    <div class="flex items-center gap-2">
+      {% if play_queue_ids is defined and play_queue_ids | length > 0 %}
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all"
+        data-maliplayer-play-playlist
+        data-playlist-id="{{ payload.card.playlist_id }}"
+        data-episode-ids="{{ play_queue_ids | join(',') }}"
+      >
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">play_arrow</span>
+        {{ copy.get("playlists.play", "Play") }}
+      </button>
+      {% else %}
+      <span
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-bold font-headline opacity-40 cursor-not-allowed select-none"
+      >
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">play_arrow</span>
+        {{ copy.get("playlists.play", "Play") }}
+      </span>
+      {% endif %}
+    </div>
   </div>
 
   {% if error %}

@@ -48,7 +48,7 @@ def test_episode_action_input_rejects_invalid_progress_and_action() -> None:
             action="bookmark",
         )
 
-    with pytest.raises(ValidationError, match="play actions require"):
+    with pytest.raises(ValidationError, match="play/pause actions require"):
         EpisodeActionInput(
             podcast="https://example.com/feed.xml",
             episode="https://example.com/episode.mp3",
@@ -57,7 +57,7 @@ def test_episode_action_input_rejects_invalid_progress_and_action() -> None:
             position=120,
         )
 
-    with pytest.raises(ValidationError, match="only valid for play"):
+    with pytest.raises(ValidationError, match="only valid for play/pause"):
         EpisodeActionInput(
             podcast="https://example.com/feed.xml",
             episode="https://example.com/episode.mp3",
