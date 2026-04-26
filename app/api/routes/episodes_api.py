@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -24,8 +23,6 @@ from app.schemas.episode import (
 )
 from app.services.auth import AuthService
 from app.services.episodes import EpisodeService
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/2", tags=["Episodes API"])
 security = HTTPBasic(auto_error=False)
@@ -60,30 +57,12 @@ async def post_episode_actions(
     user = await authenticate_api_user(
         username, request, auth_service, settings, credentials
     )
-    logger.info(
-        "episode_actions_upload: user=%s count=%d payload=%s",
-        username,
-        len(payload),
-        payload,
-    )
     try:
         actions = [EpisodeActionInput.model_validate(item) for item in payload]
         result = await episode_service.upload_actions(user, actions)
     except ValidationError as exc:
-        logger.warning(
-            "episode_actions_upload validation error: user=%s error=%s payload=%s",
-            username,
-            exc.errors(),
-            payload,
-        )
         raise_bad_request(exc.errors()[0]["msg"])
     except ValueError as exc:
-        logger.warning(
-            "episode_actions_upload value error: user=%s error=%s payload=%s",
-            username,
-            str(exc),
-            payload,
-        )
         raise_bad_request(str(exc))
 
     return JSONResponse(
