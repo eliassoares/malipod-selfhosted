@@ -24,14 +24,22 @@
 
   function loadPersistedState() {
     var raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      var parsed = safeJsonParse(raw);
-      if (parsed && typeof parsed === "object") return parsed;
+    var fromStorage = raw ? safeJsonParse(raw) : null;
+    if (fromStorage && typeof fromStorage !== "object") fromStorage = null;
+    var fromServer =
+      window.__PLAYER_STATE__ && typeof window.__PLAYER_STATE__ === "object"
+        ? window.__PLAYER_STATE__
+        : null;
+    if (!fromStorage) return fromServer;
+    if (!fromServer) return fromStorage;
+    if (fromStorage.episodeId === fromServer.episodeId) {
+      var serverPos = fromServer.positionSec || 0;
+      var storedPos = fromStorage.positionSec || 0;
+      if (serverPos > storedPos) {
+        return Object.assign({}, fromStorage, { positionSec: serverPos });
+      }
     }
-    if (window.__PLAYER_STATE__ && typeof window.__PLAYER_STATE__ === "object") {
-      return window.__PLAYER_STATE__;
-    }
-    return null;
+    return fromStorage;
   }
 
   function persistState(state) {
