@@ -187,7 +187,8 @@ def validate_episode_progress(
 ) -> tuple[int | None, int | None, int | None]:
     values = (started, position, total)
     if action in {"play", "pause"}:
-        if any(value is None for value in values):
+        # All three must come together or none at all (gpodder fields are optional).
+        if any(v is not None for v in values) and any(v is None for v in values):
             raise ValueError(
                 "play/pause actions require started, position, and total together"
             )

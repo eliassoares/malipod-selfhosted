@@ -165,6 +165,26 @@ def test_post_episode_actions_contract_rejects_invalid_play_payload(
     assert "play/pause actions require" in response.json()["detail"]
 
 
+def test_post_episode_actions_accepts_play_without_progress_fields(
+    client: TestClient,
+) -> None:
+    register_user(client)
+
+    response = client.post(
+        "/api/2/episodes/listener_1.json",
+        auth=("listener_1", "supersecret"),
+        json=[
+            {
+                "podcast": "https://example.com/feed.xml",
+                "episode": "https://example.com/episode-1.mp3",
+                "action": "play",
+            }
+        ],
+    )
+
+    assert response.status_code == 200
+
+
 def test_get_episode_actions_contract_supports_since_and_filters(
     client: TestClient,
     settings: Settings,
