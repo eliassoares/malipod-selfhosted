@@ -105,9 +105,12 @@ class WebPlayerService:
         gpodder_action = (
             "play" if payload.action in {"pause", "stop"} else payload.action
         )
+        # AntennaPod identifies episodes by enclosure URL (media_url), not the
+        # RSS <link>/guid. Fall back to episode_url only if media_url is absent.
+        episode_identifier = episode.media_url or episode.episode_url
         action = EpisodeActionInput(
             podcast=podcast_url,
-            episode=episode.episode_url,
+            episode=episode_identifier,
             device=WEB_PLAYER_DEVICE_ID,
             action=gpodder_action,
             timestamp=occurred_at,
