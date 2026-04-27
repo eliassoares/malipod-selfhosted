@@ -122,12 +122,11 @@ def test_archive_enable_downloads_episode_to_disk(
 
     try:
         settings = get_settings()
-        feed_id, episode_id = seed_podcast(
-            settings, media_url=f"http://127.0.0.1:{port}/audio.mp3"
-        )
-
         with TestClient(create_app()) as client:
             register_and_login(client)
+            feed_id, episode_id = seed_podcast(
+                settings, media_url=f"http://127.0.0.1:{port}/audio.mp3"
+            )
 
             response = client.post(
                 f"/podcast/{feed_id}/archive", follow_redirects=False

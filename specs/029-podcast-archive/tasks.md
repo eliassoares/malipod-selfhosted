@@ -120,7 +120,7 @@
 - [X] T033 [P] Document environment variables in `.env.example` (`ARCHIVE_DIR`, `ARCHIVE_WORKERS`, `ARCHIVE_SYNC_INTERVAL_MINUTES`)
 - [X] T034 Update `docker-compose.yml` to mount archive volume (`./archive:/app/archive`)
 - [X] T035 Add/adjust UI copy for archive statuses in all supported locales in `app/core/localization.py`
-- [ ] T036 Run full verification (`uv run pytest`, `uv run ruff check .`, `uv run ruff format .`, `uv run mypy app/ tests/`, `uv run bandit -r app -c pyproject.toml`) and capture results in PR description
+- [X] T036 Run full verification (`uv run pytest`, `uv run ruff check .`, `uv run ruff format .`, `uv run mypy app/ tests/`, `uv run bandit -r app -c pyproject.toml`) and capture results in PR description
 - [ ] T037 Prepare PR summary referencing `specs/029-podcast-archive/quickstart.md`
 
 ---

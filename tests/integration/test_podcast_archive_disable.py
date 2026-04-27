@@ -48,9 +48,11 @@ async def test_disable_archive_resets_episode_fields_and_deletes_file(
     response = client.delete(f"/podcast/{feed.id}/archive", follow_redirects=False)
     assert response.status_code == 303
 
+    feed_id = feed.id
+    db_session.expire_all()
     refreshed_feed = (
         await db_session.execute(
-            select(PodcastFeedModel).where(PodcastFeedModel.id == feed.id)
+            select(PodcastFeedModel).where(PodcastFeedModel.id == feed_id)
         )
     ).scalar_one()
     assert refreshed_feed.archive is False

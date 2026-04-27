@@ -54,9 +54,12 @@ async def test_archive_enable_marks_feed_and_queues_episodes(
     assert response.status_code == 303
     assert response.headers["location"] == f"/podcast/{feed.id}"
 
+    feed_id = feed.id
+    episode_ids = [ep1.id, ep2.id]
+    db_session.expire_all()
     refreshed_feed = (
         await db_session.execute(
-            select(PodcastFeedModel).where(PodcastFeedModel.id == feed.id)
+            select(PodcastFeedModel).where(PodcastFeedModel.id == feed_id)
         )
     ).scalar_one()
     assert refreshed_feed.archive is True
@@ -64,11 +67,11 @@ async def test_archive_enable_marks_feed_and_queues_episodes(
     rows = (
         await db_session.execute(
             select(EpisodeModel.id, EpisodeModel.archive_status).where(
-                EpisodeModel.id.in_([ep1.id, ep2.id])
+                EpisodeModel.id.in_(episode_ids)
             )
         )
     ).all()
-    assert {row[0] for row in rows} == {ep1.id, ep2.id}
+    assert {row[0] for row in rows} == set(episode_ids)
     assert all(status == ARCHIVE_STATUS_QUEUED for _, status in rows)
 
 
@@ -108,9 +111,11 @@ async def test_archive_disable_clears_flags_and_removes_files(
     assert response.status_code == 303
     assert response.headers["location"] == f"/podcast/{feed.id}"
 
+    feed_id = feed.id
+    db_session.expire_all()
     refreshed_feed = (
         await db_session.execute(
-            select(PodcastFeedModel).where(PodcastFeedModel.id == feed.id)
+            select(PodcastFeedModel).where(PodcastFeedModel.id == feed_id)
         )
     ).scalar_one()
     assert refreshed_feed.archive is False
