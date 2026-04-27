@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 from sqlalchemy import select
 
+from app.core.media_url import normalize_media_url
 from app.core.placeholders import choose_placeholder_url_random
 from app.core.security import sanitize_subscription_url
 from app.db.models.podcast import EpisodeModel, PodcastFeedModel
@@ -492,6 +493,27 @@ class FeedImportService:
                         )
                     )
                 ).scalar_one_or_none()
+            if existing is None and episode.media_url:
+                # Stubs created from episode actions may store a tracking-wrapped URL
+                # (e.g. pscrb.fm, podtrac) as episode_url. Normalize both sides and
+                # compare to bridge the mismatch.
+                normalized_target = normalize_media_url(episode.media_url)
+                untitled_stubs = (
+                    (
+                        await self.session.execute(
+                            select(EpisodeModel).where(
+                                EpisodeModel.feed_id == feed_row.id,
+                                EpisodeModel.title == "Untitled episode",
+                            )
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                for stub in untitled_stubs:
+                    if normalize_media_url(stub.episode_url) == normalized_target:
+                        existing = stub
+                        break
             if existing is None:
                 self.session.add(
                     EpisodeModel(

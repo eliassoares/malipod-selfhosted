@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import selectinload
 
+from app.core.media_url import normalize_media_url
 from app.core.security import sanitize_episode_url
 from app.db.models.device import DeviceModel
 from app.db.models.podcast import (
@@ -92,15 +93,16 @@ class EpisodeService:
         episode_url: str,
         occurred_at: datetime,
     ) -> EpisodeModel:
+        canonical_url = normalize_media_url(episode_url)
         result = await self.session.execute(
-            select(EpisodeModel).where(EpisodeModel.episode_url == episode_url)
+            select(EpisodeModel).where(EpisodeModel.episode_url == canonical_url)
         )
         episode = result.scalar_one_or_none()
         if episode is None:
             result = await self.session.execute(
                 select(EpisodeModel).where(
                     EpisodeModel.feed_id == feed.id,
-                    EpisodeModel.media_url == episode_url,
+                    EpisodeModel.media_url == canonical_url,
                 )
             )
             episode = result.scalar_one_or_none()
@@ -108,7 +110,7 @@ class EpisodeService:
         if episode is None:
             episode = EpisodeModel(
                 feed_id=feed.id,
-                episode_url=episode_url,
+                episode_url=canonical_url,
                 title="Untitled episode",
                 description=None,
                 website=None,
