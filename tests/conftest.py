@@ -38,6 +38,9 @@ def isolate_environment(
     monkeypatch.setenv("SECRET_KEY", "a" * 32)
     monkeypatch.setenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
     monkeypatch.setenv("LOG_LEVEL", "INFO")
+    monkeypatch.setenv("ARCHIVE_DIR", str(tmp_path / "archive"))
+    monkeypatch.setenv("ARCHIVE_WORKERS", "1")
+    monkeypatch.setenv("ARCHIVE_SYNC_INTERVAL_MINUTES", "9999")
     clear_settings_cache()
     yield
     clear_settings_cache()

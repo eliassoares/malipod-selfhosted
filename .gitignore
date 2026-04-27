@@ -36,3 +36,4 @@ readiness.db
 *.tmp
 *.swp
 app/static/uploads/
+archive

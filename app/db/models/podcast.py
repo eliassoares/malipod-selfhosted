@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     DateTime,
     ForeignKey,
     Integer,
@@ -38,6 +39,12 @@ class PodcastFeedModel(Base):
         nullable=True,
         default=choose_placeholder_url_random,
         server_default="/static/placeholders/lilith.png",
+    )
+    archive: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
     )
     mygpo_link: Mapped[str | None] = mapped_column(String(512), nullable=True)
     categories: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
@@ -305,6 +312,14 @@ class EpisodeModel(Base):
         default=choose_placeholder_url_random,
         server_default="/static/placeholders/lilith.png",
     )
+    archive_status: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="none",
+        server_default="none",
+    )
+    archive_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    archive_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     released_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

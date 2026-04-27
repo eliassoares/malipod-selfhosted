@@ -99,6 +99,24 @@
           </a>
           {% endif %}
 
+          {% if not feed.archive %}
+          <form action="/podcast/{{ feed.id }}/archive" method="post">
+            <button class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-bold font-headline text-on-surface border-0 cursor-pointer" type="submit">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;">download</span>
+              {{ copy["podcast_archive.enable"] }}
+            </button>
+          </form>
+          {% else %}
+          <button
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-error/10 text-error text-sm font-bold font-headline hover:bg-error/15 transition-colors border-0 cursor-pointer"
+            type="button"
+            onclick="if(confirm('{{ copy['podcast_archive.disable_confirm'] }}')){fetch('/podcast/{{ feed.id }}/archive',{method:'DELETE'}).then(()=>window.location.reload());}"
+          >
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">delete</span>
+            {{ copy["podcast_archive.disable"] }}
+          </button>
+          {% endif %}
+
           {% if not is_subscribed %}
           <form action="/podcast/{{ feed.id }}/subscribe" method="post">
             <button class="inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-on-primary font-bold font-headline hover:opacity-90 active:scale-[0.98] transition-all border-0 cursor-pointer" type="submit">
@@ -191,6 +209,31 @@
               <span class="flex items-center gap-1 text-on-surface-variant">
                 <span class="material-symbols-outlined text-[14px]">headphones</span>
                 {{ episode.progress_pct }}%
+              </span>
+              {% endif %}
+
+              {% if episode.archive_status == "queued" %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold">
+                <span class="material-symbols-outlined text-[12px]">schedule</span>
+                {{ copy["podcast_archive.badge_queued"] }}
+              </span>
+              {% elif episode.archive_status == "downloading" %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold">
+                <span class="material-symbols-outlined text-[12px]">downloading</span>
+                {{ copy["podcast_archive.badge_downloading"] }}
+              </span>
+              {% elif episode.archive_status == "done" and episode.archive_path %}
+              <a
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/15 transition-colors"
+                href="/podcast/{{ feed.id }}/archive/episodes/{{ episode.id }}/file"
+              >
+                <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">download_done</span>
+                {{ copy["podcast_archive.open_file"] }}
+              </a>
+              {% elif episode.archive_status == "error" %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 text-error font-bold" title="{{ episode.archive_error or '' }}">
+                <span class="material-symbols-outlined text-[12px]">error</span>
+                {{ copy["podcast_archive.badge_error"] }}
               </span>
               {% endif %}
             </div>

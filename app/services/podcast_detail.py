@@ -46,6 +46,9 @@ class EpisodeCard:
     released_at: datetime
     logo_url: str
     description: str | None
+    archive_status: str = field(default="none")
+    archive_path: str | None = field(default=None)
+    archive_error: str | None = field(default=None)
     play_position: int | None = field(default=None)
     play_total: int | None = field(default=None)
 
@@ -162,6 +165,9 @@ class PodcastDetailService:
                     released_at=_normalize_timestamp(episode.released_at),
                     logo_url=logo_url,
                     description=episode.description,
+                    archive_status=episode.archive_status,
+                    archive_path=episode.archive_path,
+                    archive_error=episode.archive_error,
                     play_position=play_pos,
                     play_total=play_total,
                 )
