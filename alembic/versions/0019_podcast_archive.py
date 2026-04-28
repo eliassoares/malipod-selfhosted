@@ -31,7 +31,7 @@ def upgrade() -> None:
         "episodes",
         sa.Column(
             "archive_status",
-            sa.String(length=16),
+            sa.String(length=32),
             nullable=False,
             server_default="none",
         ),

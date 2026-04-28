@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import mimetypes
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -123,8 +124,9 @@ async def download_archived_episode(
             status_code=status.HTTP_404_NOT_FOUND, detail="file not found"
         )
 
+    media_type = mimetypes.guess_type(full_path.name)[0] or "application/octet-stream"
     return FileResponse(
         path=str(full_path),
         filename=full_path.name,
-        media_type="audio/mpeg",
+        media_type=media_type,
     )

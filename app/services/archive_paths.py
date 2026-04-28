@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import re
+import unicodedata
 from pathlib import Path
 
 _NON_SLUG_CHARS = re.compile(r"[^a-z0-9]+")
 
 
 def slugify_segment(value: str, *, fallback: str = "untitled") -> str:
-    cleaned = (value or "").strip().lower()
+    cleaned = (value or "").strip()
     if not cleaned:
         return fallback
+    cleaned = unicodedata.normalize("NFKD", cleaned).encode("ascii", "ignore").decode()
+    cleaned = cleaned.lower()
     cleaned = _NON_SLUG_CHARS.sub("-", cleaned)
     cleaned = cleaned.strip("-")
     return cleaned or fallback

@@ -9,6 +9,8 @@ from app.db.models.podcast import EpisodeModel, PodcastFeedModel
 from app.services.archive_paths import resolve_archive_path
 from app.services.archive_queue import (
     ARCHIVE_STATUS_DONE,
+    ARCHIVE_STATUS_DOWNLOADING,
+    ARCHIVE_STATUS_ERROR,
     ARCHIVE_STATUS_NONE,
     ARCHIVE_STATUS_QUEUED,
 )
@@ -35,10 +37,19 @@ class ArchiveCleanupService:
 
         feed.archive = False
 
+        active_statuses = (
+            ARCHIVE_STATUS_QUEUED,
+            ARCHIVE_STATUS_DOWNLOADING,
+            ARCHIVE_STATUS_DONE,
+            ARCHIVE_STATUS_ERROR,
+        )
         episodes = (
             (
                 await self.session.execute(
-                    select(EpisodeModel).where(EpisodeModel.feed_id == feed_id)
+                    select(EpisodeModel).where(
+                        EpisodeModel.feed_id == feed_id,
+                        EpisodeModel.archive_status.in_(active_statuses),
+                    )
                 )
             )
             .scalars()
@@ -47,14 +58,9 @@ class ArchiveCleanupService:
 
         archive_root = Path(self.settings.archive_dir)
         for episode in episodes:
-            if episode.archive_status == ARCHIVE_STATUS_QUEUED:
-                episode.archive_status = ARCHIVE_STATUS_NONE
-            elif episode.archive_status == ARCHIVE_STATUS_DONE and episode.archive_path:
+            if episode.archive_status == ARCHIVE_STATUS_DONE and episode.archive_path:
                 self._delete_episode_file(archive_root, episode.archive_path)
-                episode.archive_status = ARCHIVE_STATUS_NONE
-            else:
-                episode.archive_status = ARCHIVE_STATUS_NONE
-
+            episode.archive_status = ARCHIVE_STATUS_NONE
             episode.archive_path = None
             episode.archive_error = None
 

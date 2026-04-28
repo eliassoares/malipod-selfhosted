@@ -16,6 +16,7 @@ from app.services.archive_queue import (
     ARCHIVE_STATUS_DONE,
     ARCHIVE_STATUS_DOWNLOADING,
     ARCHIVE_STATUS_ERROR,
+    ARCHIVE_STATUS_NONE,
     ARCHIVE_STATUS_QUEUED,
     get_archive_queue,
 )
@@ -103,6 +104,14 @@ class ArchiveWorker:
                             if chunk:
                                 handle.write(chunk)
                 tmp_path.replace(full_path)
+
+                await session.refresh(feed)
+                if not feed.archive:
+                    full_path.unlink(missing_ok=True)
+                    episode.archive_status = ARCHIVE_STATUS_NONE
+                    episode.archive_error = None
+                    await session.commit()
+                    return
 
                 episode.archive_status = ARCHIVE_STATUS_DONE
                 episode.archive_path = relpath

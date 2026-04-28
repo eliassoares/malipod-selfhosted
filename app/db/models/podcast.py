@@ -313,7 +313,7 @@ class EpisodeModel(Base):
         server_default="/static/placeholders/lilith.png",
     )
     archive_status: Mapped[str] = mapped_column(
-        String(16),
+        String(32),
         nullable=False,
         default="none",
         server_default="none",

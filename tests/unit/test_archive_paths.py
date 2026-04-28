@@ -14,7 +14,7 @@ from app.services.archive_paths import (
 
 def test_slugify_segment_normalizes_text() -> None:
     assert slugify_segment("  Hello, World! ") == "hello-world"
-    assert slugify_segment("Áudio & Café") == "udio-caf"
+    assert slugify_segment("Áudio & Café") == "audio-cafe"
 
 
 def test_slugify_segment_falls_back_when_empty() -> None:
