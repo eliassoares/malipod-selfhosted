@@ -35,5 +35,6 @@ htmlcov
 readiness.db
 *.tmp
 *.swp
+temp/
 app/static/uploads/
 archive

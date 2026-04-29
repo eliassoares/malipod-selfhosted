@@ -9,6 +9,8 @@ podcast synchronization server. It implements the full gpodder.net v2 API, enabl
 podcast apps like AntennaPod to sync subscriptions, episode actions, and device
 state across multiple clients.
 
+![Malipod Selfhosted demo](docs/demo.gif)
+
 ## Features
 
 ### Podcast app sync (gpodder.net v2 API)
