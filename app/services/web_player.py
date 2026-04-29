@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 
 from app.core.placeholders import resolve_image_url
 from app.db.models.device import DeviceModel
@@ -40,14 +41,10 @@ class WebPlayerService:
         self.episode_service = EpisodeService(session)
 
     async def get_or_create_web_device(self, user: UserModel) -> DeviceModel:
-        statement = select(DeviceModel).where(
-            DeviceModel.user_id == user.id,
-            DeviceModel.device_id == WEB_PLAYER_DEVICE_ID,
-        )
-        device = (await self.session.execute(statement)).scalar_one_or_none()
-        if device is None:
-            now = datetime.now(UTC)
-            device = DeviceModel(
+        now = datetime.now(UTC)
+        stmt = (
+            insert(DeviceModel)
+            .values(
                 user_id=user.id,
                 device_id=WEB_PLAYER_DEVICE_ID,
                 caption=WEB_PLAYER_DEVICE_CAPTION,
@@ -55,11 +52,19 @@ class WebPlayerService:
                 created_at=now,
                 updated_at=now,
             )
-            self.session.add(device)
-            await self.session.commit()
-            await self.session.refresh(device)
-            return device
+            .on_conflict_do_nothing(constraint="uq_devices_user_id_device_id")
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
 
+        device = (
+            await self.session.execute(
+                select(DeviceModel).where(
+                    DeviceModel.user_id == user.id,
+                    DeviceModel.device_id == WEB_PLAYER_DEVICE_ID,
+                )
+            )
+        ).scalar_one()
         return device
 
     async def upsert_state(self, user: UserModel, payload: PlayerStateInput) -> None:
