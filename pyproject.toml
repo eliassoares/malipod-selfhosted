@@ -6,10 +6,6 @@ readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [{ name = "Elias Soares", email = "eliassbsoares@gmail.com" }]
-
-[project.urls]
-Repository = "https://github.com/eliassoares/malipod-selfhosted"
-Issues = "https://github.com/eliassoares/malipod-selfhosted/issues"
 dependencies = [
     "alembic==1.16.5",
     "asyncpg==0.30.0",
@@ -25,6 +21,10 @@ dependencies = [
     "uvicorn==0.35.0",
     "gunicorn>=25.3.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/eliassoares/malipod-selfhosted"
+Issues = "https://github.com/eliassoares/malipod-selfhosted/issues"
 
 [dependency-groups]
 dev = [
