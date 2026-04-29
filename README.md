@@ -1,5 +1,9 @@
 # Malipod
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/eliassoares/malipod-selfhosted/actions/workflows/ci.yml/badge.svg)](https://github.com/eliassoares/malipod-selfhosted/actions/workflows/ci.yml)
+
 Malipod is a self-hosted [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
 podcast synchronization server. It implements the full gpodder.net v2 API, enabling
 podcast apps like AntennaPod to sync subscriptions, episode actions, and device
