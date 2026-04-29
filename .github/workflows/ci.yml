@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-and-typecheck:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run linter
+        run: uv run ruff check .
+
+      - name: Check code formatting
+        run: uv run ruff format --check .
+
+      - name: Run type checker
+        run: uv run mypy app/
+
+  sast:
+    name: SAST
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run bandit
+        run: uv run bandit -r app/ -ll -c pyproject.toml
+
+      - name: Run pip-audit
+        run: uv run pip-audit --ignore-vuln GHSA-58qw-9mgm-455v
+
+  test:
+    name: Test (unit + contract)
+    runs-on: ubuntu-latest
+    needs: sast
+
+    env:
+      SECRET_KEY: "ci-secret-key-minimum-32-characters-long"
+      DATABASE_URL: "sqlite+aiosqlite:///./test.db"
+      TEST_DATABASE_URL: "sqlite+aiosqlite:///./test.db"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run unit and contract tests
+        run: uv run pytest tests/unit tests/contract -v --tb=short
+
+  test-integration:
+    name: Test (integration / PostgreSQL)
+    runs-on: ubuntu-latest
+    needs: sast
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: malipod
+          POSTGRES_PASSWORD: malipod
+          POSTGRES_DB: malipod_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: "ci-secret-key-minimum-32-characters-long"
+      DATABASE_URL: "postgresql+asyncpg://malipod:malipod@localhost:5432/malipod_test"
+      TEST_DATABASE_URL: "postgresql+asyncpg://malipod:malipod@localhost:5432/malipod_test"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run integration tests
+        run: uv run pytest tests/integration -v --tb=short
