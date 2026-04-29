@@ -194,6 +194,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.unsubscribe": "Unsubscribe",
         "podcast_detail.favorite": "Favorite",
         "podcast_detail.unfavorite": "Unfavorite",
+        "podcast_archive.enable": "Download all episodes",
+        "podcast_archive.disable": "Cancel archive",
+        "podcast_archive.disable_confirm": (
+            "This will delete downloaded files and cannot be undone."
+        ),
+        "podcast_archive.badge_queued": "Queued",
+        "podcast_archive.badge_downloading": "Downloading…",
+        "podcast_archive.badge_done": "Downloaded",
+        "podcast_archive.badge_error": "Error",
+        "podcast_archive.open_file": "Open file",
         "episode_detail.not_found_title": "Episode not found",
         "episode_detail.not_found_description": (
             "This episode does not exist or is not available."
@@ -481,6 +491,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.unsubscribe": "Cancelar suscripción",
         "podcast_detail.favorite": "Favorito",
         "podcast_detail.unfavorite": "Quitar favorito",
+        "podcast_archive.enable": "Descargar todos los episodios",
+        "podcast_archive.disable": "Cancelar archivo",
+        "podcast_archive.disable_confirm": (
+            "Esto eliminará los archivos descargados y no se puede deshacer."
+        ),
+        "podcast_archive.badge_queued": "En cola",
+        "podcast_archive.badge_downloading": "Descargando…",
+        "podcast_archive.badge_done": "Descargado",
+        "podcast_archive.badge_error": "Error",
+        "podcast_archive.open_file": "Abrir archivo",
         "episode_detail.not_found_title": "Episodio no encontrado",
         "episode_detail.not_found_description": (
             "Este episodio no existe o no está disponible."
@@ -776,6 +796,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "podcast_detail.unsubscribe": "Desinscrever",
         "podcast_detail.favorite": "Favoritar",
         "podcast_detail.unfavorite": "Remover favorito",
+        "podcast_archive.enable": "Baixar todos os episódios",
+        "podcast_archive.disable": "Cancelar arquivamento",
+        "podcast_archive.disable_confirm": (
+            "Isso vai apagar os arquivos baixados e não pode ser desfeito."
+        ),
+        "podcast_archive.badge_queued": "Na fila",
+        "podcast_archive.badge_downloading": "Baixando…",
+        "podcast_archive.badge_done": "Baixado",
+        "podcast_archive.badge_error": "Erro",
+        "podcast_archive.open_file": "Abrir arquivo",
         "episode_detail.not_found_title": "Episódio não encontrado",
         "episode_detail.not_found_description": (
             "Esse episódio não existe ou não está disponível."

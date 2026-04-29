@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
@@ -20,6 +21,7 @@ from app.api.routes.episodes_api import router as episodes_api_router
 from app.api.routes.favorites_api import router as favorites_api_router
 from app.api.routes.health import router as health_router
 from app.api.routes.lists_api import router as lists_api_router
+from app.api.routes.podcast_archive_site import router as podcast_archive_site_router
 from app.api.routes.podcast_site import router as podcast_site_router
 from app.api.routes.profile_site import router as profile_site_router
 from app.api.routes.settings_api import router as settings_api_router
@@ -32,7 +34,13 @@ from app.api.routes.sync_devices_api import router as sync_devices_api_router
 from app.api.routes.web_player_site import router as web_player_api_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
-from app.db.session import close_database_connections, initialize_database
+from app.db.session import (
+    close_database_connections,
+    get_session_factory,
+    initialize_database,
+)
+from app.services.archive_scheduler import start_scheduler
+from app.services.archive_worker import build_workers
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -43,9 +51,20 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings.log_level)
     await initialize_database(settings)
+    session_factory = get_session_factory(settings)
+    worker_tasks = build_workers(session_factory=session_factory, settings=settings)
+    scheduler_task = start_scheduler(session_factory=session_factory, settings=settings)
     try:
         yield
     finally:
+        scheduler_task.cancel()
+        for task in worker_tasks:
+            task.cancel()
+        with suppress(asyncio.CancelledError):
+            await scheduler_task
+        for task in worker_tasks:
+            with suppress(asyncio.CancelledError):
+                await task
         await close_database_connections()
 
 
@@ -63,6 +82,7 @@ def create_app() -> FastAPI:
     app.include_router(subscriptions_site_router, include_in_schema=False)
     app.include_router(episode_playlists_site_router, include_in_schema=False)
     app.include_router(stats_site_router, include_in_schema=False)
+    app.include_router(podcast_archive_site_router, include_in_schema=False)
     app.include_router(podcast_site_router, include_in_schema=False)
     app.include_router(episode_site_router, include_in_schema=False)
     app.include_router(health_router)

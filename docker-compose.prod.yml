@@ -5,3 +5,5 @@ services:
       - .env.prod
     network_mode: host
     restart: unless-stopped
+    volumes:
+      - ./archive:/app/archive

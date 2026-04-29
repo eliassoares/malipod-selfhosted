@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     supported_locales: list[str] = Field(
         default_factory=lambda: list(SUPPORTED_LOCALE_CODES)
     )
+    archive_dir: str = Field(default="archive")
+    archive_workers: int = Field(default=2)
+    archive_sync_interval_minutes: int = Field(default=60)
 
     @field_validator("allowed_hosts", mode="before")
     @classmethod
@@ -72,6 +75,27 @@ class Settings(BaseSettings):
     def validate_session_ttl(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("session_ttl_seconds must be greater than zero")
+        return value
+
+    @field_validator("archive_dir")
+    @classmethod
+    def validate_archive_dir(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("archive_dir must not be empty")
+        return value.strip()
+
+    @field_validator("archive_workers")
+    @classmethod
+    def validate_archive_workers(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("archive_workers must be greater than zero")
+        return value
+
+    @field_validator("archive_sync_interval_minutes")
+    @classmethod
+    def validate_archive_sync_interval_minutes(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("archive_sync_interval_minutes must be greater than zero")
         return value
 
     @field_validator("default_locale")
