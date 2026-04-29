@@ -150,28 +150,15 @@ values are missing or insecure.
 
 ## Run Locally
 
-### Development (Docker)
+### Docker (recommended)
 
-Starts the app with hot-reload and a managed PostgreSQL container. Dev
-dependencies (pytest, ruff, mypy, etc.) are included in the image.
-
-```bash
-cp .env.example .env   # adjust values if needed
-make dev-up
-make dev-logs          # optional: tail logs
-make dev-down          # stop
-```
-
-### Production (Docker)
-
-Connects to an existing PostgreSQL instance — no database container is started.
-Only runtime dependencies are installed in the image.
+Starts the app and a managed PostgreSQL container with a single command.
 
 ```bash
-cp .env.prod.example .env.prod   # fill in DATABASE_URL and SECRET_KEY
-make prod-up
-make prod-logs                   # optional: tail logs
-make prod-down                   # stop
+cp .env.example .env   # set DATABASE_URL and SECRET_KEY
+make up
+make logs              # optional: tail logs
+make down              # stop
 ```
 
 ### Local process (no Docker)
