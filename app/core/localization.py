@@ -252,9 +252,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
-            "Malipod is a self-hosted gpodder-compatible server to sync "
-            "subscriptions, episodes, and progress across devices — "
-            "with privacy and control."
+            "Malipod is a gpodder-compatible server to sync "
+            "subscriptions, episodes, and progress across all your devices."
         ),
         "home.card_sync_title": "Synchronization",
         "home.card_sync_description": (
@@ -551,9 +550,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
-            "Malipod es un servidor self-hosted compatible con gpodder "
-            "para sincronizar suscripciones, episodios y progreso entre "
-            "dispositivos — con privacidad y control."
+            "Malipod es un servidor compatible con gpodder para "
+            "sincronizar suscripciones, episodios y progreso entre todos "
+            "tus dispositivos."
         ),
         "home.card_sync_title": "Sincronización",
         "home.card_sync_description": (
@@ -856,9 +855,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (
-            "O Malipod é um servidor self-hosted compatível com gpodder "
-            "para sincronizar assinaturas, episódios e progresso entre "
-            "dispositivos — com privacidade e controle."
+            "O Malipod é um servidor compatível com gpodder para "
+            "sincronizar assinaturas, episódios e progresso em todos os "
+            "seus dispositivos."
         ),
         "home.card_sync_title": "Sincronização",
         "home.card_sync_description": (
