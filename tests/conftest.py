@@ -29,7 +29,7 @@ def isolate_environment(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> Iterator[None]:
     database_path = tmp_path / "test.sqlite3"
-    monkeypatch.setenv("APP_NAME", "Malipod Test")
+    monkeypatch.setenv("APP_NAME", "Malipod Selfhosted Test")
     monkeypatch.setenv("ENVIRONMENT", "test")
     monkeypatch.setenv(
         "DATABASE_URL", "postgresql+asyncpg://ignored:ignored@localhost:5432/ignored"

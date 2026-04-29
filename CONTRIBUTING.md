@@ -1,4 +1,4 @@
-# Contributing to Malipod
+# Contributing to Malipod Selfhosted
 
 Thank you for your interest in contributing!
 

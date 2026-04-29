@@ -225,7 +225,7 @@ class SubscriptionFormatService:
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<opml version="1.0">\n'
             "  <head>\n"
-            "    <title>Malipod subscriptions</title>\n"
+            "    <title>Malipod Selfhosted subscriptions</title>\n"
             "  </head>\n"
             "  <body>\n"
             f"{outline_block}\n"
