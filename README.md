@@ -1,6 +1,6 @@
 # Malipod
 
-Malipod is a [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
+Malipod is a self-hosted [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
 podcast synchronization server. It implements the full gpodder.net v2 API, enabling
 podcast apps like AntennaPod to sync subscriptions, episode actions, and device
 state across multiple clients.
@@ -89,6 +89,7 @@ backup of your listening history.
 
 ### Privacy and data control
 
+Malipod is self-hosted — your listening history never leaves your server.
 The Settings page provides two irreversible deletion options:
 
 - **Delete data** — removes all episode actions, subscriptions, favorites, and

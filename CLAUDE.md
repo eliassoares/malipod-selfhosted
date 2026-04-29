@@ -2,7 +2,7 @@
 
 ## Project
 
-gpodder.net-compatible podcast sync server with a full web UI.
+Self-hosted gpodder.net-compatible podcast sync server with a full web UI.
 
 - **Stack**: Python 3.13, FastAPI, SQLAlchemy 2.x (async), Alembic, Pydantic Settings, Jinja2 + Tailwind CSS
 - **DB**: PostgreSQL (prod/dev) · SQLite via aiosqlite (tests only)
