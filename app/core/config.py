@@ -19,7 +19,7 @@ class Settings(BaseSettings):
         enable_decoding=False,
     )
 
-    app_name: str = Field(default="Malipod")
+    app_name: str = Field(default="Malipod Selfhosted")
     environment: Literal["local", "test", "production"] = Field(default="local")
     database_url: str
     test_database_url: str = Field(default="sqlite+aiosqlite:///./test.db")

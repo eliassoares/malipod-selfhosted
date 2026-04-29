@@ -7,7 +7,7 @@ DEFAULT_LOCALE_CODE = "en"
 
 TRANSLATIONS: dict[str, dict[str, str]] = {
     "en": {
-        "brand": "Malipod",
+        "brand": "Malipod Selfhosted",
         "nav.home": "Home",
         "nav.register": "Register",
         "nav.login": "Login",
@@ -19,7 +19,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "language.label": "Language",
         "register.title": "Create your account",
         "register.subtitle": (
-            "Create your Malipod account to sync your podcasts everywhere."
+            "Create your Malipod Selfhosted account to sync your podcasts everywhere."
         ),
         "register.nickname": "Nickname",
         "register.email": "Email",
@@ -252,7 +252,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sync your podcasts",
         "home.hero_title_highlight": "on any app",
         "home.hero_description": (
-            "Malipod is a self-hosted gpodder-compatible server to sync "
+            "Malipod Selfhosted is a self-hosted gpodder-compatible server to sync "
             "subscriptions, episodes, and progress across devices — "
             "with privacy and control."
         ),
@@ -274,7 +274,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.step1_description": "Register and set your nickname.",
         "home.step2_title": "Connect your app",
         "home.step2_description": (
-            "Use your Malipod credentials in your gpodder-compatible client."
+            "Use your Malipod Selfhosted credentials in your gpodder-compatible client."
         ),
         "home.step3_title": "Sync",
         "home.step3_description": (
@@ -293,7 +293,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "home.feature_control_title": "Control",
         "home.feature_control_description": (
-            "Use Malipod as your sync foundation and evolve with "
+            "Use Malipod Selfhosted as your sync foundation and evolve with "
             "features like lists and a local directory."
         ),
         "home.feature_multidevice_title": "Multi-device",
@@ -302,7 +302,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
     },
     "es": {
-        "brand": "Malipod",
+        "brand": "Malipod Selfhosted",
         "nav.home": "Inicio",
         "nav.register": "Registro",
         "nav.login": "Entrar",
@@ -314,8 +314,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "language.label": "Idioma",
         "register.title": "Crea tu cuenta",
         "register.subtitle": (
-            "Crea tu cuenta de Malipod para sincronizar tus podcasts en todos "
-            "tus dispositivos."
+            "Crea tu cuenta de Malipod Selfhosted para sincronizar "
+            "tus podcasts en todos tus dispositivos."
         ),
         "register.nickname": "Nickname",
         "register.email": "Correo electrónico",
@@ -551,7 +551,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sincroniza tus podcasts",
         "home.hero_title_highlight": "en cualquier app",
         "home.hero_description": (
-            "Malipod es un servidor self-hosted compatible con gpodder "
+            "Malipod Selfhosted es un servidor self-hosted compatible con gpodder "
             "para sincronizar suscripciones, episodios y progreso entre "
             "dispositivos — con privacidad y control."
         ),
@@ -574,7 +574,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.step1_description": "Regístrate y define tu nickname.",
         "home.step2_title": "Conecta tu app",
         "home.step2_description": (
-            "Usa tus credenciales de Malipod en tu cliente compatible con gpodder."
+            "Usa tus credenciales de Malipod Selfhosted en tu "
+            "cliente compatible con gpodder."
         ),
         "home.step3_title": "Sincroniza",
         "home.step3_description": (
@@ -594,7 +595,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "home.feature_control_title": "Control",
         "home.feature_control_description": (
-            "Usa Malipod como base de sincronización y evoluciona con "
+            "Usa Malipod Selfhosted como base de sincronización y evoluciona con "
             "funciones como listas y directorio local."
         ),
         "home.feature_multidevice_title": "Multi-dispositivo",
@@ -604,7 +605,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
     },
     "pt-BR": {
-        "brand": "Malipod",
+        "brand": "Malipod Selfhosted",
         "nav.home": "Início",
         "nav.register": "Cadastro",
         "nav.login": "Entrar",
@@ -616,8 +617,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "language.label": "Idioma",
         "register.title": "Crie sua conta",
         "register.subtitle": (
-            "Crie sua conta no Malipod para sincronizar seus podcasts em todos "
-            "os seus dispositivos."
+            "Crie sua conta no Malipod Selfhosted para sincronizar "
+            "seus podcasts em todos os seus dispositivos."
         ),
         "register.nickname": "Nickname",
         "register.email": "E-mail",
@@ -856,7 +857,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.hero_title_prefix": "Sincronize seus podcasts",
         "home.hero_title_highlight": "em qualquer app",
         "home.hero_description": (
-            "O Malipod é um servidor self-hosted compatível com gpodder "
+            "O Malipod Selfhosted é um servidor self-hosted compatível com gpodder "
             "para sincronizar assinaturas, episódios e progresso entre "
             "dispositivos — com privacidade e controle."
         ),
@@ -878,7 +879,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "home.step1_description": "Cadastre-se e defina seu nickname.",
         "home.step2_title": "Conecte no seu app",
         "home.step2_description": (
-            "Use as credenciais do Malipod no seu cliente compatível com gpodder."
+            "Use as credenciais do Malipod Selfhosted no seu "
+            "cliente compatível com gpodder."
         ),
         "home.step3_title": "Sincronize",
         "home.step3_description": (
@@ -897,7 +899,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "home.feature_control_title": "Controle",
         "home.feature_control_description": (
-            "Use o Malipod como base para sincronização e evolua com "
+            "Use o Malipod Selfhosted como base para sincronização e evolua com "
             "recursos como listas e diretório local."
         ),
         "home.feature_multidevice_title": "Multi-dispositivo",

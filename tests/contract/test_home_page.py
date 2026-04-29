@@ -38,7 +38,7 @@ def test_home_page_logged_out_shows_login_register_and_no_logout(
 
     assert response.status_code == 200
     html = response.text
-    assert "Malipod" in html
+    assert "Malipod Selfhosted" in html
     assert "/register" in html
     assert "/login" in html
     assert 'action="/logout"' not in html
@@ -56,7 +56,7 @@ def test_home_page_logged_in_shows_logout_and_hides_login_register(
 
     assert response.status_code == 200
     html = response.text
-    assert "Malipod" in html
+    assert "Malipod Selfhosted" in html
     assert 'action="/logout"' in html
     assert "/register" not in html
     assert "/login" not in html

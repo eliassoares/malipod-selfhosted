@@ -69,7 +69,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Malipod", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Malipod Selfhosted", version="0.1.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

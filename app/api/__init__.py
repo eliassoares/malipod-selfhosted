@@ -1,1 +1,1 @@
-"""API package for Malipod."""
+"""API package for Malipod Selfhosted."""

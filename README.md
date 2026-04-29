@@ -1,10 +1,10 @@
-# Malipod
+# Malipod Selfhosted
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![CI](https://github.com/eliassoares/malipod-selfhosted/actions/workflows/ci.yml/badge.svg)](https://github.com/eliassoares/malipod-selfhosted/actions/workflows/ci.yml)
 
-Malipod is a self-hosted [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
+Malipod Selfhosted is a self-hosted [gpodder.net](https://gpoddernet.readthedocs.io/en/latest/api/index.html)-compatible
 podcast synchronization server. It implements the full gpodder.net v2 API, enabling
 podcast apps like AntennaPod to sync subscriptions, episode actions, and device
 state across multiple clients.
@@ -13,15 +13,15 @@ state across multiple clients.
 
 ### Podcast app sync (gpodder.net v2 API)
 
-Malipod is a drop-in replacement for gpodder.net. Any app that supports the
-gpodder.net v2 API — including AntennaPod — can point to your Malipod instance
+Malipod Selfhosted is a drop-in replacement for gpodder.net. Any app that supports the
+gpodder.net v2 API — including AntennaPod — can point to your Malipod Selfhosted instance
 and sync subscriptions, episode progress, and device state across all your
 devices without sending any data to third-party servers.
 
 ### Add podcasts by URL
 
 On the Subscriptions page, paste any RSS/Atom feed URL into the "Add podcast"
-field and click **Add**. Malipod fetches and imports the feed metadata in the
+field and click **Add**. Malipod Selfhosted fetches and imports the feed metadata in the
 background, then adds the podcast to your library. The episode list, artwork,
 author, and description are all stored locally.
 
@@ -88,12 +88,12 @@ From the Settings page, you can:
 - **Import** — restore from a previously exported snapshot, merging the data
   into your current account.
 
-This makes it easy to migrate between Malipod instances or keep an offline
+This makes it easy to migrate between Malipod Selfhosted instances or keep an offline
 backup of your listening history.
 
 ### Privacy and data control
 
-Malipod is self-hosted — your listening history never leaves your server.
+Malipod Selfhosted is self-hosted — your listening history never leaves your server.
 The Settings page provides two irreversible deletion options:
 
 - **Delete data** — removes all episode actions, subscriptions, favorites, and
@@ -184,7 +184,7 @@ make run
 
 ## gpodder.net API Compatibility
 
-Malipod implements the [gpodder.net v2 API](https://gpoddernet.readthedocs.io/en/latest/api/index.html).
+Malipod Selfhosted implements the [gpodder.net v2 API](https://gpoddernet.readthedocs.io/en/latest/api/index.html).
 All endpoints send `Access-Control-Allow-Origin: *` for CORS compatibility.
 
 ### Authentication API (v2.10)

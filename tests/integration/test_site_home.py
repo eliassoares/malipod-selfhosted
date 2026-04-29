@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 def test_home_page_renders(client: TestClient) -> None:
     response = client.get("/")
     assert response.status_code == 200
-    assert "Malipod Test" in response.text
+    assert "Malipod Selfhosted Test" in response.text
     assert "Sync your podcasts" in response.text
     assert "/register" in response.text
     assert "/login" in response.text
